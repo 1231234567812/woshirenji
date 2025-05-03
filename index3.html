@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>flex布局测试</title>
+    <style>
+
+    .anniu{
+        width: 170px;
+    height: 60px;
+    border-radius: 17% 15% 21% 16% / 50% 53% 52% 50%;
+    box-shadow: 0px -23px 25px 0px rgb(0 0 0 / 17%) inset, 0px -36px 30px 0px rgb(0 0 0 / 15%) inset, 0px 2px 1px 0px rgb(0 0 0 / 6%), 0px 4px 2px 0px rgb(0 0 0 / 9%), 0px 8px 4px 0px rgb(0 0 0 / 9%), 0px 16px 8px 0px rgb(0 0 0 / 9%), 0px 32px 16px 0px rgb(0 0 0 / 9%);
+    background-color: azure;
+    cursor: pointer;
+    user-select: none;
+    font-weight: bold;
+    }
+    .anniu:hover{
+        background-color: blue;
+    }
+    body{
+    margin:0;
+    height:100vh;
+    background-color: #eee;
+    }
+
+
+    .yinying{
+        box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.4) ,0px 7px 13px -3px rgba(0, 0, 0, 0.3) ,0px -3px 0px 0px rgba(0, 0, 0, 0.2) inset;
+    }
+    .flex{
+        display: flex;
+    }
+    .baise{
+        background-color: white;
+    }
+    .flex1{
+        flex: 1;
+    }
+    .column{
+        flex-direction: column;
+    }
+    .mg8{
+        margin: 8px;
+    }
+    .mgr8{
+        margin-right: 8px;
+    }
+    .mgt8{
+        margin-top: 8px;
+    }
+    .daohang{
+        padding: 10px 20px;
+        border-bottom: 1px solid rgb(172, 165, 165);
+        font-size: 14px;
+        color: #666;
+    }
+    /*当屏幕小于600px时要改变css*/
+    @media (max-width:600px) {
+        .cebian{
+            display: none;
+        }
+        .neirong{
+            flex-direction: column;
+        }
+        .shujuqy{
+            flex-direction: column;
+        }
+        .youqu{
+            margin-left: 8px;
+        }
+        .shuju{
+            margin: 0 0 8px;
+            flex: auto;
+        }
+    }
+    </style>
+</head>
+<body class="flex">
+    <!--侧边栏-->
+    <div style="width:200px;z-index: 2;"class="cebian baise yinying">
+    <!--头像栏-->
+    <div style="
+    padding: 10px;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #999;"
+     class="flex">
+        <img src="https://s21.ax1x.com/2025/02/14/pEKSAa9.png"
+        width="40px" 
+        height="40px"
+         alt="touxiang">
+         <div style="margin-left: 10px;">窝是人机</div>
+    </div>
+    <!--导航栏-->
+    <div class="flex1">
+        <div class="daohang">导航</div>
+        <div class="daohang">导航</div>
+        <div class="daohang">导航</div>
+        <div class="daohang">导航</div>
+        <div class="daohang">导航</div>
+        <a href="index.html" target="_blank">
+            <button class="anniu">返回</button>
+         </a>
+    </div>
+    </div>
+    <!--主区域-->
+    <div class="flex1 flex column">
+        <!--头部栏-->
+        <div style="height:60px;z-index: 1;text-align: center;" class="baise  yinying"></div>
+        <!--内容区-->
+        <div style="overflow: auto;"class="neirong flex1 flex">
+          
+            <!--左区-->
+            <div style="flex: 3;"class="flex column mg8">
+            <!--数据区-->
+            <div class="flex shujuqy">
+                <!--数据块-->
+                <div style="height: 100px"class="shuju flex1 baise mgr8 yinying">
+                  <p style="text-align:center;
+                  font-size:40px;">hello！</p>
+                </div>
+                <div style="height: 100px"class="shuju flex1 baise mgr8 yinying"></div>
+                <div style="height: 100px"class="shuju flex1 baise mgr8 yinying">
+                <img src="https://s21.ax1x.com/2025/02/14/pEKSAa9.png"
+        width="90px" 
+        height="100px"
+         alt="666">
+                </div>
+                <div style="height: 100px"class="shuju flex1 baise yinying"></div>
+            </div>
+            <!--列表区-->
+            <div class="flex column">
+                <!--列表项-->
+                <div style="height: 160px;"class="baise mgt8 yinying"></div>
+                <div style="height: 160px;"class="baise mgt8 yinying"></div>
+                <div style="height: 160px;"class="baise mgt8 yinying"></div>
+            </div>
+            </div>
+            <!--右区-->
+            <div style="flex: 1;"class="youqu flex column mgr8 mgt8">
+            <!--提示区-->
+            <div style="height: 150px;"class="baise yinying"></div>
+            <!--消息区-->
+            <div style="height: 450px;"class="baise mgt8 yinying"></div>
+            </div>
+        </div>
+    </div>
+</body>
+    </html>
