@@ -46,21 +46,33 @@
         background-size: cover;
         border-radius: 10px;
       }
+    .c:hover{
+      transform: scale(1.4);
+      transition: transform .3s;
+      }
       .mg8 {
         margin: 8px;
       }
       .bilibili {
         background-image: url(a.jpg);
+        box-shadow: 0 0 10px 5px #FF6699;
       }
       .baidu {
         background-image: url(baidu.jpg);
+        box-shadow: 0 0 10px 5px #fff;
       }
       .deepseek {
         background-image: url(deepseek.jpg);
+        box-shadow: 0 0 10px 5px #fff;
       }
       a:hover {
         border: 2px solid cornflowerblue;
         border-radius: 15px;
+      }
+      .mohu {
+        backdrop-filter: blur(3px);
+        transition: all 0.255s;
+        margin: 0%;
       }
     </style>
   </head>
@@ -81,16 +93,16 @@
             color: white;
             font-size: 24px;
             margin-bottom: 20px;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
             display: inline-block;
             height: 100px;
-            
           "
         >
           <h1>你好！</h1>
         </div>
         <div style="display: flex; justify-content: center">
           <input
+            id="sousuokuang"
             style="
               width: 400px;
               height: 40px;
@@ -118,7 +130,19 @@
         </div>
       </div>
     </form>
+    <script>
+      document
+        .getElementById("sousuokuang")
+        .addEventListener("focus", function () {
+          document.body.classList.add("mohu");
+        });
 
+      document
+        .getElementById("sousuokuang")
+        .addEventListener("blur", function () {
+          document.body.classList.remove("mohu");
+        });
+    </script>
     <div class="flex mg8 b">
       <a href="https://www.bilibili.com">
         <div class="a mg8 bilibili c"></div
