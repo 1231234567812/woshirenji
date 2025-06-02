@@ -14,9 +14,10 @@
         overflow: hidden;
       }
       body {
-        transition: 0.2s;
+        transition: 0.4s;
+        
         height: 100vh;
-        background-image: url("https://cdn.pixabay.com/photo/2022/09/06/14/40/beach-7436794_1280.jpg");
+        background-image: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80");
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
@@ -50,7 +51,7 @@
       }
     .c:hover{
       transform: scale(1.4);
-      transition: transform .3s;
+      transition: transform 0.3s;
       }
       .mg8 {
         margin: 8px;
@@ -73,19 +74,42 @@
       }
       .mohu {
         backdrop-filter: blur(3px);
-        transition: all 0.255s;
+        transition: all 0.4s;
         margin: 0%;
       }
+    #clock {
+            font-size: 48px;
+            text-align: center;
+            margin-top: 15px;
+            font-family: Arial, sans-serif;
+            text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+        }
     </style>
   </head>
   <body>
-    <!--搜索框-->
+  <!--显示时间-->
+  <div id="clock"></div>
+  <script>
+    // 显示时间
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('clock').textContent = timeString;
+        }
+
+        // 初始调用
+        updateClock();
+        
+        // 每秒更新一次
+        setInterval(updateClock, 1000);
+    </script>
+    <!-- 搜索框 -->
     <form action="https://www.baidu.com/s" method="get" target="_blank">
       <div
         style="
           display: flex;
           justify-content: center;
-          margin-top: 100px;
+          margin-top: 10px;
           flex-direction: column;
         "
       >
