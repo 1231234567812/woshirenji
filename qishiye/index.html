@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>浏览器起始页</title>
+    <!--从 Google Fonts 加载 Noto Sans SC(思源黑体简体中文)字体-->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>
       console.log("你好!");
     </script>
@@ -15,7 +17,6 @@
       }
       body {
         transition: 0.4s;
-        
         height: 100vh;
         background-image: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80");
         background-size: cover;
@@ -49,9 +50,9 @@
         border-radius: 10px;
         transition: 0.4s;
       }
-    .c:hover{
-      transform: scale(1.4);
-      transition: transform 0.3s;
+      .c:hover{
+        transform: scale(1.4);
+        transition: transform 0.3s;
       }
       .mg8 {
         margin: 8px;
@@ -77,32 +78,78 @@
         transition: all 0.4s;
         margin: 0%;
       }
-    #clock {
-            font-size: 48px;
-            text-align: center;
-            margin-top: 15px;
-            font-family: Arial, sans-serif;
-            text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+      /* 改进的时间和日期样式 */
+      #clock {
+        font-size: 5rem;
+        text-align: center;
+        margin-top: 15px;
+        font-family: 'Noto Sans SC', sans-serif;
+        font-weight: 300;
+        text-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+        letter-spacing: 2px;
+        color: white;
+      }
+      #date {
+        font-size: 1.8rem;
+        text-align: center;
+        font-family: 'Noto Sans SC', sans-serif;
+        font-weight: 300;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        opacity: 0.9;
+        color: white;
+        margin-bottom: 20px;
+      }
+      @media (max-width: 768px) {
+        #clock {
+          font-size: 3rem;
         }
+        #date {
+          font-size: 1.2rem;
+        }
+      }
+      @media (max-width: 480px) {
+        #clock {
+          font-size: 2.5rem;
+        }
+      }
     </style>
   </head>
   <body>
-  <!--显示时间-->
-  <div id="clock"></div>
-  <script>
-    // 显示时间
-        function updateClock() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            document.getElementById('clock').textContent = timeString;
-        }
-
-        // 初始调用
-        updateClock();
+    <!--改进的时间和日期显示-->
+    <div id="clock"></div>
+    <div id="date"></div>
+    <script>
+      // 改进的时间和日期显示
+      function updateDateTime() {
+        const now = new Date();
         
-        // 每秒更新一次
-        setInterval(updateClock, 1000);
+        // 格式化时间
+        const timeString = now.toLocaleTimeString('zh-CN', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          second: '2-digit',
+          hour12: false
+        });
+        
+        // 格式化日期
+        const dateString = now.toLocaleDateString('zh-CN', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+        
+        document.getElementById('clock').textContent = timeString;
+        document.getElementById('date').textContent = dateString;
+      }
+      
+      // 初始调用
+      updateDateTime();
+      
+      // 每秒更新一次
+      setInterval(updateDateTime, 1000);
     </script>
+
     <!-- 搜索框 -->
     <form action="https://www.baidu.com/s" method="get" target="_blank">
       <div
