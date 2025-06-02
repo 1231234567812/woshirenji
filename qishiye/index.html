@@ -118,37 +118,36 @@
     <!--改进的时间和日期显示-->
     <div id="clock"></div>
     <div id="date"></div>
-    <script>
-      // 改进的时间和日期显示
-      function updateDateTime() {
-        const now = new Date();
-        
-        // 格式化时间
-        const timeString = now.toLocaleTimeString('zh-CN', { 
-          hour: '2-digit', 
-          minute: '2-digit', 
-          second: '2-digit',
-          hour12: false
-        });
-        
-        // 格式化日期
-        const dateString = now.toLocaleDateString('zh-CN', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        });
-        
-        document.getElementById('clock').textContent = timeString;
-        document.getElementById('date').textContent = dateString;
-      }
-      
-      // 初始调用
-      updateDateTime();
-      
-      // 每秒更新一次
-      setInterval(updateDateTime, 1000);
-    </script>
+   <script>
+function updateDateTime() {
+    const now = new Date();
+    
+    // 标准 24 小时制时间（00:00:00 ~ 23:59:59）
+    const hours = String(now.getHours()).padStart(2, '0');    // 补零，如 "01"
+    const minutes = String(now.getMinutes()).padStart(2, '0'); // 补零，如 "05"
+    const seconds = String(now.getSeconds()).padStart(2, '0'); // 补零，如 "09"
+    
+    const timeString = `${hours}:${minutes}:${seconds}`; // 格式化为 "00:00:00"
+
+    // 日期显示（星期 + 年月日）
+    const dateString = now.toLocaleDateString('zh-CN', {
+        weekday: 'long',     // 如 "星期一"
+        year: 'numeric',     // 如 "2023"
+        month: 'long',       // 如 "11月"
+        day: 'numeric'       // 如 "15"
+    });
+
+    // 更新到页面
+    document.getElementById('clock').textContent = timeString;
+    document.getElementById('date').textContent = dateString;
+}
+
+// 立即执行一次，避免初始空白
+updateDateTime();
+
+// 每秒更新一次
+setInterval(updateDateTime, 1000);
+</script>
 
     <!-- 搜索框 -->
     <form action="https://www.baidu.com/s" method="get" target="_blank">
@@ -230,4 +229,4 @@
       ></a>
     </div>
   </body>
-</html>
+        </html>
