@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>浏览器起始页</title>
+  <!--从 Google Fonts 加载 Noto Sans SC(思源黑体简体中文)字体-->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script>
+    console.log("你好!");
+  </script>
+  <style>
+    /* 原有样式保持不变 */
+    body {
+      /* 隐藏滚动条 */
+      overflow: hidden;
+    }
+
+    body {
+      transition: 0.4s;
+      height: 100vh;
+      background-image: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80");
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+    }
+
+    .a {
+      width: 40px;
+      height: 40px;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .b {
+      justify-content: center;
+      position: fixed;
+      left: 0px;
+      bottom: 0px;
+      width: 100%;
+      height: 60px;
+      z-index: 999;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 22px;
+      padding: 3px;
+      backdrop-filter: blur(2px);
+    }
+
+    .c {
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      border-radius: 10px;
+      transition: 0.4s;
+    }
+
+    .c:hover {
+      transform: scale(1.4);
+      transition: transform 0.3s;
+    }
+
+    .mg8 {
+      margin: 8px;
+    }
+
+    .bilibili {
+      background-image: url(a.jpg);
+      box-shadow: 0 0 10px 5px #FF6699;
+    }
+
+    .baidu {
+      background-image: url(baidu.jpg);
+      box-shadow: 0 0 10px 5px #fff;
+    }
+
+    .deepseek {
+      background-image: url(deepseek.jpg);
+      box-shadow: 0 0 10px 5px #fff;
+    }
+
+    a:hover {
+      border: 2px solid cornflowerblue;
+      border-radius: 15px;
+    }
+
+    .mohu {
+      backdrop-filter: blur(3px);
+      transition: all 0.4s;
+      margin: 0%;
+    }
+
+    /* 改进的时间和日期样式 */
+    #clock {
+      font-size: 45px;
+      text-align: center;
+      margin-top: 30px;
+      font-family: 'Noto Sans SC', sans-serif;
+      font-weight: 300;
+      text-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+      letter-spacing: 2px;
+      color: white;
+    }
+
+    #date {
+      font-size: 25px;
+      text-align: center;
+      font-family: 'Noto Sans SC', sans-serif;
+      font-weight: 300;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+      opacity: 0.9;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .input1 {
+      transition: 0.4s;
+    }
+
+    .input2 {
+      transition: 0.4s;
+    }
+
+    .input1:hover {
+      box-shadow: 0 0 10px 4px #33CCFF;
+      transition: 0.45s;
+    }
+
+    .input2:hover {
+      box-shadow: 0 0 10px 6px #33CCFF;
+      transition: 0.45s;
+    }
+
+    #input2 {
+      font-family: 'Noto Sans SC', sans-serif;
+      font-weight: 300;
+    }
+
+    #sousuokuang {
+      font-family: 'Noto Sans SC', sans-serif;
+      font-weight: 300;
+    }
+
+    /* 登录页样式 */
+    .login-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 模糊层 */
+.login-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("b.jpg"); /* 背景图 */
+  background-size: cover;
+  background-position: center;
+  filter: blur(3px); /* 关键模糊效果 */
+  -webkit-filter: blur(3px); /* Safari兼容 */
+  z-index: -1; /* 置于登录框下方 */
+}
+
+/* 登录框样式保持原样 */
+.login-box {
+  background-color: rgba(0, 100, 240, 0.65);
+  width: 280px;
+  height: 350px;
+  border-radius: 20px;
+  text-align: center;
+  padding: 20px;
+}
+
+    .welcome-page {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="welcome-page" id="welcomePage">
+    <!--改进的时间和日期显示-->
+    <div id="clock"></div>
+    <div id="date"></div>
+    <script>
+      function updateDateTime() {
+        const now = new Date();
+
+        // 标准 24 小时制时间（00:00:00 ~ 23:59:59）
+        const hours = String(now.getHours()).padStart(2, '0');    // 补零，如 "01"
+        const minutes = String(now.getMinutes()).padStart(2, '0'); // 补零，如 "05"
+        const seconds = String(now.getSeconds()).padStart(2, '0'); // 补零，如 "09"
+
+        const timeString = `${hours}:${minutes}:${seconds}`; // 格式化为 "00:00:00"
+
+        // 日期显示（星期 + 年月日）
+        const dateString = now.toLocaleDateString('zh-CN', {
+          weekday: 'long',     // 如 "星期一"
+          year: 'numeric',     // 如 "2023"
+          month: 'long',       // 如 "11月"
+          day: 'numeric'       // 如 "15"
+        });
+
+        // 更新到页面
+        document.getElementById('clock').textContent = timeString;
+        document.getElementById('date').textContent = dateString;
+      }
+
+      // 立即执行一次，避免初始空白
+      updateDateTime();
+
+      // 每秒更新一次
+      setInterval(updateDateTime, 1000);
+    </script>
+
+    <!-- 搜索框 -->
+    <form action="https://www.baidu.com/s" method="get" target="_blank">
+      <div style="
+            display: flex;
+            justify-content: center;
+            margin-top: -20px;
+            flex-direction: column;
+          ">
+        <div style="
+              text-align: center;
+              color: white;
+              font-size: 24px;
+              margin-bottom: 20px;
+              text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+              display: inline-block;
+              height: 100px;
+            ">
+          <h1>你好！</h1>
+        </div>
+        <div style="display: flex; justify-content: center">
+          <input class="input1" id="sousuokuang" style="
+                width: 400px;
+                height: 40px;
+                box-sizing: border-box;
+                border: none;
+                outline: none;
+                padding-left: 10px;
+                border-radius: 10px;
+              " type="text" placeholder="请输入搜索内容" name="wd" />
+          <input class="input2" id="input2" style="
+                width: 80px;
+                height: 40px;
+                background: #3385ff;
+                border: none;
+                color: white;
+                border-radius: 10px;
+              " type="submit" value="百度一下" name="wd" />
+        </div>
+      </div>
+    </form>
+    <script>
+      document
+        .getElementById("sousuokuang")
+        .addEventListener("focus", function () {
+          document.body.classList.add("mohu");
+        });
+
+      document
+        .getElementById("sousuokuang")
+        .addEventListener("blur", function () {
+          document.body.classList.remove("mohu");
+        });
+    </script>
+    <div class="flex mg8 b">
+      <a href="https://www.bilibili.com">
+        <div class="a mg8 bilibili c"></div>
+      </a>
+
+      <a href="https://www.baidu.com">
+        <div class="a mg8 baidu c"></div>
+      </a>
+
+      <a href="https://www.deepseek.com">
+        <div class="a mg8 deepseek c"></div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
