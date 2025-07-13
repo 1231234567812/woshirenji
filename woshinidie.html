@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bungee+Shade&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        flex-direction: column;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: "Arial", sans-serif;
+        background: #111;
+      }
+      .box {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 5px;
+        border-radius: 12px;
+        border: 2px solid #45f3ff;
+        box-shadow: inset 0 0 10px #45f3ff, 0 0 20px #45f3ff;
+      }
+      .box span {
+        font-family: "Bungee Shade", cursive;
+        display: flex;
+        border-radius: 4px;
+        line-height: 70px;
+        background: linear-gradient(to right, #ec695c, #61c454) no-repeat left
+          bottom;
+        background-size: 100% 5px;
+        transition: 1.3s;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 1);
+        color: #45f3ff;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 1);
+        font-size: 3em;
+        letter-spacing: 0.06em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <span>我是你爹</span>
+    </div>
+  </body>
+</html>
