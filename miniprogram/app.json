@@ -1,0 +1,36 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/project/project"
+  ],
+  "tabBar": {
+    "custom": true,
+    "color": "#999",
+    "selectedColor": "#667eea",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "项目",
+        "iconPath": "images/icons/home.png",
+        "selectedIconPath": "images/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/project/project",
+        "text": "历史",
+        "iconPath": "images/icons/star.png",
+        "selectedIconPath": "images/icons/star-active.png"
+      }
+    ]
+  },
+  "window": {
+    "navigationBarBackgroundColor": "#f1faee",
+    "navigationBarTitleText": "图片转代码",
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh": false,
+    "backgroundTextStyle": "dark",
+    "backgroundColor": "#f1faee"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

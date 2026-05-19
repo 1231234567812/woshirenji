@@ -1,0 +1,41 @@
+<view class="box {{darkMode ? 'dark' : ''}}">
+  <view wx:if="{{list.length === 0}}" class="tip">
+    <text class="tip-icon">📁</text>
+    <text class="tip-text" bindtap="browseFiles">暂无记录，点此浏览保存的文件</text>
+  </view>
+
+  <view wx:if="{{list.length > 0}}" class="file-entry" bindtap="browseFiles">
+    <text>📁 浏览保存的文件</text>
+  </view>
+
+  <view wx:for="{{list}}" wx:key="id" class="card" bindtap="openProject" data-id="{{item.id}}">
+    <view class="card-hd">
+      <text class="card-name">{{item.name}}{{item.deleted ? '(已删)' : ''}}</text>
+      <text class="card-date">{{item.date}}</text>
+    </view>
+    <view class="card-imgs" wx:if="{{item.items.length > 0}}">
+      <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" wx:if="{{img.type === 'image' && index < 3}}" />
+    </view>
+    <view class="card-ft">
+      <text class="card-num">{{item.items.length}} 项</text>
+      <view class="card-btns">
+        <text class="card-restore" wx:if="{{item.deleted}}" catchtap="restoreProject" data-id="{{item.id}}">恢复</text>
+        <text class="card-perma" wx:if="{{item.deleted}}" catchtap="permaDelProject" data-id="{{item.id}}">彻底删除</text>
+        <text class="card-del" wx:if="{{!item.deleted}}" catchtap="delProject" data-id="{{item.id}}">删除</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 文件浏览弹窗 -->
+  <view class="files-mask" wx:if="{{filesShow}}" bindtap="closeFiles"></view>
+  <view class="files-modal" wx:if="{{filesShow}}">
+    <view class="files-hd"><text class="files-title">保存的文件</text><text class="files-close" bindtap="closeFiles">✕</text></view>
+    <scroll-view class="files-body" scroll-y>
+      <view wx:for="{{filesList}}" wx:key="name" class="files-item" bindtap="openFile" data-index="{{index}}">
+        <text class="files-name">{{item.name}}</text>
+        <text class="files-arrow">›</text>
+      </view>
+      <view wx:if="{{filesList.length === 0}}" class="files-empty">暂无文件</view>
+    </scroll-view>
+  </view>
+</view>

@@ -1,0 +1,7 @@
+page {
+  background: #f1faee;
+  font-family: -apple-system, sans-serif;
+  color: #1d3557;
+}
+
+/* 深色模式 - 通过 globalData 动态切换 */

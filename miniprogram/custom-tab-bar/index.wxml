@@ -1,0 +1,10 @@
+<view class="tab-bar {{dark ? 'dark' : ''}}">
+  <view class="bubble bubble-{{selected}} {{dark ? 'dark' : ''}}"></view>
+  <view wx:for="{{list}}" wx:key="pagePath" class="tab-item" bindtap="switchTab" data-path="{{item.pagePath}}" data-index="{{index}}">
+    <view class="tab-icon-wrap">
+	      <image class="tab-icon {{selected === index ? 'icon-hide' : 'icon-show'}}" src="{{item.iconPath}}" mode="aspectFit" />
+	      <image class="tab-icon {{selected === index ? 'icon-show' : 'icon-hide'}}" src="{{item.selectedIconPath}}" mode="aspectFit" />
+	    </view>
+    <text class="tab-text {{selected === index ? 'on' : ''}}">{{item.text}}</text>
+  </view>
+</view>
