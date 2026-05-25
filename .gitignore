@@ -1,1 +1,41 @@
+# === 微信小程序安全 .gitignore ===
+
+# 私人配置（含开发者密钥）
 project.private.config.json
+
+# 依赖
+node_modules/
+miniprogram_npm/
+
+# 环境变量和密钥
+.env
+.env.*
+*.key
+*.pem
+*.secret
+
+# 云函数密钥配置
+cloudfunctions/**/config.js
+cloudfunctions/**/.env
+
+# 编辑器和IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 日志
+*.log
+npm-debug.log*
+
+# 编译产物
+miniprogram/miniprogram_npm/
+
+# 微信开发者工具本地缓存
+.unpackage/
