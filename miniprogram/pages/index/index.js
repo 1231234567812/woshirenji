@@ -8,6 +8,10 @@ Page({
     mode: '', menuShow: false,
     imagePath: '', codeShow: '', size: '',
     converting: false,
+    convertProgress: 0,
+    convertStage: '',
+    compressQuality: 60,
+    compressedSize: '',
     textContent: '', textResult: '',
     decodeInput: '', decodeResult: '', decodeImagePath: '',
     curId: '', curName: '',
@@ -15,11 +19,145 @@ Page({
     filesShow: false,
     filesList: [],
     fileMode: '',
+    batchItems: [], batchConverting: false, batchProgress: '',
   },
 
   _fullCode: '',
   _fullText: '',
   _imageCache: [],
+  _batchCodes: [],
+
+  // ========== 批量转换 ==========
+  chooseBatchImage() {
+    let that = this;
+    let onSuccess = (res) => {
+      let paths = [];
+      if (res.tempFiles) {
+        paths = res.tempFiles.map(f => f.tempFilePath || f.path).filter(Boolean);
+      }
+      if (paths.length === 0 && res.tempFilePaths) {
+        paths = res.tempFilePaths.filter(Boolean);
+      }
+      if (paths.length === 0) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      that._saveTempImages(paths);
+    };
+    if (wx.chooseMedia) {
+      wx.chooseMedia({ count: 9, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    } else {
+      wx.chooseImage({ count: 9, sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    }
+  },
+
+  _saveTempImages(tempPaths) {
+    let that = this;
+    let fs = wx.getFileSystemManager();
+    let saved = [];
+    let pending = tempPaths.length;
+    tempPaths.forEach((p, idx) => {
+      let dest = wx.env.USER_DATA_PATH + '/batch_' + Date.now() + '_' + idx + '.jpg';
+      fs.copyFile({
+        srcPath: p, destPath: dest,
+        success() { saved[idx] = dest; if (--pending === 0) that._startBatchConvert(saved); },
+        fail() {
+          fs.saveFile({
+            tempFilePath: p,
+            success(r) { saved[idx] = r.savedFilePath; if (--pending === 0) that._startBatchConvert(saved); },
+            fail() { saved[idx] = null; if (--pending === 0) that._startBatchConvert(saved.filter(Boolean)); },
+          });
+        },
+      });
+    });
+  },
+
+  _startBatchConvert(paths) {
+    let valid = paths.filter(Boolean);
+    if (valid.length === 0) { wx.showToast({ title: '图片保存失败', icon: 'none' }); return; }
+    this._batchCodes = [];
+    this.setData({ batchItems: [], batchConverting: true, batchProgress: '0/' + valid.length });
+    this._batchConvertNext(valid, 0);
+  },
+
+  _batchConvertNext(paths, idx) {
+    if (idx >= paths.length) {
+      this.setData({ batchConverting: false, batchProgress: '全部完成' });
+      wx.showToast({ title: '转换完成', icon: 'success' });
+      return;
+    }
+    let that = this;
+    this.setData({ batchProgress: (idx + 1) + '/' + paths.length });
+    wx.getFileSystemManager().readFile({
+      filePath: paths[idx], encoding: 'base64',
+      success(res) {
+        let b64 = 'data:image/jpeg;base64,' + res.data;
+        let kb = (res.data.length * 0.75 / 1024).toFixed(1);
+        that._batchCodes.push(b64);
+        let item = { id: Date.now() + idx, path: paths[idx], size: kb + ' KB', code: b64.slice(0, 80) + '...', fullCode: b64 };
+        let items = that.data.batchItems.concat([item]);
+        that.setData({ batchItems: items });
+        // 同时记录到项目历史
+        let itemMeta = { id: item.id, type: 'image', path: paths[idx], size: kb + ' KB', preview: '' };
+        that._imageCache = [{ base64: b64 }].concat(that._imageCache).slice(0, 20);
+        let list = [itemMeta].concat(that.data.images).slice(0, 30);
+        that.setData({ images: list });
+        that.saveImages(list);
+        that._batchConvertNext(paths, idx + 1);
+      },
+      fail() {
+        let item = { id: Date.now() + idx, path: paths[idx], size: '失败', code: '读取失败', fullCode: '' };
+        that.setData({ batchItems: that.data.batchItems.concat([item]) });
+        that._batchConvertNext(paths, idx + 1);
+      },
+    });
+  },
+
+  copyBatchItem(e) {
+    let idx = e.currentTarget.dataset.index;
+    let item = this.data.batchItems[idx];
+    if (!item || !item.fullCode) return;
+    wx.setClipboardData({ data: item.fullCode.slice(0, 80000), success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
+  },
+
+  copyAllBatch() {
+    if (this._batchCodes.length === 0) return;
+    let all = this._batchCodes.join('\n');
+    wx.setClipboardData({ data: all.slice(0, 80000), success: () => wx.showToast({ title: '已复制全部', icon: 'success' }), fail: () => wx.showToast({ title: '太长了，分批复制', icon: 'none' }) });
+  },
+
+  saveAllBatch() {
+    if (this._batchCodes.length === 0) return;
+    let that = this;
+    wx.showModal({
+      title: '批量保存', editable: true, placeholderText: '输入文件名前缀',
+      success(res) {
+        if (!res.confirm) return;
+        let prefix = (res.content || 'batch').replace(/[:"<>|?*\n\r\\/]/g, '-').slice(0, 30);
+        let fs = wx.getFileSystemManager();
+        that._batchCodes.forEach((code, i) => {
+          let fname = wx.env.USER_DATA_PATH + '/' + prefix + '_' + (i + 1) + '.txt';
+          fs.writeFile({ filePath: fname, data: code, encoding: 'utf8' });
+        });
+        wx.showToast({ title: '已保存 ' + that._batchCodes.length + ' 个文件', icon: 'success' });
+      },
+    });
+  },
+
+  clearBatch() {
+    this._batchCodes = [];
+    this.setData({ batchItems: [], batchConverting: false, batchProgress: '' });
+  },
+
+  // ========== 一键复制（历史记录中的单条） ==========
+  copyHistoryCode(e) {
+    let idx = e.currentTarget.dataset.index;
+    let item = this.data.images[idx];
+    if (!item) return;
+    let ps = wx.getStorageSync('projects') || [];
+    let p = ps.find(x => x.id === this.data.curId);
+    let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
+    let code = full ? (full.base64 || '') : '';
+    if (!code) { wx.showToast({ title: '无数据', icon: 'none' }); return; }
+    wx.setClipboardData({ data: code.slice(0, 80000), success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
+  },
 
   onLoad() {
     this.setData({ darkMode: app.globalData.darkMode });
@@ -134,13 +272,26 @@ Page({
   showMenu() { this.setData({ menuShow: true }); },
   hideMenu() { this.setData({ menuShow: false }); },
   reset(m) {
-    this._fullCode = ''; this._fullText = ''; this._imageCache = [];
-    this.setData({ menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '' });
+    this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
+    this.setData({ menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '', batchItems: [], batchConverting: false, batchProgress: '' });
   },
   startImg2Code() { this.reset('img2code'); },
   startText2Code() { this.reset('text2code'); },
   startCode2Text() { this.reset('code2text'); },
   startCode2Img() { this.reset('code2img'); },
+  startBatchImg() { this.reset('batch'); },
+
+  quickAction(e) {
+    let mode = e.currentTarget.dataset.mode;
+    if (!this.data.curId) {
+      let ps = wx.getStorageSync('projects') || [];
+      let p = { id: 'p_' + Date.now(), name: '快速项目', date: new Date().toLocaleString(), items: [] };
+      ps.unshift(p);
+      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
+      this.setData({ view: 'work', curId: p.id, curName: p.name, images: [] });
+    }
+    this.reset(mode);
+  },
 
   _onImagePicked(tempPath) {
     this._fullCode = '';
@@ -186,24 +337,105 @@ Page({
     }
   },
 
+  setQuality(e) {
+    this.setData({ compressQuality: Number(e.currentTarget.dataset.q) });
+  },
+
   convertImage() {
     let that = this;
-    this.setData({ converting: true });
+    let src = this.data.imagePath;
+    if (!src) return;
+
+    this.setData({ converting: true, convertProgress: 5, convertStage: '准备中...', compressedSize: '' });
     wx.showNavigationBarLoading();
+
+    // Step 1: 检查原始文件大小
+    wx.getFileInfo({
+      filePath: src,
+      success(info) {
+        let origKB = (info.size / 1024).toFixed(1);
+        that.setData({ convertProgress: 15, convertStage: '原始大小 ' + origKB + ' KB' });
+
+        // 小于 200KB 跳过压缩
+        if (info.size < 200 * 1024) {
+          that.setData({ convertProgress: 30, convertStage: '文件较小，跳过压缩' });
+          that._doReadBase64(src, origKB);
+          return;
+        }
+
+        // Step 2: 压缩图片
+        that.setData({ convertProgress: 20, convertStage: '压缩中...' });
+        wx.compressImage({
+          src: src,
+          quality: that.data.compressQuality,
+          success(res) {
+            let compressedPath = res.tempFilePath;
+            wx.getFileInfo({
+              filePath: compressedPath,
+              success(cInfo) {
+                let compKB = (cInfo.size / 1024).toFixed(1);
+                let ratio = ((1 - cInfo.size / info.size) * 100).toFixed(0);
+                that.setData({
+                  convertProgress: 40,
+                  convertStage: '压缩完成，减小 ' + ratio + '%',
+                  compressedSize: compKB + ' KB',
+                });
+                that._doReadBase64(compressedPath, compKB);
+              },
+              fail() { that._doReadBase64(src, origKB); },
+            });
+          },
+          fail() {
+            // 压缩失败，回退原图
+            that.setData({ convertProgress: 30, convertStage: '压缩不支持，使用原图' });
+            that._doReadBase64(src, origKB);
+          },
+        });
+      },
+      fail() {
+        // 无法获取文件信息，直接读取
+        that.setData({ convertProgress: 30, convertStage: '读取中...' });
+        that._doReadBase64(src, '');
+      },
+    });
+  },
+
+  _doReadBase64(filePath, fileSizeKB) {
+    let that = this;
+    this.setData({ convertProgress: 55, convertStage: '读取数据中...' });
+
     wx.getFileSystemManager().readFile({
-      filePath: this.data.imagePath, encoding: 'base64',
-      success: (res) => {
-        wx.hideNavigationBarLoading();
+      filePath: filePath, encoding: 'base64',
+      success(res) {
+        that.setData({ convertProgress: 85, convertStage: '处理中...' });
+
         let b64 = 'data:image/jpeg;base64,' + res.data;
-        let kb = (res.data.length * 0.75 / 1024).toFixed(1);
+        let kb = fileSizeKB || (res.data.length * 0.75 / 1024).toFixed(1);
         that._fullCode = b64;
         let itemMeta = { id: Date.now(), type: 'image', path: that.data.imagePath, size: kb + ' KB', preview: '' };
         that._imageCache = [{ base64: b64 }].concat(that._imageCache).slice(0, 10);
         let list = [itemMeta].concat(that.data.images).slice(0, 20);
-        that.setData({ codeShow: b64.slice(0, 200) + '...', size: kb + ' KB', images: list, converting: false });
+
+        that.setData({
+          convertProgress: 100,
+          convertStage: '完成！' + kb + ' KB',
+          codeShow: b64.slice(0, 200) + '...',
+          size: kb + ' KB',
+          images: list,
+        });
         that.saveImages(list);
+
+        wx.hideNavigationBarLoading();
+        // 延迟清除进度条
+        setTimeout(() => {
+          that.setData({ converting: false, convertProgress: 0, convertStage: '' });
+        }, 800);
       },
-      fail: () => { wx.hideNavigationBarLoading(); that.setData({ converting: false }); wx.showToast({ title: '失败', icon: 'none' }); },
+      fail() {
+        wx.hideNavigationBarLoading();
+        that.setData({ converting: false, convertProgress: 0, convertStage: '' });
+        wx.showToast({ title: '读取失败', icon: 'none' });
+      },
     });
   },
 

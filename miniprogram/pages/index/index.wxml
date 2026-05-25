@@ -1,26 +1,74 @@
 <view class="box {{darkMode ? 'dark' : ''}}">
   <!-- ========== 项目列表 ========== -->
   <block wx:if="{{view === 'list'}}">
-    <view wx:if="{{projects.length === 0}}" class="tip">
-      <text class="tip-icon">+</text>
-      <text class="tip-text">点击右下角创建项目</text>
-    </view>
-    <view class="file-browse-bar" bindtap="browseFiles">
-      <text>浏览保存的文件</text>
-    </view>
-    <view wx:for="{{projects}}" wx:key="id" class="card" bindtap="openProject" data-id="{{item.id}}">
-      <view class="card-hd">
-        <text class="card-name">{{item.name}}</text>
-        <text class="card-date">{{item.date}}</text>
+
+    <!-- Hero 区域 -->
+    <view class="hero">
+      <view class="hero-icon-wrap">
+        <text class="hero-icon">&#x2B22;</text>
       </view>
-      <view class="card-imgs" wx:if="{{item.items.length > 0}}">
-        <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" wx:if="{{img.type === 'image' && index < 4}}" />
+      <text class="hero-title">Base64 工具箱</text>
+      <text class="hero-sub">图片 / 文字 / 代码 &mdash; 一键互转</text>
+    </view>
+
+    <!-- 快捷功能入口 -->
+    <view class="quick-grid">
+      <view class="quick-card" hover-class="quick-press" bindtap="quickAction" data-mode="img2code">
+        <view class="quick-icon-box qi-1"><text class="quick-emoji">&#x1F5BC;</text></view>
+        <text class="quick-label">图片转代码</text>
       </view>
-      <view class="card-ft">
-        <text class="card-num">{{item.items.length}} 项</text>
-        <text class="card-del" catchtap="delProject" data-id="{{item.id}}">删除</text>
+      <view class="quick-card" hover-class="quick-press" bindtap="quickAction" data-mode="code2img">
+        <view class="quick-icon-box qi-2"><text class="quick-emoji">&#x1F4E6;</text></view>
+        <text class="quick-label">代码转图片</text>
+      </view>
+      <view class="quick-card" hover-class="quick-press" bindtap="quickAction" data-mode="text2code">
+        <view class="quick-icon-box qi-3"><text class="quick-emoji">&#x270D;</text></view>
+        <text class="quick-label">文字转代码</text>
+      </view>
+      <view class="quick-card" hover-class="quick-press" bindtap="quickAction" data-mode="code2text">
+        <view class="quick-icon-box qi-4"><text class="quick-emoji">&#x1F4DC;</text></view>
+        <text class="quick-label">代码转文字</text>
       </view>
     </view>
+
+    <!-- 文件浏览入口 -->
+    <view class="browse-bar" hover-class="browse-press" bindtap="browseFiles">
+      <text class="browse-icon">&#x1F4C2;</text>
+      <text class="browse-text">浏览保存的文件</text>
+      <text class="browse-arrow">›</text>
+    </view>
+
+    <!-- 项目列表 -->
+    <block wx:if="{{projects.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">我的项目</text>
+        <text class="section-count">{{projects.length}} 个</text>
+      </view>
+      <view wx:for="{{projects}}" wx:key="id" class="card" bindtap="openProject" data-id="{{item.id}}">
+        <view class="card-accent"></view>
+        <view class="card-body">
+          <view class="card-hd">
+            <text class="card-name">{{item.name}}</text>
+            <text class="card-date">{{item.date}}</text>
+          </view>
+          <view class="card-imgs" wx:if="{{item.items.length > 0}}">
+            <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" wx:if="{{img.type === 'image' && index < 4}}" />
+          </view>
+          <view class="card-ft">
+            <text class="card-num">{{item.items.length}} 项</text>
+            <text class="card-del" catchtap="delProject" data-id="{{item.id}}">删除</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view wx:if="{{projects.length === 0}}" class="empty-state">
+      <text class="empty-icon">&#x1F4E6;</text>
+      <text class="empty-text">还没有项目</text>
+      <text class="empty-hint">点击下方 + 创建第一个项目</text>
+    </view>
+
     <view class="fab" hover-class="fab-press" bindtap="createProject">
       <text class="fab-txt">+</text>
     </view>
@@ -30,9 +78,9 @@
   <block wx:if="{{view === 'work'}}">
   <view class="work-view">
     <view class="topbar">
-      <view class="back" bindtap="goBack"><text>←</text></view>
+      <view class="back" hover-class="back-press" bindtap="goBack"><text>←</text></view>
       <text class="topbar-title">{{curName}}</text>
-      <view class="topbar-folder" bindtap="browseFiles"><text>📁</text></view>
+      <view class="topbar-folder" hover-class="back-press" bindtap="browseFiles"><text>&#x1F4C1;</text></view>
     </view>
 
     <block wx:if="{{mode === 'img2code'}}">
@@ -41,7 +89,24 @@
         <image class="preview-img" src="{{imagePath}}" mode="aspectFit" />
         <text class="preview-tip">点击预览大图</text>
       </view>
-      <view class="btn btn-cvt btn-loading" wx:if="{{imagePath && converting}}">转换中...</view>
+
+      <view class="quality-bar" wx:if="{{imagePath && !converting}}">
+        <text class="quality-label">压缩质量</text>
+        <view class="quality-opts">
+          <text class="quality-opt {{compressQuality === 40 ? 'active' : ''}}" bindtap="setQuality" data-q="40">低</text>
+          <text class="quality-opt {{compressQuality === 60 ? 'active' : ''}}" bindtap="setQuality" data-q="60">中</text>
+          <text class="quality-opt {{compressQuality === 80 ? 'active' : ''}}" bindtap="setQuality" data-q="80">高</text>
+        </view>
+      </view>
+
+      <view class="progress-wrap" wx:if="{{converting}}">
+        <view class="progress-bar">
+          <view class="progress-fill" style="width: {{convertProgress}}%"></view>
+        </view>
+        <text class="progress-text">{{convertStage}}</text>
+      </view>
+
+      <view class="btn btn-loading" wx:if="{{imagePath && converting}}">转换中...</view>
       <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{imagePath && !converting}}" bindtap="convertImage">转为代码</view>
 
       <view class="code-box" wx:if="{{codeShow}}">
@@ -50,10 +115,12 @@
           <view class="code-actions">
             <text class="code-copy" bindtap="shareCodeFile">转发</text>
             <text class="code-copy" bindtap="saveCodeFile">保存</text>
-            <text class="code-copy" bindtap="copyCode">复制</text>
           </view>
         </view>
         <scroll-view class="code-body" scroll-y><text class="code-text" user-select>{{codeShow}}</text></scroll-view>
+        <view class="one-click-copy" hover-class="btn-press" bindtap="copyCode">
+          <text class="one-click-text">一键复制完整代码</text>
+        </view>
       </view>
     </block>
 
@@ -87,17 +154,74 @@
       </view>
     </block>
 
+    <!-- ========== 批量转换 ========== -->
+    <block wx:if="{{mode === 'batch'}}">
+      <view class="batch-hint">最多选择 9 张图片，逐个转为 Base64</view>
+      <view class="btn" hover-class="btn-press" bindtap="chooseBatchImage">选择图片（最多9张）</view>
+
+      <view class="progress-wrap" wx:if="{{batchConverting}}">
+        <view class="progress-bar">
+          <view class="progress-fill" style="width: {{batchItems.length > 0 ? (batchItems.length / batchProgress.split('/')[1] * 100) : 10}}%"></view>
+        </view>
+        <text class="progress-text">转换中 {{batchProgress}}</text>
+      </view>
+
+      <block wx:if="{{batchItems.length > 0}}">
+        <view class="batch-actions">
+          <view class="batch-btn" hover-class="btn-press" bindtap="copyAllBatch">
+            <text>一键复制全部</text>
+          </view>
+          <view class="batch-btn batch-btn-save" hover-class="btn-press" bindtap="saveAllBatch">
+            <text>批量保存</text>
+          </view>
+          <view class="batch-btn batch-btn-clear" hover-class="btn-press" bindtap="clearBatch">
+            <text>清空</text>
+          </view>
+        </view>
+
+        <view class="batch-list">
+          <view wx:for="{{batchItems}}" wx:key="id" class="batch-card">
+            <image class="batch-thumb" src="{{item.path}}" mode="aspectFill" />
+            <view class="batch-info">
+              <text class="batch-size">{{item.size}}</text>
+              <text class="batch-preview">{{item.code}}</text>
+            </view>
+            <view class="batch-copy" hover-class="btn-press" bindtap="copyBatchItem" data-index="{{index}}">复制</view>
+          </view>
+        </view>
+      </block>
+    </block>
+
     <view class="fab" hover-class="fab-press" bindtap="showMenu">
       <text class="fab-txt">+</text>
     </view>
     <view class="mask" wx:if="{{menuShow}}" bindtap="hideMenu"></view>
     <view class="menu" wx:if="{{menuShow}}">
-      <view class="menu-group">图片</view>
-      <view class="menu-item" bindtap="startImg2Code">图片转代码</view>
-      <view class="menu-item" bindtap="startCode2Img">代码转图片</view>
-      <view class="menu-group">文字</view>
-      <view class="menu-item" bindtap="startText2Code">文字转代码</view>
-      <view class="menu-item" bindtap="startCode2Text">代码转文字</view>
+      <view class="menu-hd">
+        <text class="menu-title">选择功能</text>
+      </view>
+      <view class="menu-grid">
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startImg2Code">
+          <view class="menu-card-icon mc-1"><text>&#x1F5BC;</text></view>
+          <text class="menu-card-label">图片转代码</text>
+        </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startCode2Img">
+          <view class="menu-card-icon mc-2"><text>&#x1F4E6;</text></view>
+          <text class="menu-card-label">代码转图片</text>
+        </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startText2Code">
+          <view class="menu-card-icon mc-3"><text>&#x270D;</text></view>
+          <text class="menu-card-label">文字转代码</text>
+        </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startCode2Text">
+          <view class="menu-card-icon mc-4"><text>&#x1F4DC;</text></view>
+          <text class="menu-card-label">代码转文字</text>
+        </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startBatchImg">
+          <view class="menu-card-icon mc-5"><text>&#x1F501;</text></view>
+          <text class="menu-card-label">批量转换</text>
+        </view>
+      </view>
       <view class="menu-cancel" bindtap="hideMenu">取消</view>
     </view>
 
@@ -105,11 +229,16 @@
       <text class="h-title">历史记录</text>
       <scroll-view class="h-list" scroll-x>
         <view wx:for="{{images}}" wx:key="id" class="h-item" wx:if="{{index < 20}}">
-          <image wx:if="{{item.type === 'image'}}" class="h-img" src="{{item.path}}" mode="aspectFill" bindtap="loadHistory" data-index="{{index}}" />
-          <view wx:else class="h-text-card" bindtap="loadHistory" data-index="{{index}}">
-            <text class="h-text-preview">{{item.preview}}</text>
+          <view class="h-item-main" bindtap="loadHistory" data-index="{{index}}">
+            <image wx:if="{{item.type === 'image'}}" class="h-img" src="{{item.path}}" mode="aspectFill" />
+            <view wx:else class="h-text-card">
+              <text class="h-text-preview">{{item.preview}}</text>
+            </view>
           </view>
-          <text class="h-size">{{item.size || '未转'}}</text>
+          <view class="h-item-ft">
+            <text class="h-size">{{item.size || '未转'}}</text>
+            <text class="h-copy" catchtap="copyHistoryCode" data-index="{{index}}">复制</text>
+          </view>
         </view>
       </scroll-view>
     </view>
@@ -119,7 +248,7 @@
   <!-- 文件浏览弹窗 -->
   <view class="files-mask" wx:if="{{filesShow}}" bindtap="closeFiles"></view>
   <view class="files-modal" wx:if="{{filesShow}}">
-    <view class="files-hd"><text class="files-title">保存的文件</text><text class="files-close" bindtap="closeFiles">✕</text></view>
+    <view class="files-hd"><text class="files-title">保存的文件</text><text class="files-close" bindtap="closeFiles">&#x2715;</text></view>
     <scroll-view class="files-body" scroll-y>
       <view wx:for="{{filesList}}" wx:key="name" class="files-item" bindtap="openFile" data-index="{{index}}">
         <text class="files-name">{{item.name}}</text>

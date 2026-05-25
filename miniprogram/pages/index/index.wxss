@@ -183,6 +183,44 @@ page { background: #f1faee; }
 .files-arrow { font-size: 36rpx; color: #ccc; margin-left: 12rpx; }
 .files-empty { text-align: center; color: #999; font-size: 26rpx; padding-top: 80rpx; }
 
+/* 压缩质量选择 */
+.quality-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16rpx 24rpx; margin-bottom: 20rpx;
+  border-radius: 14rpx; background: #fff;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+}
+.quality-label { font-size: 26rpx; color: #1d3557; font-weight: 500; }
+.quality-opts { display: flex; gap: 12rpx; }
+.quality-opt {
+  font-size: 24rpx; color: #457b9d; padding: 10rpx 28rpx;
+  border-radius: 24rpx; background: #e8edff; transition: all 0.2s ease;
+}
+.quality-opt.active {
+  background: #457b9d; color: #fff; font-weight: 600;
+  box-shadow: 0 4rpx 16rpx rgba(69,123,157,0.3);
+}
+
+/* 进度条 */
+.progress-wrap {
+  margin-bottom: 20rpx; padding: 20rpx 24rpx;
+  border-radius: 14rpx; background: #fff;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+}
+.progress-bar {
+  height: 16rpx; border-radius: 8rpx;
+  background: #e8edff; overflow: hidden; margin-bottom: 12rpx;
+}
+.progress-fill {
+  height: 100%; border-radius: 8rpx;
+  background: linear-gradient(90deg, #457b9d, #a8dadc);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12rpx rgba(69,123,157,0.4);
+}
+.progress-text {
+  font-size: 24rpx; color: #457b9d; display: block; text-align: center;
+}
+
 /* 深色模式 */
 .box.dark { background: #1a1a2e; }
 .dark .card { background: #16213e; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.2); }
@@ -220,5 +258,13 @@ page { background: #f1faee; }
 .dark .file-pick text { background: #1a1a3e; color: #a8dadc; }
 .dark .code-label { color: #6d8a9c; }
 .dark .code-copy { background: #2a4a6d; }
+.dark .quality-bar { background: #16213e; }
+.dark .quality-label { color: #e0e0e0; }
+.dark .quality-opt { background: #1a1a3e; color: #a8dadc; }
+.dark .quality-opt.active { background: #457b9d; color: #fff; }
+.dark .progress-wrap { background: #16213e; }
+.dark .progress-bar { background: #1a1a3e; }
+.dark .progress-fill { background: linear-gradient(90deg, #2a4a6d, #a8dadc); }
+.dark .progress-text { color: #a8dadc; }
 .dark .files-close { color: #777; }
 .dark .files-arrow { color: #666; }
