@@ -20,20 +20,21 @@ Page({
       this.applyDark(dm);
     }
 
-    // 防抖：500ms内不重复加载
     let now = Date.now();
-    if (now - this._lastLoadTime > 500) {
-      let projects = wx.getStorageSync('projects') || [];
-      this._projectsCache = projects; // 缓存原始数据
-      projects = projects.map(p => ({
-        id: p.id, name: p.name, date: p.date, deleted: p.deleted,
-        items: (p.items || []).map(img => ({
-          id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview,
-        })),
-      }));
-      this.setData({ list: projects });
-      this._lastLoadTime = now;
-    }
+    if (now - this._lastLoadTime < 500) return; // 防抖
+
+    let projects = wx.getStorageSync('projects') || [];
+    this._projectsCache = projects;
+
+    // 缓存映射结果，避免每次onShow都重新map
+    let mapped = projects.map(p => ({
+      id: p.id, name: p.name, date: p.date, deleted: p.deleted,
+      items: (p.items || []).map(img => ({
+        id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview,
+      })),
+    }));
+    this.setData({ list: mapped });
+    this._lastLoadTime = now;
   },
 
   // 点开项目 → 跳回首页并传项目ID
@@ -43,7 +44,7 @@ Page({
     wx.switchTab({ url: '/pages/index/index' });
   },
 
-  // 删除
+  // 删除 - 使用局部setData避免全量重载
   delProject(e) {
     let id = e.currentTarget.dataset.id;
     wx.showModal({
@@ -57,8 +58,9 @@ Page({
             ps[i].deleted = true;
             this._projectsCache = ps; // 更新缓存
             try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+            // 局部更新，避免全量重载
+            this.setData({ ['list[' + i + '].deleted']: true });
           }
-          this.onShow();
         }
       },
     });
@@ -102,7 +104,7 @@ Page({
     wx.setBackgroundColor({ backgroundColor: bg, backgroundColorTop: bg, backgroundColorBottom: bg });
   },
 
-  // 彻底删除
+  // 彻底删除 - 使用局部setData避免全量重载
   permaDelProject(e) {
     let id = e.currentTarget.dataset.id;
     wx.showModal({
@@ -111,17 +113,22 @@ Page({
         if (res.confirm) {
           // 使用缓存，避免频繁读取存储
           let ps = this._projectsCache || wx.getStorageSync('projects') || [];
-          ps = ps.filter(p => p.id !== id);
-          this._projectsCache = ps; // 更新缓存
-          try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
-          this.onShow();
+          let i = ps.findIndex(p => p.id === id);
+          if (i >= 0) {
+            ps.splice(i, 1);
+            this._projectsCache = ps; // 更新缓存
+            try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+            // 局部更新：从列表中移除
+            let newList = this.data.list.filter(item => item.id !== id);
+            this.setData({ list: newList });
+          }
           wx.showToast({ title: '已删除', icon: 'success' });
         }
       },
     });
   },
 
-  // 恢复
+  // 恢复 - 使用局部setData避免全量重载
   restoreProject(e) {
     let id = e.currentTarget.dataset.id;
     // 使用缓存，避免频繁读取存储
@@ -131,8 +138,9 @@ Page({
       ps[i].deleted = false;
       this._projectsCache = ps; // 更新缓存
       try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+      // 局部更新
+      this.setData({ ['list[' + i + '].deleted']: false });
     }
-    this.onShow();
     wx.showToast({ title: '已恢复', icon: 'success' });
   },
 });

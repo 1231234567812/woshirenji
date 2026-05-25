@@ -16,7 +16,7 @@
       <text class="card-date">{{item.date}}</text>
     </view>
     <view class="card-imgs" wx:if="{{item.items.length > 0}}">
-      <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" wx:if="{{img.type === 'image' && index < 3}}" />
+      <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" lazy-load wx:if="{{img.type === 'image' && index < 3}}" />
     </view>
     <view class="card-ft">
       <text class="card-num">{{item.items.length}} 项</text>
@@ -33,7 +33,7 @@
   <view class="files-mask" wx:if="{{filesShow}}" bindtap="closeFiles"></view>
   <view class="files-modal" wx:if="{{filesShow}}">
     <view class="files-hd"><text class="files-title">保存的文件</text><text class="files-close" bindtap="closeFiles">✕</text></view>
-    <scroll-view class="files-body" scroll-y>
+    <scroll-view class="files-body" scroll-y enhanced show-scrollbar="{{false}}">
       <view wx:for="{{filesList}}" wx:key="name" class="files-item" bindtap="openFile" data-index="{{index}}">
         <text class="files-name">{{item.name}}</text>
         <text class="files-arrow">›</text>

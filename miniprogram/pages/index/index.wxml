@@ -60,7 +60,7 @@
             <text class="card-date">{{item.date}}</text>
           </view>
           <view class="card-imgs" wx:if="{{item.items.length > 0}}">
-            <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" wx:if="{{img.type === 'image' && index < 4}}" />
+            <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" lazy-load wx:if="{{img.type === 'image' && index < 4}}" />
           </view>
           <view class="card-ft">
             <text class="card-num">{{item.items.length}} 项</text>
@@ -125,7 +125,7 @@
             <text class="code-copy" bindtap="saveCodeFile">保存</text>
           </view>
         </view>
-        <scroll-view class="code-body" scroll-y><text class="code-text" user-select>{{codeShow}}</text></scroll-view>
+        <scroll-view class="code-body" scroll-y enhanced show-scrollbar="{{false}}"><text class="code-text" user-select>{{codeShow}}</text></scroll-view>
         <view class="one-click-copy" hover-class="btn-press" bindtap="copyCode">
           <text class="one-click-text">一键复制完整代码</text>
         </view>
@@ -138,7 +138,7 @@
       <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{textContent}}" bindtap="convertText">转为代码</view>
       <view class="code-box" wx:if="{{textResult}}">
         <view class="code-hd"><text class="code-label">Base64</text><text class="code-copy" bindtap="copyTextCode">复制</text></view>
-        <scroll-view class="code-body" scroll-y><text class="code-text" user-select>{{textResult}}</text></scroll-view>
+        <scroll-view class="code-body" scroll-y enhanced show-scrollbar="{{false}}"><text class="code-text" user-select>{{textResult}}</text></scroll-view>
       </view>
     </block>
 
@@ -148,7 +148,7 @@
       <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{decodeInput}}" bindtap="decodeToText">转为文字</view>
       <view class="code-box" wx:if="{{decodeResult}}">
         <view class="code-hd"><text class="code-label">解码结果</text><text class="code-copy" bindtap="copyDecode">复制</text></view>
-        <scroll-view class="code-body" scroll-y><text class="code-text" user-select>{{decodeResult}}</text></scroll-view>
+        <scroll-view class="code-body" scroll-y enhanced show-scrollbar="{{false}}"><text class="code-text" user-select>{{decodeResult}}</text></scroll-view>
       </view>
     </block>
 
@@ -189,7 +189,8 @@
 
         <view class="batch-list">
           <view wx:for="{{batchItems}}" wx:key="id" class="batch-card">
-            <image class="batch-thumb" src="{{item.path}}" mode="aspectFill" />
+            <view class="batch-num">{{index + 1}}</view>
+            <image class="batch-thumb" src="{{item.path}}" mode="aspectFill" lazy-load />
             <view class="batch-info">
               <text class="batch-size">{{item.size}}</text>
               <text class="batch-preview">{{item.code}}</text>
@@ -226,6 +227,152 @@
       </view>
     </block>
 
+    <!-- ========== 图片加水印 ========== -->
+    <block wx:if="{{mode === 'watermark'}}">
+      <view class="wm-hint">选择图片，添加自定义文字水印</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{!wmImagePath}}" bindtap="chooseWmImage">选择图片</view>
+      <view class="preview" wx:if="{{wmImagePath}}" bindtap="previewWmResult">
+        <image class="preview-img" src="{{wmResultPath || wmImagePath}}" mode="aspectFit" />
+        <text class="preview-tip">点击查看大图</text>
+      </view>
+
+      <view class="wm-settings" wx:if="{{wmImagePath && !wmProcessing}}">
+        <view class="wm-input-group">
+          <text class="wm-label">水印文字</text>
+          <input class="wm-input" placeholder="输入水印文字" value="{{wmText}}" bindinput="onWmTextInput" />
+        </view>
+
+        <view class="wm-row">
+          <text class="wm-label">水印位置</text>
+          <view class="wm-pos-opts">
+            <text class="wm-pos-opt {{wmPosition === 'top-left' ? 'active' : ''}}" bindtap="setWmPosition" data-pos="top-left">左上</text>
+            <text class="wm-pos-opt {{wmPosition === 'top-right' ? 'active' : ''}}" bindtap="setWmPosition" data-pos="top-right">右上</text>
+            <text class="wm-pos-opt {{wmPosition === 'center' ? 'active' : ''}}" bindtap="setWmPosition" data-pos="center">居中</text>
+            <text class="wm-pos-opt {{wmPosition === 'bottom-left' ? 'active' : ''}}" bindtap="setWmPosition" data-pos="bottom-left">左下</text>
+            <text class="wm-pos-opt {{wmPosition === 'bottom-right' ? 'active' : ''}}" bindtap="setWmPosition" data-pos="bottom-right">右下</text>
+          </view>
+        </view>
+
+        <view class="wm-row">
+          <text class="wm-label">水印颜色</text>
+          <view class="wm-color-opts">
+            <view class="wm-color-opt {{wmColor === '#ffffff' ? 'active' : ''}}" style="background: #ffffff;" bindtap="setWmColor" data-color="#ffffff"></view>
+            <view class="wm-color-opt {{wmColor === '#000000' ? 'active' : ''}}" style="background: #000000;" bindtap="setWmColor" data-color="#000000"></view>
+            <view class="wm-color-opt {{wmColor === '#ff0000' ? 'active' : ''}}" style="background: #ff0000;" bindtap="setWmColor" data-color="#ff0000"></view>
+            <view class="wm-color-opt {{wmColor === '#00ff00' ? 'active' : ''}}" style="background: #00ff00;" bindtap="setWmColor" data-color="#00ff00"></view>
+            <view class="wm-color-opt {{wmColor === '#0000ff' ? 'active' : ''}}" style="background: #0000ff;" bindtap="setWmColor" data-color="#0000ff"></view>
+            <view class="wm-color-opt {{wmColor === '#ffff00' ? 'active' : ''}}" style="background: #ffff00;" bindtap="setWmColor" data-color="#ffff00"></view>
+          </view>
+        </view>
+
+        <view class="wm-row">
+          <text class="wm-label">透明度 {{wmOpacity}}%</text>
+          <slider class="wm-slider" min="10" max="100" step="5" value="{{wmOpacity}}" activeColor="#667eea" bindchange="onWmOpacityChange" />
+        </view>
+
+        <view class="wm-row">
+          <text class="wm-label">字体大小 {{wmFontSize}}px</text>
+          <slider class="wm-slider" min="16" max="80" step="2" value="{{wmFontSize}}" activeColor="#667eea" bindchange="onWmFontSizeChange" />
+        </view>
+      </view>
+
+      <view class="btn btn-loading" wx:if="{{wmProcessing}}">处理中...</view>
+      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{wmImagePath && wmText && !wmProcessing}}" bindtap="addWatermark">添加水印</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{wmImagePath && !wmProcessing}}" bindtap="chooseWmImage">重新选择</view>
+
+      <view class="wm-actions" wx:if="{{wmResultPath}}">
+        <view class="wm-action-btn" hover-class="btn-press" bindtap="saveWmImage">保存到相册</view>
+        <view class="wm-action-btn wm-action-share" hover-class="btn-press" bindtap="shareWmImage">分享</view>
+      </view>
+
+      <!-- 隐藏的 Canvas 用于绘制水印 -->
+      <canvas type="2d" id="wmCanvas" class="wm-canvas"></canvas>
+    </block>
+
+    <!-- ========== 图片格式转换 ========== -->
+    <block wx:if="{{mode === 'fmt'}}">
+      <view class="fmt-hint">支持 PNG / JPG 格式互转</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{!fmtImg}}" bindtap="chooseFmtImg">选择图片</view>
+      <view class="preview" wx:if="{{fmtImg}}" bindtap="previewFmtResult">
+        <image class="preview-img" src="{{fmtResult || fmtImg}}" mode="aspectFit" />
+        <text class="preview-tip">点击查看大图</text>
+      </view>
+
+      <view class="fmt-info" wx:if="{{fmtImg && !fmtConverting}}">
+        <view class="fmt-row">
+          <text class="fmt-label">原始格式</text>
+          <text class="fmt-val">{{fmtFrom}}</text>
+        </view>
+        <view class="fmt-row" wx:if="{{fmtSize}}">
+          <text class="fmt-label">文件大小</text>
+          <text class="fmt-val">{{fmtSize}}</text>
+        </view>
+      </view>
+
+      <view class="fmt-bar" wx:if="{{fmtImg && !fmtConverting}}">
+        <text class="fmt-bar-label">转换为</text>
+        <view class="fmt-opts">
+          <text class="fmt-opt {{fmtTo === 'png' ? 'active' : ''}}" bindtap="setFmtTo" data-fmt="png">PNG</text>
+          <text class="fmt-opt {{fmtTo === 'jpg' ? 'active' : ''}}" bindtap="setFmtTo" data-fmt="jpg">JPG</text>
+        </view>
+      </view>
+
+      <view class="btn btn-loading" wx:if="{{fmtConverting}}">转换中...</view>
+      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{fmtImg && !fmtConverting}}" bindtap="doFmtConvert">开始转换</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{fmtImg && !fmtConverting}}" bindtap="chooseFmtImg">重新选择</view>
+
+      <view class="fmt-actions" wx:if="{{fmtResult}}">
+        <view class="fmt-btn" hover-class="btn-press" bindtap="saveFmtImg">保存到相册</view>
+        <view class="fmt-btn fmt-btn-share" hover-class="btn-press" bindtap="shareFmtImg">分享</view>
+      </view>
+
+      <canvas type="2d" id="fmtCanvas" class="fmt-canvas"></canvas>
+    </block>
+
+    <!-- ========== 图片压缩 ========== -->
+    <block wx:if="{{mode === 'compress'}}">
+      <view class="compress-hint">选择图片，压缩大小后保存或分享</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{!compressImagePath}}" bindtap="chooseCompressImage">选择图片</view>
+      <view class="preview" wx:if="{{compressImagePath}}" bindtap="previewCompressResult">
+        <image class="preview-img" src="{{compressResultPath || compressImagePath}}" mode="aspectFit" />
+        <text class="preview-tip">点击查看大图</text>
+      </view>
+
+      <view class="compress-info" wx:if="{{compressImagePath && !compressing}}">
+        <view class="compress-info-row">
+          <text class="compress-info-label">原始大小</text>
+          <text class="compress-info-value">{{compressOrigSize}}</text>
+        </view>
+        <view class="compress-info-row" wx:if="{{compressNewSize}}">
+          <text class="compress-info-label">压缩后</text>
+          <text class="compress-info-value compress-highlight">{{compressNewSize}}</text>
+        </view>
+        <view class="compress-info-row" wx:if="{{compressRatio}}">
+          <text class="compress-info-label">减小</text>
+          <text class="compress-info-value compress-ratio">-{{compressRatio}}%</text>
+        </view>
+      </view>
+
+      <view class="quality-bar" wx:if="{{compressImagePath && !compressing}}">
+        <text class="quality-label">压缩质量</text>
+        <view class="quality-opts">
+          <text class="quality-opt {{compressQualityLevel === 20 ? 'active' : ''}}" bindtap="setCompressQuality" data-q="20">极低</text>
+          <text class="quality-opt {{compressQualityLevel === 40 ? 'active' : ''}}" bindtap="setCompressQuality" data-q="40">低</text>
+          <text class="quality-opt {{compressQualityLevel === 60 ? 'active' : ''}}" bindtap="setCompressQuality" data-q="60">中</text>
+          <text class="quality-opt {{compressQualityLevel === 80 ? 'active' : ''}}" bindtap="setCompressQuality" data-q="80">高</text>
+        </view>
+      </view>
+
+      <view class="btn btn-loading" wx:if="{{compressing}}">压缩中...</view>
+      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{compressImagePath && !compressing && !compressResultPath}}" bindtap="doCompress">开始压缩</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{compressImagePath && !compressing && compressResultPath}}" bindtap="chooseCompressImage">重新选择</view>
+
+      <view class="compress-actions" wx:if="{{compressResultPath}}">
+        <view class="compress-action-btn" hover-class="btn-press" bindtap="saveCompressedImage">保存到相册</view>
+        <view class="compress-action-btn compress-action-share" hover-class="btn-press" bindtap="shareCompressedImage">分享</view>
+      </view>
+    </block>
+
     <view class="fab" hover-class="fab-press" bindtap="showMenu">
       <text class="fab-txt">+</text>
     </view>
@@ -234,7 +381,7 @@
       <view class="menu-hd">
         <text class="menu-title">选择功能</text>
       </view>
-      <view class="menu-grid">
+      <view class="menu-grid menu-grid-3">
         <view class="menu-card" hover-class="menu-card-press" bindtap="startImg2Code">
           <view class="menu-card-icon mc-1"><text>&#x1F5BC;</text></view>
           <text class="menu-card-label">图片转代码</text>
@@ -259,16 +406,28 @@
           <view class="menu-card-icon mc-6"><text>&#x1F4F2;</text></view>
           <text class="menu-card-label">生成二维码</text>
         </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startCompress">
+          <view class="menu-card-icon mc-7"><text>&#x1F4C4;</text></view>
+          <text class="menu-card-label">图片压缩</text>
+        </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startWatermark">
+          <view class="menu-card-icon mc-8"><text>&#x1F4DD;</text></view>
+          <text class="menu-card-label">图片加水印</text>
+        </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startFmt">
+          <view class="menu-card-icon mc-9"><text>&#x1F504;</text></view>
+          <text class="menu-card-label">格式转换</text>
+        </view>
       </view>
       <view class="menu-cancel" bindtap="hideMenu">取消</view>
     </view>
 
     <view wx:if="{{images.length > 0}}" class="history">
       <text class="h-title">历史记录</text>
-      <scroll-view class="h-list" scroll-x>
+      <scroll-view class="h-list" scroll-x enhanced show-scrollbar="{{false}}">
         <view wx:for="{{images}}" wx:key="id" class="h-item" wx:if="{{index < 20}}">
           <view class="h-item-main" bindtap="loadHistory" data-index="{{index}}">
-            <image wx:if="{{item.type === 'image'}}" class="h-img" src="{{item.path}}" mode="aspectFill" />
+            <image wx:if="{{item.type === 'image'}}" class="h-img" src="{{item.path}}" mode="aspectFill" lazy-load />
             <view wx:else class="h-text-card">
               <text class="h-text-preview">{{item.preview}}</text>
             </view>
@@ -287,7 +446,7 @@
   <view class="files-mask" wx:if="{{filesShow}}" bindtap="closeFiles"></view>
   <view class="files-modal" wx:if="{{filesShow}}">
     <view class="files-hd"><text class="files-title">保存的文件</text><text class="files-close" bindtap="closeFiles">&#x2715;</text></view>
-    <scroll-view class="files-body" scroll-y>
+    <scroll-view class="files-body" scroll-y enhanced show-scrollbar="{{false}}">
       <view wx:for="{{filesList}}" wx:key="name" class="files-item" bindtap="openFile" data-index="{{index}}">
         <text class="files-name">{{item.name}}</text>
         <text class="files-arrow">›</text>
