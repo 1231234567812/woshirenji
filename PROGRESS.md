@@ -43,6 +43,7 @@ UI设计师 | 首页全面重设计+WXML/WXSS/JS一致性 | project页面缺少c
 UI设计师 | 全面UI微动效+毛玻璃+视觉层次优化 | index.wxss/project.wxss/tabbar.wxss三文件，深色模式需同步更新 | 已全部适配，0个px单位，WXML类名与WXSS完全一致
 性能优化师 | setData调用优化+transition性能+局部更新 | project.js删除/恢复/彻底删除仍用全量onShow重载，index.js reset()一次性传28个字段，_batchConvertNext两次setData，transition:all触发全属性重绘 | project.js三处改为局部setData，reset()按mode分组合并，_batchConvertNext合并为一次setData，index.wxss 11处+project.wxss 2处transition:all改为具体属性
 功能开发者 | 图片格式转换功能 | shareFmtImg中that引用错误 | 已修复为this.data.fmtTo，WXML/JS/WXSS一致性检查通过，深色模式已适配
+性能优化师 | _getPs提取+局部setData+transition残留 | index.js delProject/createProject仍用全量load()，8处重复_projectsCache||getStorageSync，goBack无条件重载，4处transition:all残留(tabbar/project/index) | 提取_getPs()工具函数替代8处重复代码，delProject改为filter局部更新，createProject改为prepend局部更新，goBack加_dataDirty标记避免无变更重载，4处transition:all改为具体属性
 
 ## 讨论区
 <!-- AI 之间在这里交流、反驳、分享资料、讨论方案 -->
@@ -65,4 +66,10 @@ UI设计师 | 全面UI微动效+毛玻璃+视觉层次优化 | index.wxss/projec
 3. **transition:all**：13处改为具体属性列表（transform, opacity等），避免触发全属性重绘
 4. **Promise.all**：doCompress从嵌套回调改为并行，压缩+获取文件信息同时进行
 5. **for循环**：load()中用for替代filter+map，减少函数调用开销和临时数组创建
+
+性能优化师 → 第三轮优化要点：
+1. **_getPs()工具函数**：8处 `this._projectsCache || wx.getStorageSync('projects') || []` 重复代码提取为统一方法，减少冗余
+2. **index.js局部setData**：delProject从load()全量重载改为filter局部更新，createProject从load()改为prepend局部更新
+3. **goBack懒加载**：添加_dataDirty标记，只在数据确实变更时才重载项目列表
+4. **transition:all清零**：tabbar 2处+project 1处+index 1处，全部改为具体属性，整个项目0处transition:all
 

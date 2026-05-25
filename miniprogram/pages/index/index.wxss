@@ -301,7 +301,7 @@ page { background: #F5F5F7; }
 .fmt-bar { display: flex; align-items: center; justify-content: space-between; padding: 16rpx 20rpx; margin-bottom: 16rpx; border-radius: 16rpx; background: #fff; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
 .fmt-bar-label { font-size: 26rpx; color: #8892b0; }
 .fmt-opts { display: flex; gap: 12rpx; }
-.fmt-opt { font-size: 24rpx; color: #8892b0; padding: 10rpx 28rpx; border-radius: 12rpx; background: #f0f4f8; transition: all 0.2s ease; font-weight: 600; }
+.fmt-opt { font-size: 24rpx; color: #8892b0; padding: 10rpx 28rpx; border-radius: 12rpx; background: #f0f4f8; transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease; font-weight: 600; }
 .fmt-opt.active { color: #fff; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 4rpx 16rpx rgba(102,126,234,0.3); }
 .fmt-actions { display: flex; gap: 16rpx; margin-bottom: 16rpx; }
 .fmt-btn { flex: 1; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 20rpx; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; font-size: 28rpx; font-weight: 600; box-shadow: 0 8rpx 24rpx rgba(102,126,234,0.3); }
