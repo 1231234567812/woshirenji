@@ -64,6 +64,14 @@ Page({
     cropResult: '',
     cropSize: '',
     cropping: false,
+    // 图片旋转
+    rotImg: '',
+    rotDeg: 0,
+    rotFlipH: false,
+    rotFlipV: false,
+    rotResult: '',
+    rotSize: '',
+    rotating: false,
   },
 
   _fullCode: '',
@@ -545,6 +553,14 @@ Page({
       menuShow: false, mode: 'crop', cropImg: '',
       cropW: 0, cropH: 0, cropRatio: 'free',
       cropResult: '', cropSize: '', cropping: false,
+    });
+  },
+  startRotate() {
+    this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
+    this.setData({
+      menuShow: false, mode: 'rotate', rotImg: '',
+      rotDeg: 0, rotFlipH: false, rotFlipV: false,
+      rotResult: '', rotSize: '', rotating: false,
     });
   },
 
@@ -1277,6 +1293,152 @@ Page({
 
   previewCropResult() {
     if (this.data.cropResult) wx.previewImage({ urls: [this.data.cropResult] });
+  },
+
+  // ========== 图片旋转 ==========
+  chooseRotImg() {
+    let that = this;
+    let onSuccess = (res) => {
+      let p = '';
+      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
+      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      that.setData({ rotImg: p, rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '' });
+    };
+    if (wx.chooseMedia) {
+      wx.chooseMedia({ count: 1, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    } else {
+      wx.chooseImage({ count: 1, sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    }
+  },
+
+  rotLeft() { this.setData({ rotDeg: (this.data.rotDeg + 270) % 360 }); },
+  rotRight() { this.setData({ rotDeg: (this.data.rotDeg + 90) % 360 }); },
+  rotFlipH() { this.setData({ rotFlipH: !this.data.rotFlipH }); },
+  rotFlipV() { this.setData({ rotFlipV: !this.data.rotFlipV }); },
+
+  doRotate() {
+    let that = this;
+    let { rotImg, rotDeg, rotFlipH, rotFlipV } = this.data;
+    if (!rotImg) return;
+
+    this.setData({ rotating: true });
+    wx.showNavigationBarLoading();
+
+    wx.getImageInfo({
+      src: rotImg,
+      success(info) {
+        let iw = info.width, ih = info.height;
+        // 90/270度旋转时宽高互换
+        let isRightAngle = (rotDeg === 90 || rotDeg === 270);
+        let cw = isRightAngle ? ih : iw;
+        let ch = isRightAngle ? iw : ih;
+
+        const query = wx.createSelectorQuery();
+        query.select('#rotCanvas').fields({ node: true, size: true }).exec((res) => {
+          if (!res[0] || !res[0].node) {
+            that.setData({ rotating: false });
+            wx.hideNavigationBarLoading();
+            wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
+            return;
+          }
+          const canvas = res[0].node;
+          const ctx = canvas.getContext('2d');
+          canvas.width = cw;
+          canvas.height = ch;
+
+          const img = canvas.createImage();
+          img.onload = function() {
+            ctx.save();
+            ctx.translate(cw / 2, ch / 2);
+            ctx.rotate(rotDeg * Math.PI / 180);
+            if (rotFlipH) ctx.scale(-1, 1);
+            if (rotFlipV) ctx.scale(1, -1);
+            ctx.drawImage(img, -iw / 2, -ih / 2, iw, ih);
+            ctx.restore();
+
+            wx.canvasToTempFilePath({
+              canvas: canvas,
+              quality: 0.9,
+              success(r) {
+                let fs = wx.getFileSystemManager();
+                let dest = wx.env.USER_DATA_PATH + '/rot_' + Date.now() + '.jpg';
+                fs.copyFile({
+                  srcPath: r.tempFilePath, destPath: dest,
+                  success() {
+                    wx.getFileInfo({
+                      filePath: dest,
+                      success(fi) {
+                        let kb = (fi.size / 1024).toFixed(1);
+                        that.setData({ rotResult: dest, rotSize: kb + ' KB', rotating: false });
+                        wx.hideNavigationBarLoading();
+                        wx.showToast({ title: '旋转完成', icon: 'success' });
+                      },
+                      fail() {
+                        that.setData({ rotResult: dest, rotSize: '', rotating: false });
+                        wx.hideNavigationBarLoading();
+                      },
+                    });
+                  },
+                  fail() {
+                    that.setData({ rotResult: r.tempFilePath, rotSize: '', rotating: false });
+                    wx.hideNavigationBarLoading();
+                  },
+                });
+              },
+              fail() {
+                that.setData({ rotating: false });
+                wx.hideNavigationBarLoading();
+                wx.showToast({ title: '导出失败', icon: 'none' });
+              },
+            });
+          };
+          img.onerror = function() {
+            that.setData({ rotating: false });
+            wx.hideNavigationBarLoading();
+            wx.showToast({ title: '图片加载失败', icon: 'none' });
+          };
+          img.src = rotImg;
+        });
+      },
+      fail() {
+        that.setData({ rotating: false });
+        wx.hideNavigationBarLoading();
+        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
+      },
+    });
+  },
+
+  saveRotImg() {
+    let p = this.data.rotResult;
+    if (!p) return;
+    wx.saveImageToPhotosAlbum({
+      filePath: p,
+      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
+      fail(res) {
+        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
+          wx.showModal({ title: '需要授权', content: '请在设置中允许保存到相册', success(r) { if (r.confirm) wx.openSetting(); } });
+        } else {
+          wx.showToast({ title: '保存失败', icon: 'none' });
+        }
+      },
+    });
+  },
+
+  shareRotImg() {
+    let p = this.data.rotResult;
+    if (!p) return;
+    wx.showActionSheet({
+      itemList: ['转发给朋友', '用其他应用打开'],
+      success(r) {
+        if (r.tapIndex === 0) wx.shareFileMessage({ filePath: p, fileName: 'rotated.jpg' });
+        else if (r.tapIndex === 1) wx.openDocument({ filePath: p, showMenu: true });
+      },
+    });
+  },
+
+  previewRotResult() {
+    if (this.data.rotResult) wx.previewImage({ urls: [this.data.rotResult] });
   },
 
   quickAction(e) {

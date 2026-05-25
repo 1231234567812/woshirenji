@@ -419,6 +419,50 @@
       <canvas type="2d" id="cropCanvas" class="crop-canvas"></canvas>
     </block>
 
+    <!-- ========== 图片旋转 ========== -->
+    <block wx:if="{{mode === 'rotate'}}">
+      <view class="rot-hint">旋转或翻转图片</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{!rotImg}}" bindtap="chooseRotImg">选择图片</view>
+      <view class="preview" wx:if="{{rotImg}}" bindtap="previewRotResult">
+        <image class="preview-img" src="{{rotResult || rotImg}}" mode="aspectFit" />
+        <text class="preview-tip">点击查看大图</text>
+      </view>
+
+      <view class="rot-ctrl" wx:if="{{rotImg && !rotating}}">
+        <view class="rot-btn" hover-class="btn-press" bindtap="rotLeft">
+          <text class="rot-icon">&#x21BA;</text>
+          <text class="rot-label">左转90°</text>
+        </view>
+        <view class="rot-btn" hover-class="btn-press" bindtap="rotRight">
+          <text class="rot-icon">&#x21BB;</text>
+          <text class="rot-label">右转90°</text>
+        </view>
+        <view class="rot-btn {{rotFlipH ? 'rot-btn-on' : ''}}" hover-class="btn-press" bindtap="rotFlipH">
+          <text class="rot-icon">&#x2194;</text>
+          <text class="rot-label">水平翻转</text>
+        </view>
+        <view class="rot-btn {{rotFlipV ? 'rot-btn-on' : ''}}" hover-class="btn-press" bindtap="rotFlipV">
+          <text class="rot-icon">&#x2195;</text>
+          <text class="rot-label">垂直翻转</text>
+        </view>
+      </view>
+
+      <view class="rot-info" wx:if="{{rotImg && !rotating}}">
+        <text class="rot-angle">当前旋转：{{rotDeg}}°</text>
+      </view>
+
+      <view class="btn btn-loading" wx:if="{{rotating}}">处理中...</view>
+      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{rotImg && !rotating}}" bindtap="doRotate">应用变换</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{rotImg && !rotating}}" bindtap="chooseRotImg">重新选择</view>
+
+      <view class="rot-actions" wx:if="{{rotResult}}">
+        <view class="rot-save" hover-class="btn-press" bindtap="saveRotImg">保存到相册</view>
+        <view class="rot-share" hover-class="btn-press" bindtap="shareRotImg">分享</view>
+      </view>
+
+      <canvas type="2d" id="rotCanvas" class="rot-canvas"></canvas>
+    </block>
+
     <!-- ========== 图片压缩 ========== -->
     <block wx:if="{{mode === 'compress'}}">
       <view class="compress-hint">选择图片，压缩大小后保存或分享</view>
@@ -515,6 +559,10 @@
         <view class="menu-card" hover-class="menu-card-press" bindtap="startCrop">
           <view class="menu-card-icon mc-11"><text>&#x2702;</text></view>
           <text class="menu-card-label">图片裁剪</text>
+        </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startRotate">
+          <view class="menu-card-icon mc-12"><text>&#x21BA;</text></view>
+          <text class="menu-card-label">旋转翻转</text>
         </view>
       </view>
       <view class="menu-cancel" bindtap="hideMenu">取消</view>
