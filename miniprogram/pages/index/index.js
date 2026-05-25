@@ -545,6 +545,8 @@ Page({
       this.setData({ cropImg: '', cropW: 0, cropH: 0, cropRatio: 'free', cropResult: '', cropSize: '', cropping: false });
     } else if (m === 'rotate') {
       this.setData({ rotImg: '', rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '', rotating: false });
+    } else if (m === 'color') {
+      this.setData({ colorImg: '', colorList: [], colorPicking: false });
     }
   },
   startImg2Code() { this.reset('img2code'); },
@@ -559,6 +561,7 @@ Page({
   startResize() { this.reset('resize'); },
   startCrop() { this.reset('crop'); },
   startRotate() { this.reset('rotate'); },
+  startColor() { this.reset('color'); },
 
   // ========== 图片压缩 ==========
   chooseCompressImage() {
@@ -1435,6 +1438,107 @@ Page({
 
   previewRotResult() {
     if (this.data.rotResult) wx.previewImage({ urls: [this.data.rotResult] });
+  },
+
+  // ========== 颜色提取 ==========
+  chooseColorImg() {
+    let that = this;
+    let onSuccess = (res) => {
+      let p = '';
+      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
+      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      that.setData({ colorImg: p, colorList: [] });
+      that._extractColors(p);
+    };
+    if (wx.chooseMedia) {
+      wx.chooseMedia({ count: 1, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    } else {
+      wx.chooseImage({ count: 1, sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    }
+  },
+
+  _extractColors(imgPath) {
+    let that = this;
+    this.setData({ colorPicking: true });
+    wx.showNavigationBarLoading();
+
+    wx.getImageInfo({
+      src: imgPath,
+      success(info) {
+        // 缩小到 50x50 加速采样
+        let sw = 50, sh = 50;
+        const query = wx.createSelectorQuery();
+        query.select('#colorCanvas').fields({ node: true, size: true }).exec((res) => {
+          if (!res[0] || !res[0].node) {
+            that.setData({ colorPicking: false });
+            wx.hideNavigationBarLoading();
+            wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
+            return;
+          }
+          const canvas = res[0].node;
+          const ctx = canvas.getContext('2d');
+          canvas.width = sw;
+          canvas.height = sh;
+
+          const img = canvas.createImage();
+          img.onload = function() {
+            ctx.drawImage(img, 0, 0, sw, sh);
+            let imgData = ctx.getImageData(0, 0, sw, sh);
+            let pixels = imgData.data;
+            let colors = that._clusterColors(pixels, 8);
+            that.setData({ colorList: colors, colorPicking: false });
+            wx.hideNavigationBarLoading();
+          };
+          img.onerror = function() {
+            that.setData({ colorPicking: false });
+            wx.hideNavigationBarLoading();
+            wx.showToast({ title: '图片加载失败', icon: 'none' });
+          };
+          img.src = imgPath;
+        });
+      },
+      fail() {
+        that.setData({ colorPicking: false });
+        wx.hideNavigationBarLoading();
+        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
+      },
+    });
+  },
+
+  _clusterColors(pixels, count) {
+    // 简单量化：将颜色空间划分为 count 个桶，取最常见的
+    let buckets = {};
+    let total = pixels.length / 4;
+    for (let i = 0; i < pixels.length; i += 4) {
+      let r = Math.round(pixels[i] / 32) * 32;
+      let g = Math.round(pixels[i+1] / 32) * 32;
+      let b = Math.round(pixels[i+2] / 32) * 32;
+      let key = r + ',' + g + ',' + b;
+      if (!buckets[key]) buckets[key] = { r: 0, g: 0, b: 0, count: 0 };
+      buckets[key].r += pixels[i];
+      buckets[key].g += pixels[i+1];
+      buckets[key].b += pixels[i+2];
+      buckets[key].count++;
+    }
+    let arr = Object.values(buckets).sort((a, b) => b.count - a.count).slice(0, count);
+    return arr.map((c, i) => {
+      let r = Math.round(c.r / c.count);
+      let g = Math.round(c.g / c.count);
+      let b = Math.round(c.b / c.count);
+      let hex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+      let pct = (c.count / total * 100).toFixed(1);
+      return { hex: hex, r: r, g: g, b: b, pct: pct, id: i };
+    });
+  },
+
+  copyColorHex(e) {
+    let hex = e.currentTarget.dataset.hex;
+    wx.setClipboardData({ data: hex, success: () => wx.showToast({ title: '已复制 ' + hex, icon: 'success' }) });
+  },
+
+  previewColorImg() {
+    if (this.data.colorImg) wx.previewImage({ urls: [this.data.colorImg] });
   },
 
   quickAction(e) {
