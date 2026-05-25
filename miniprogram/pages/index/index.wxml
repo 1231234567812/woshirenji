@@ -485,6 +485,33 @@
       <canvas type="2d" id="rotCanvas" class="rot-canvas"></canvas>
     </block>
 
+    <!-- ========== 颜色提取 ========== -->
+    <block wx:if="{{mode === 'color'}}">
+      <view class="clr-hint">从图片中提取主色调色板</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{!colorImg}}" bindtap="chooseColorImg">选择图片</view>
+      <view class="preview" wx:if="{{colorImg}}" bindtap="previewColorImg">
+        <image class="preview-img" src="{{colorImg}}" mode="aspectFit" />
+        <text class="preview-tip">点击查看大图</text>
+      </view>
+
+      <view class="btn btn-loading" wx:if="{{colorPicking}}">提取中...</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{colorImg && !colorPicking}}" bindtap="chooseColorImg">重新选择</view>
+
+      <view class="clr-palette" wx:if="{{colorList.length > 0}}">
+        <text class="clr-title">主色调色板</text>
+        <view wx:for="{{colorList}}" wx:key="id" class="clr-item" bindtap="copyColorHex" data-hex="{{item.hex}}">
+          <view class="clr-swatch" style="background: {{item.hex}};"></view>
+          <view class="clr-info">
+            <text class="clr-hex">{{item.hex}}</text>
+            <text class="clr-rgb">RGB({{item.r}},{{item.g}},{{item.b}})</text>
+          </view>
+          <text class="clr-pct">{{item.pct}}%</text>
+        </view>
+      </view>
+
+      <canvas type="2d" id="colorCanvas" class="clr-canvas"></canvas>
+    </block>
+
     <!-- ========== 图片压缩 ========== -->
     <block wx:if="{{mode === 'compress'}}">
       <view class="compress-hint">选择图片，压缩大小后保存或分享</view>
@@ -585,6 +612,10 @@
         <view class="menu-card" hover-class="menu-card-press" bindtap="startRotate">
           <view class="menu-card-icon mc-12"><text>&#x21BA;</text></view>
           <text class="menu-card-label">旋转翻转</text>
+        </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startColor">
+          <view class="menu-card-icon mc-13"><text>&#x1F3A8;</text></view>
+          <text class="menu-card-label">提取颜色</text>
         </view>
       </view>
       <view class="menu-cancel" bindtap="hideMenu">取消</view>
