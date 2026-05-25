@@ -648,6 +648,10 @@
           <view class="menu-card-icon mc-13"><text>&#x1F3A8;</text></view>
           <text class="menu-card-label">提取颜色</text>
         </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startMosaic">
+          <view class="menu-card-icon mc-14"><text>&#x1F9EA;</text></view>
+          <text class="menu-card-label">图片马赛克</text>
+        </view>
       </view>
       <view class="menu-cancel" bindtap="hideMenu">取消</view>
     </view>
