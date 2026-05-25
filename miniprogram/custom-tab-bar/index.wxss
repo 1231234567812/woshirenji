@@ -8,8 +8,8 @@
   justify-content: space-around;
   align-items: center;
   border-radius: 40rpx;
-  background: rgba(241, 250, 238, 0.82);
-  box-shadow: 0 4rpx 32rpx rgba(29, 53, 87, 0.1);
+  background: rgba(240, 244, 248, 0.85);
+  box-shadow: 0 4rpx 32rpx rgba(26, 26, 46, 0.08);
   overflow: hidden;
   z-index: 9999;
 }
@@ -20,8 +20,8 @@
   width: 40%;
   height: 84rpx;
   border-radius: 24rpx;
-  background: rgba(168, 218, 220, 0.82);
-  box-shadow: 0 0 24rpx rgba(69, 123, 157, 0.35), 0 0 48rpx rgba(168, 218, 220, 0.25);
+  background: rgba(102, 126, 234, 0.15);
+  box-shadow: 0 0 24rpx rgba(102, 126, 234, 0.2), 0 0 48rpx rgba(118, 75, 162, 0.1);
   transition: left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -62,10 +62,10 @@
 }
 
 .tab-text.on {
-  color: #457b9d;
+  color: #667eea;
   font-weight: 600;
 }
 
 /* 深色 */
-.tab-bar.dark { background: rgba(22, 33, 62, 0.92); }
-.bubble.dark { background: rgba(69, 123, 157, 0.5); box-shadow: none; }
+.tab-bar.dark { background: rgba(13, 13, 26, 0.92); }
+.bubble.dark { background: rgba(102, 126, 234, 0.25); box-shadow: none; }

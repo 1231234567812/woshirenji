@@ -7,6 +7,7 @@
     "custom": true,
     "color": "#999",
     "selectedColor": "#667eea",
+    "backgroundColor": "#f0f4f8",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -23,12 +24,12 @@
     ]
   },
   "window": {
-    "navigationBarBackgroundColor": "#f1faee",
+    "navigationBarBackgroundColor": "#f0f4f8",
     "navigationBarTitleText": "图片转代码",
     "navigationBarTextStyle": "black",
     "enablePullDownRefresh": false,
     "backgroundTextStyle": "dark",
-    "backgroundColor": "#f1faee"
+    "backgroundColor": "#f0f4f8"
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",

@@ -9,6 +9,8 @@
   </view>
 
   <view wx:for="{{list}}" wx:key="id" class="card" bindtap="openProject" data-id="{{item.id}}">
+    <view class="card-accent"></view>
+    <view class="card-body">
     <view class="card-hd">
       <text class="card-name">{{item.name}}{{item.deleted ? '(已删)' : ''}}</text>
       <text class="card-date">{{item.date}}</text>
@@ -23,6 +25,7 @@
         <text class="card-perma" wx:if="{{item.deleted}}" catchtap="permaDelProject" data-id="{{item.id}}">彻底删除</text>
         <text class="card-del" wx:if="{{!item.deleted}}" catchtap="delProject" data-id="{{item.id}}">删除</text>
       </view>
+    </view>
     </view>
   </view>
 

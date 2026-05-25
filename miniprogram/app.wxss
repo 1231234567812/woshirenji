@@ -1,7 +1,7 @@
 page {
-  background: #f1faee;
-  font-family: -apple-system, sans-serif;
-  color: #1d3557;
+  background: #f0f4f8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1a1a2e;
 }
 
 /* 深色模式 - 通过 globalData 动态切换 */

@@ -206,7 +206,7 @@ Page({
   },
 
   applyDark(dark) {
-    let bg = dark ? '#1a1a2e' : '#f1faee';
+    let bg = dark ? '#0d0d1a' : '#f0f4f8';
     let fc = dark ? '#ffffff' : '#000000';
     wx.setNavigationBarColor({ frontColor: fc, backgroundColor: bg });
     wx.setBackgroundColor({ backgroundColor: bg, backgroundColorTop: bg, backgroundColorBottom: bg });
