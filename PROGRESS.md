@@ -10,7 +10,7 @@ UI 已全面升级：Apple风格flat design配色、卡片式布局、毛玻璃�
 
 ## 最近正常版本
 <!-- 每次确认代码没问题后更新这里的 commit hash -->
-`ae5e55a` - 图片裁剪功能完成，补全缺失样式
+`ec14edd` - 图片旋转翻转功能完成
 
 ## 当前正在做的事
 <!-- AI 开工前在这里写：我叫XXX，我要做XXX -->
@@ -30,7 +30,8 @@ UI 已全面升级：Apple风格flat design配色、卡片式布局、毛玻璃�
 - **UI深度优化**：Hero区域脉冲+浮动微动效、快捷卡片顶部光效+图标弥散投影、项目卡片按压缩放、代码块渐变背景+等宽字体、进度条shimmer动画、加载按钮shimmer流光、TabBar毛玻璃backdrop-filter、底部菜单拖拽指示条、深色模式全面适配新样式
 - **性能优化第二轮**：project.js三处CRUD改为局部setData避免全量重载、index.js reset()按mode分组减少冗余setData、_batchConvertNext合并两次setData为一次、load()用for循环替代filter+map、doCompress用Promise.all替代嵌套回调、13处transition:all改为具体属性减少GPU重绘
 - **新功能**：图片格式转换（PNG/JPG互转）、图片加水印（自定义文字/位置/颜色/透明度）、图片尺寸调整（自定义宽高/等比缩放）
-- **Apple风格配色迁移**：全面替换蓝紫渐变(#667eea/#764ba2)为Apple flat design配色，强调色#0071E3、背景#F5F5F7、文字#1D1D1F、卡片纯白+阴影，所有渐变改为纯色，深色模式同步更新、图片裁剪（自由/1:1/4:3/16:9比例）
+- **Apple风格配色迁移**：全面替换蓝紫渐变为Apple flat design配色
+- **新功能**：图片裁剪（自由/1:1/4:3/16:9比例）、图片旋转翻转（左转/右转90°、水平/垂直翻转）
 
 ## 已知问题
 （发现 bug 写这里）

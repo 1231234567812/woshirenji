@@ -73,6 +73,10 @@ Page({
     rotResult: '',
     rotSize: '',
     rotating: false,
+    // 颜色提取
+    colorImg: '',
+    colorList: [],
+    colorPicking: false,
   },
 
   _fullCode: '',
