@@ -26,13 +26,18 @@ Page({
     let projects = wx.getStorageSync('projects') || [];
     this._projectsCache = projects;
 
-    // 缓存映射结果，避免每次onShow都重新map
-    let mapped = projects.map(p => ({
-      id: p.id, name: p.name, date: p.date, deleted: p.deleted,
-      items: (p.items || []).map(img => ({
-        id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview,
-      })),
-    }));
+    // 用for循环替代map，减少函数调用开销
+    let mapped = [];
+    for (let i = 0; i < projects.length; i++) {
+      let p = projects[i];
+      let items = p.items || [];
+      let imgs = [];
+      for (let j = 0; j < items.length; j++) {
+        let img = items[j];
+        imgs.push({ id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview });
+      }
+      mapped.push({ id: p.id, name: p.name, date: p.date, deleted: p.deleted, items: imgs });
+    }
     this.setData({ list: mapped });
     this._lastLoadTime = now;
   },

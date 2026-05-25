@@ -5,20 +5,20 @@
 
 ## 当前状态
 基础功能已实现：图片/文字与 Base64 互转，有首页和历史两个页面
-UI 已全面升级：现代渐变配色、卡片式布局、毛玻璃效果
+UI 已全面升级：Apple风格flat design配色、卡片式布局、毛玻璃效果
 性能已优化：setData调用优化、数据缓存机制、防抖处理
 
 ## 最近正常版本
 <!-- 每次确认代码没问题后更新这里的 commit hash -->
-`e6c2669` - 图片格式转换+尺寸调整功能完成
+`ae5e55a` - 图片裁剪功能完成，补全缺失样式
 
 ## 当前正在做的事
 <!-- AI 开工前在这里写：我叫XXX，我要做XXX -->
 <!-- 做完后删掉，避免其他 AI 重复做 -->
-功能开发者 → 添加「图片裁剪」功能，支持自由裁剪和预设比例
+功能开发者 → 添加「图片旋转」功能，支持90度旋转和水平/垂直翻转
 
 ## 最近改动
-- UI 全面升级：从旧版蓝绿色系改为现代紫蓝渐变(#667eea→#764ba2)
+- UI 全面升级：从紫蓝渐变改为Apple风格flat design配色(#0071E3强调色+#F5F5F7背景)
 - 首页新增 Hero 区域 + 2x2 快捷功能网格
 - 项目卡片改为左侧渐变色条 + 弥散投影设计
 - 底部菜单改为卡片式网格布局
@@ -30,6 +30,7 @@ UI 已全面升级：现代渐变配色、卡片式布局、毛玻璃效果
 - **UI深度优化**：Hero区域脉冲+浮动微动效、快捷卡片顶部光效+图标弥散投影、项目卡片按压缩放、代码块渐变背景+等宽字体、进度条shimmer动画、加载按钮shimmer流光、TabBar毛玻璃backdrop-filter、底部菜单拖拽指示条、深色模式全面适配新样式
 - **性能优化第二轮**：project.js三处CRUD改为局部setData避免全量重载、index.js reset()按mode分组减少冗余setData、_batchConvertNext合并两次setData为一次、load()用for循环替代filter+map、doCompress用Promise.all替代嵌套回调、13处transition:all改为具体属性减少GPU重绘
 - **新功能**：图片格式转换（PNG/JPG互转）、图片加水印（自定义文字/位置/颜色/透明度）、图片尺寸调整（自定义宽高/等比缩放）
+- **Apple风格配色迁移**：全面替换蓝紫渐变(#667eea/#764ba2)为Apple flat design配色，强调色#0071E3、背景#F5F5F7、文字#1D1D1F、卡片纯白+阴影，所有渐变改为纯色，深色模式同步更新、图片裁剪（自由/1:1/4:3/16:9比例）
 
 ## 已知问题
 （发现 bug 写这里）
@@ -47,6 +48,9 @@ UI设计师 | 全面UI微动效+毛玻璃+视觉层次优化 | index.wxss/projec
 功能开发者 | 图片格式转换功能 | shareFmtImg中that引用错误 | 已修复为this.data.fmtTo，WXML/JS/WXSS一致性检查通过，深色模式已适配
 功能开发者 | 图片尺寸调整功能 | WXML/JS/WXSS一致性检查 | 全部通过，Canvas 2D API用法确认，深色模式已适配，审查无问题
 性能优化师 | Canvas公共方法提取 | doResize和doFmtConvert各有40+行重复的Canvas初始化→绘制→导出→保存逻辑 | 提取_canvasExport()公共方法，doResize从60行精简到15行，doFmtConvert从70行精简到20行，减少约80行重复代码
+功能开发者 | 图片裁剪功能 | WXSS被其他AI重写后缺少resize/compress/watermark样式 | 已补全所有缺失样式，裁剪功能WXML/JS/WXSS一致性通过，深色模式已适配
+
+UI设计师 | 全面Apple风格配色迁移 | index.wxss/project.wxss/tabbar.wxss/app.wxss中大量蓝紫渐变残留，index.wxml slider activeColor硬编码旧色值，applyDark()导航栏背景色使用旧色值 | 全部替换为Apple配色：强调色#0071E3(深色#0A84FF)、背景#F5F5F7(深色#000)、文字#1D1D1F(深色#F5F5F7)、灰色#86868B(深色#98989D)、卡片纯白+阴影(深色#1C1C1E)，所有gradient渐变改为纯色，0个旧色值残留
 
 ## 讨论区
 <!-- AI 之间在这里交流、反驳、分享资料、讨论方案 -->

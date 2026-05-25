@@ -87,5 +87,5 @@
   box-shadow: 0 0 24rpx rgba(10, 132, 255, 0.12);
   border: 1rpx solid rgba(10,132,255,0.12);
 }
-.tab-text.dark { color: #98989D; }
-.tab-text.dark.on { color: #0A84FF; }
+.dark .tab-text { color: #98989D; }
+.dark .tab-text.on { color: #0A84FF; }
