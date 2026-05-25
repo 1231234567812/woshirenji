@@ -46,8 +46,30 @@
       <text class="browse-arrow">›</text>
     </view>
 
+    <!-- 骨架屏加载 -->
+    <block wx:if="{{loading}}">
+      <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+        <view class="skeleton-accent"></view>
+        <view class="skeleton-body">
+          <view class="skeleton-row">
+            <view class="skeleton-line skeleton-title"></view>
+            <view class="skeleton-line skeleton-date"></view>
+          </view>
+          <view class="skeleton-imgs">
+            <view class="skeleton-img"></view>
+            <view class="skeleton-img"></view>
+            <view class="skeleton-img"></view>
+            <view class="skeleton-img"></view>
+          </view>
+          <view class="skeleton-row">
+            <view class="skeleton-line skeleton-count"></view>
+          </view>
+        </view>
+      </view>
+    </block>
+
     <!-- 项目列表 -->
-    <block wx:if="{{projects.length > 0}}">
+    <block wx:if="{{!loading && projects.length > 0}}">
       <view class="section-header">
         <text class="section-title">我的项目</text>
         <text class="section-count">{{projects.length}} 个</text>
@@ -71,7 +93,7 @@
     </block>
 
     <!-- 空状态 -->
-    <view wx:if="{{projects.length === 0}}" class="empty-state">
+    <view wx:if="{{!loading && projects.length === 0}}" class="empty-state">
       <text class="empty-icon">&#x1F4E6;</text>
       <text class="empty-text">还没有项目</text>
       <text class="empty-hint">点击下方 + 创建第一个项目</text>
