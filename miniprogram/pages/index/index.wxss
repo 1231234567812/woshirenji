@@ -53,14 +53,14 @@ page { background: #F5F5F7; }
 .card:nth-child(4) { animation-delay: 0.18s; }
 .card:nth-child(5) { animation-delay: 0.24s; }
 .card:nth-child(6) { animation-delay: 0.3s; }
-.card:active { transform: scale(0.97) translateY(2rpx); box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.08); }
-.card-accent { width: 8rpx; flex-shrink: 0; background: #0071E3; }
+.card:active { transform: scale(0.98) translateY(2rpx); box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.1); }
+.card-accent { width: 8rpx; flex-shrink: 0; background: linear-gradient(180deg, #0071E3 0%, #5AC8FA 100%); }
 .card-body { flex: 1; padding: 32rpx; }
 .card-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18rpx; }
 .card-name { font-size: 32rpx; font-weight: 800; color: #1D1D1F; letter-spacing: 2rpx; }
 .card-date { font-size: 22rpx; color: #86868B; font-weight: 500; background: #F5F5F7; padding: 6rpx 16rpx; border-radius: 20rpx; }
 .card-imgs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12rpx; margin-bottom: 18rpx; }
-.card-img { width: 100%; aspect-ratio: 1; border-radius: 18rpx; border: 1rpx solid rgba(0,0,0,0.06); object-fit: cover; transition: transform 0.2s ease; }
+.card-img { width: 100%; aspect-ratio: 1; border-radius: 18rpx; border: 1rpx solid rgba(0,0,0,0.06); object-fit: cover; transition: transform 0.2s ease; box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06); }
 .card-img:active { transform: scale(0.95); }
 .card-ft { display: flex; justify-content: space-between; align-items: center; padding-top: 16rpx; border-top: 1rpx solid rgba(0,0,0,0.06); }
 .card-num { font-size: 24rpx; color: #0071E3; font-weight: 700; display: flex; align-items: center; gap: 8rpx; }
@@ -340,7 +340,7 @@ page { background: #F5F5F7; }
 .dark .section-title::after { background: #0A84FF; }
 .dark .section-count { background: rgba(10,132,255,0.15); color: #0A84FF; }
 .dark .card { background: #1C1C1E; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.3); border: 1rpx solid rgba(255,255,255,0.06); }
-.dark .card-accent { background: #0A84FF; }
+.dark .card-accent { background: linear-gradient(180deg, #0A84FF 0%, #64D2FF 100%); }
 .dark .card-name { color: #F5F5F7; }
 .dark .card-date { color: #98989D; background: #2C2C2E; }
 .dark .card-num { color: #0A84FF; }

@@ -1550,6 +1550,146 @@ Page({
     if (this.data.colorImg) wx.previewImage({ urls: [this.data.colorImg] });
   },
 
+  // ========== 图片马赛克 ==========
+  chooseMosaicImg() {
+    let that = this;
+    let onSuccess = (res) => {
+      let p = '';
+      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
+      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      that.setData({ mosaicImg: p, mosaicResult: '', mosaicSize: '' });
+    };
+    if (wx.chooseMedia) {
+      wx.chooseMedia({ count: 1, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    } else {
+      wx.chooseImage({ count: 1, sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    }
+  },
+
+  setMosaicLevel(e) { this.setData({ mosaicLevel: Number(e.currentTarget.dataset.level) }); },
+
+  doMosaic() {
+    let that = this;
+    let { mosaicImg, mosaicLevel } = this.data;
+    if (!mosaicImg) return;
+
+    this.setData({ mosaicing: true });
+    wx.showNavigationBarLoading();
+
+    wx.getImageInfo({
+      src: mosaicImg,
+      success(info) {
+        let iw = info.width, ih = info.height;
+        // 缩小到 1/level 大小再放大，实现马赛克效果
+        let sw = Math.max(1, Math.floor(iw / mosaicLevel));
+        let sh = Math.max(1, Math.floor(ih / mosaicLevel));
+
+        const query = wx.createSelectorQuery();
+        query.select('#mosaicCanvas').fields({ node: true, size: true }).exec((res) => {
+          if (!res[0] || !res[0].node) {
+            that.setData({ mosaicing: false });
+            wx.hideNavigationBarLoading();
+            wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
+            return;
+          }
+          const canvas = res[0].node;
+          const ctx = canvas.getContext('2d');
+          canvas.width = iw;
+          canvas.height = ih;
+
+          const img = canvas.createImage();
+          img.onload = function() {
+            // 先画小图
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(img, 0, 0, sw, sh);
+            // 再放大到原尺寸
+            ctx.drawImage(canvas, 0, 0, sw, sh, 0, 0, iw, ih);
+
+            wx.canvasToTempFilePath({
+              canvas: canvas,
+              quality: 0.9,
+              success(r) {
+                let fs = wx.getFileSystemManager();
+                let dest = wx.env.USER_DATA_PATH + '/mosaic_' + Date.now() + '.jpg';
+                fs.copyFile({
+                  srcPath: r.tempFilePath, destPath: dest,
+                  success() {
+                    wx.getFileInfo({
+                      filePath: dest,
+                      success(fi) {
+                        let kb = (fi.size / 1024).toFixed(1);
+                        that.setData({ mosaicResult: dest, mosaicSize: kb + ' KB', mosaicing: false });
+                        wx.hideNavigationBarLoading();
+                        wx.showToast({ title: '马赛克完成', icon: 'success' });
+                      },
+                      fail() {
+                        that.setData({ mosaicResult: dest, mosaicSize: '', mosaicing: false });
+                        wx.hideNavigationBarLoading();
+                      },
+                    });
+                  },
+                  fail() {
+                    that.setData({ mosaicResult: r.tempFilePath, mosaicSize: '', mosaicing: false });
+                    wx.hideNavigationBarLoading();
+                  },
+                });
+              },
+              fail() {
+                that.setData({ mosaicing: false });
+                wx.hideNavigationBarLoading();
+                wx.showToast({ title: '导出失败', icon: 'none' });
+              },
+            });
+          };
+          img.onerror = function() {
+            that.setData({ mosaicing: false });
+            wx.hideNavigationBarLoading();
+            wx.showToast({ title: '图片加载失败', icon: 'none' });
+          };
+          img.src = mosaicImg;
+        });
+      },
+      fail() {
+        that.setData({ mosaicing: false });
+        wx.hideNavigationBarLoading();
+        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
+      },
+    });
+  },
+
+  saveMosaicImg() {
+    let p = this.data.mosaicResult;
+    if (!p) return;
+    wx.saveImageToPhotosAlbum({
+      filePath: p,
+      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
+      fail(res) {
+        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
+          wx.showModal({ title: '需要授权', content: '请在设置中允许保存到相册', success(r) { if (r.confirm) wx.openSetting(); } });
+        } else {
+          wx.showToast({ title: '保存失败', icon: 'none' });
+        }
+      },
+    });
+  },
+
+  shareMosaicImg() {
+    let p = this.data.mosaicResult;
+    if (!p) return;
+    wx.showActionSheet({
+      itemList: ['转发给朋友', '用其他应用打开'],
+      success(r) {
+        if (r.tapIndex === 0) wx.shareFileMessage({ filePath: p, fileName: 'mosaic.jpg' });
+        else if (r.tapIndex === 1) wx.openDocument({ filePath: p, showMenu: true });
+      },
+    });
+  },
+
+  previewMosaicResult() {
+    if (this.data.mosaicResult) wx.previewImage({ urls: [this.data.mosaicResult] });
+  },
+
   quickAction(e) {
     let mode = e.currentTarget.dataset.mode;
     if (!this.data.curId) {
