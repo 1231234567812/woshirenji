@@ -512,6 +512,37 @@
       <canvas type="2d" id="colorCanvas" class="clr-canvas"></canvas>
     </block>
 
+    <!-- ========== 图片马赛克 ========== -->
+    <block wx:if="{{mode === 'mosaic'}}">
+      <view class="mos-hint">对图片添加马赛克像素化效果</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{!mosaicImg}}" bindtap="chooseMosaicImg">选择图片</view>
+      <view class="preview" wx:if="{{mosaicImg}}" bindtap="previewMosaicResult">
+        <image class="preview-img" src="{{mosaicResult || mosaicImg}}" mode="aspectFit" />
+        <text class="preview-tip">点击查看大图</text>
+      </view>
+
+      <view class="mos-bar" wx:if="{{mosaicImg && !mosaicing}}">
+        <text class="mos-label">马赛克强度</text>
+        <view class="mos-opts">
+          <text class="mos-opt {{mosaicLevel === 4 ? 'active' : ''}}" bindtap="setMosaicLevel" data-level="4">轻度</text>
+          <text class="mos-opt {{mosaicLevel === 8 ? 'active' : ''}}" bindtap="setMosaicLevel" data-level="8">中度</text>
+          <text class="mos-opt {{mosaicLevel === 16 ? 'active' : ''}}" bindtap="setMosaicLevel" data-level="16">重度</text>
+          <text class="mos-opt {{mosaicLevel === 32 ? 'active' : ''}}" bindtap="setMosaicLevel" data-level="32">极强</text>
+        </view>
+      </view>
+
+      <view class="btn btn-loading" wx:if="{{mosaicing}}">处理中...</view>
+      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{mosaicImg && !mosaicing}}" bindtap="doMosaic">添加马赛克</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{mosaicImg && !mosaicing}}" bindtap="chooseMosaicImg">重新选择</view>
+
+      <view class="mos-actions" wx:if="{{mosaicResult}}">
+        <view class="mos-save" hover-class="btn-press" bindtap="saveMosaicImg">保存到相册</view>
+        <view class="mos-share" hover-class="btn-press" bindtap="shareMosaicImg">分享</view>
+      </view>
+
+      <canvas type="2d" id="mosaicCanvas" class="mos-canvas"></canvas>
+    </block>
+
     <!-- ========== 图片压缩 ========== -->
     <block wx:if="{{mode === 'compress'}}">
       <view class="compress-hint">选择图片，压缩大小后保存或分享</view>
