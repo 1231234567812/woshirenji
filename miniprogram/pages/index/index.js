@@ -77,6 +77,12 @@ Page({
     colorImg: '',
     colorList: [],
     colorPicking: false,
+    // 图片马赛克
+    mosaicImg: '',
+    mosaicLevel: 8,
+    mosaicResult: '',
+    mosaicSize: '',
+    mosaicing: false,
   },
 
   _fullCode: '',
@@ -547,6 +553,8 @@ Page({
       this.setData({ rotImg: '', rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '', rotating: false });
     } else if (m === 'color') {
       this.setData({ colorImg: '', colorList: [], colorPicking: false });
+    } else if (m === 'mosaic') {
+      this.setData({ mosaicImg: '', mosaicLevel: 8, mosaicResult: '', mosaicSize: '', mosaicing: false });
     }
   },
   startImg2Code() { this.reset('img2code'); },
@@ -562,6 +570,7 @@ Page({
   startCrop() { this.reset('crop'); },
   startRotate() { this.reset('rotate'); },
   startColor() { this.reset('color'); },
+  startMosaic() { this.reset('mosaic'); },
 
   // ========== 图片压缩 ==========
   chooseCompressImage() {
