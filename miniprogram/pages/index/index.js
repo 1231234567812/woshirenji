@@ -1,4 +1,5 @@
 const app = getApp();
+var qrRenderer = require('../../utils/qr-renderer');
 
 Page({
   data: {
@@ -20,12 +21,15 @@ Page({
     filesList: [],
     fileMode: '',
     batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0,
+    qrInput: '', qrImagePath: '', qrGenerating: false, qrEcLevel: 'M',
   },
 
   _fullCode: '',
   _fullText: '',
   _imageCache: [],
   _batchCodes: [],
+  _projectsCache: null, // 缓存项目数据，避免频繁读取存储
+  _lastLoadTime: 0, // 上次加载时间戳，用于防抖
 
   // ========== 批量转换 ==========
   chooseBatchImage() {
@@ -79,7 +83,11 @@ Page({
 
   _batchConvertNext(paths, idx) {
     if (idx >= paths.length) {
+      // 批量完成时一次性更新images和保存
       this.setData({ batchConverting: false, batchProgress: '全部完成' });
+      // 批量保存到历史记录
+      let list = this.data.images.slice(0, 30);
+      this.saveImages(list);
       wx.showToast({ title: '转换完成', icon: 'success' });
       return;
     }
@@ -92,19 +100,21 @@ Page({
         let kb = (res.data.length * 0.75 / 1024).toFixed(1);
         that._batchCodes.push(b64);
         let item = { id: Date.now() + idx, path: paths[idx], size: kb + ' KB', code: b64.slice(0, 80) + '...', fullCode: b64 };
-        let items = that.data.batchItems.concat([item]);
-        that.setData({ batchItems: items });
-        // 同时记录到项目历史
+        // 使用路径更新，避免替换整个数组
+        let batchIdx = that.data.batchItems.length;
+        that.setData({ ['batchItems[' + batchIdx + ']']: item });
+        // 暂存到缓存，最后统一保存
         let itemMeta = { id: item.id, type: 'image', path: paths[idx], size: kb + ' KB', preview: '' };
         that._imageCache = [{ base64: b64 }].concat(that._imageCache).slice(0, 20);
-        let list = [itemMeta].concat(that.data.images).slice(0, 30);
-        that.setData({ images: list });
-        that.saveImages(list);
+        // 使用路径更新images
+        let imgIdx = that.data.images.length;
+        that.setData({ ['images[' + imgIdx + ']']: itemMeta });
         that._batchConvertNext(paths, idx + 1);
       },
       fail() {
         let item = { id: Date.now() + idx, path: paths[idx], size: '失败', code: '读取失败', fullCode: '' };
-        that.setData({ batchItems: that.data.batchItems.concat([item]) });
+        let batchIdx = that.data.batchItems.length;
+        that.setData({ ['batchItems[' + batchIdx + ']']: item });
         that._batchConvertNext(paths, idx + 1);
       },
     });
@@ -151,12 +161,80 @@ Page({
     this.setData({ batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0 });
   },
 
+  // ========== 二维码生成 ==========
+  onQrInput(e) { this.setData({ qrInput: e.detail.value }); },
+  setQrEc(e) { this.setData({ qrEcLevel: e.currentTarget.dataset.ec }); },
+
+  generateQR() {
+    var text = this.data.qrInput;
+    if (!text || !text.trim()) { wx.showToast({ title: '请输入内容', icon: 'none' }); return; }
+    this.setData({ qrGenerating: true });
+    var that = this;
+    qrRenderer.generateQRImage(text.trim(), {
+      ecLevel: this.data.qrEcLevel, size: 600
+    }, function(err, path) {
+      that.setData({ qrGenerating: false });
+      if (err) {
+        wx.showToast({ title: '生成失败，内容可能过长', icon: 'none' });
+        return;
+      }
+      that.setData({ qrImagePath: path });
+      // 保存到历史
+      var fs = wx.getFileSystemManager();
+      var dest = wx.env.USER_DATA_PATH + '/qr_' + Date.now() + '.png';
+      fs.copyFile({
+        srcPath: path, destPath: dest,
+        success: function() {
+          var itemMeta = { id: Date.now(), type: 'image', path: dest, size: '二维码', preview: text.slice(0, 30) };
+          that._imageCache = [{ base64: '', textContent: 'QR:' + text }].concat(that._imageCache).slice(0, 10);
+          var list = [itemMeta].concat(that.data.images).slice(0, 20);
+          that.setData({ images: list });
+          that.saveImages(list);
+        },
+        fail: function() {}
+      });
+      wx.showToast({ title: '已生成', icon: 'success' });
+    });
+  },
+
+  saveQrImage() {
+    var path = this.data.qrImagePath;
+    if (!path) return;
+    wx.saveImageToPhotosAlbum({
+      filePath: path,
+      success: function() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
+      fail: function(res) {
+        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
+          wx.showModal({
+            title: '需要授权', content: '请在设置中允许保存到相册',
+            success: function(r) { if (r.confirm) wx.openSetting(); }
+          });
+        } else {
+          wx.showToast({ title: '保存失败', icon: 'none' });
+        }
+      }
+    });
+  },
+
+  shareQrImage() {
+    var path = this.data.qrImagePath;
+    if (!path) return;
+    wx.shareImageMessage({ imageUrl: path, fail: function() {
+      wx.showToast({ title: '分享失败', icon: 'none' });
+    }});
+  },
+
+  previewQrImage() {
+    if (this.data.qrImagePath) wx.previewImage({ urls: [this.data.qrImagePath] });
+  },
+
   // ========== 一键复制（历史记录中的单条） ==========
   copyHistoryCode(e) {
     let idx = e.currentTarget.dataset.index;
     let item = this.data.images[idx];
     if (!item) return;
-    let ps = wx.getStorageSync('projects') || [];
+    // 使用缓存，避免频繁读取存储
+    let ps = this._projectsCache || wx.getStorageSync('projects') || [];
     let p = ps.find(x => x.id === this.data.curId);
     let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
     let code = full ? (full.base64 || '') : '';
@@ -172,7 +250,14 @@ Page({
   onShow() {
     const tabBar = this.getTabBar();
     if (tabBar) tabBar.setData({ selected: 0, dark: app.globalData.darkMode });
-    this.load();
+
+    // 防抖：500ms内不重复加载
+    let now = Date.now();
+    if (now - this._lastLoadTime > 500) {
+      this.load();
+      this._lastLoadTime = now;
+    }
+
     let dm = app.globalData.darkMode;
     if (dm !== this.data.darkMode) {
       this.setData({ darkMode: dm });
@@ -181,7 +266,7 @@ Page({
     let pendingId = wx.getStorageSync('openProjectId');
     if (pendingId) {
       wx.removeStorageSync('openProjectId');
-      let ps = wx.getStorageSync('projects') || [];
+      let ps = this._projectsCache || wx.getStorageSync('projects') || [];
       let p = ps.find(x => x.id === pendingId);
       if (p && !p.deleted) {
         wx.setNavigationBarTitle({ title: p.name });
@@ -198,6 +283,7 @@ Page({
 
   load() {
     let ps = wx.getStorageSync('projects') || [];
+    this._projectsCache = ps; // 缓存原始数据
     ps = ps.filter(p => !p.deleted).map(p => ({
       id: p.id, name: p.name, date: p.date,
       items: (p.items || []).map(img => ({ id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview })),
@@ -217,8 +303,10 @@ Page({
       title: '新建项目', editable: true, placeholderText: '输入项目名称',
       success: (res) => {
         if (res.confirm && res.content) {
-          let ps = wx.getStorageSync('projects') || [];
+          // 使用缓存，避免频繁读取存储
+          let ps = this._projectsCache || wx.getStorageSync('projects') || [];
           ps.unshift({ id: 'p_' + Date.now(), name: res.content, date: new Date().toLocaleString(), items: [] });
+          this._projectsCache = ps; // 更新缓存
           try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
           this.load();
         }
@@ -228,7 +316,8 @@ Page({
 
   openProject(e) {
     let id = e.currentTarget.dataset.id;
-    let ps = wx.getStorageSync('projects') || [];
+    // 使用缓存，避免频繁读取存储
+    let ps = this._projectsCache || wx.getStorageSync('projects') || [];
     let p = ps.find(x => x.id === id);
     if (!p || p.deleted) return;
     wx.setNavigationBarTitle({ title: p.name });
@@ -246,9 +335,14 @@ Page({
       title: '删除', content: '确定删除？',
       success: (res) => {
         if (res.confirm) {
-          let ps = wx.getStorageSync('projects') || [];
+          // 使用缓存，避免频繁读取存储
+          let ps = this._projectsCache || wx.getStorageSync('projects') || [];
           let i = ps.findIndex(p => p.id === id);
-          if (i >= 0) { ps[i].deleted = true; try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '操作失败', icon: 'none' }); } }
+          if (i >= 0) {
+            ps[i].deleted = true;
+            this._projectsCache = ps; // 更新缓存
+            try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '操作失败', icon: 'none' }); }
+          }
           this.load();
         }
       },
@@ -262,7 +356,8 @@ Page({
   },
 
   saveImages(list) {
-    let ps = wx.getStorageSync('projects') || [];
+    // 使用缓存，避免频繁读取存储
+    let ps = this._projectsCache || wx.getStorageSync('projects') || [];
     let i = ps.findIndex(p => p.id === this.data.curId);
     if (i >= 0) {
       let target = list || this.data.images;
@@ -270,6 +365,7 @@ Page({
         let full = (this._imageCache && this._imageCache[idx]) ? this._imageCache[idx] : {};
         return { ...img, base64: full.base64 || '', textContent: full.textContent || '' };
       });
+      this._projectsCache = ps; // 更新缓存
       try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
     }
   },
@@ -278,20 +374,23 @@ Page({
   hideMenu() { this.setData({ menuShow: false }); },
   reset(m) {
     this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
-    this.setData({ menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '', batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0 });
+    this.setData({ menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '', batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0, qrInput: '', qrImagePath: '', qrGenerating: false, qrEcLevel: 'M' });
   },
   startImg2Code() { this.reset('img2code'); },
   startText2Code() { this.reset('text2code'); },
   startCode2Text() { this.reset('code2text'); },
   startCode2Img() { this.reset('code2img'); },
   startBatchImg() { this.reset('batch'); },
+  startQrCode() { this.reset('qrcode'); },
 
   quickAction(e) {
     let mode = e.currentTarget.dataset.mode;
     if (!this.data.curId) {
-      let ps = wx.getStorageSync('projects') || [];
+      // 使用缓存，避免频繁读取存储
+      let ps = this._projectsCache || wx.getStorageSync('projects') || [];
       let p = { id: 'p_' + Date.now(), name: '快速项目', date: new Date().toLocaleString(), items: [] };
       ps.unshift(p);
+      this._projectsCache = ps; // 更新缓存
       try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
       this.setData({ view: 'work', curId: p.id, curName: p.name, images: [] });
     }
@@ -351,7 +450,13 @@ Page({
     let src = this.data.imagePath;
     if (!src) return;
 
-    this.setData({ converting: true, convertProgress: 5, convertStage: '准备中...', compressedSize: '' });
+    // 合并初始状态更新
+    this.setData({
+      converting: true,
+      convertProgress: 5,
+      convertStage: '准备中...',
+      compressedSize: ''
+    });
     wx.showNavigationBarLoading();
 
     // Step 1: 检查原始文件大小
@@ -359,17 +464,22 @@ Page({
       filePath: src,
       success(info) {
         let origKB = (info.size / 1024).toFixed(1);
-        that.setData({ convertProgress: 15, convertStage: '原始大小 ' + origKB + ' KB' });
 
         // 小于 200KB 跳过压缩
         if (info.size < 200 * 1024) {
-          that.setData({ convertProgress: 30, convertStage: '文件较小，跳过压缩' });
+          that.setData({
+            convertProgress: 30,
+            convertStage: '文件较小，跳过压缩'
+          });
           that._doReadBase64(src, origKB);
           return;
         }
 
         // Step 2: 压缩图片
-        that.setData({ convertProgress: 20, convertStage: '压缩中...' });
+        that.setData({
+          convertProgress: 20,
+          convertStage: '压缩中...'
+        });
         wx.compressImage({
           src: src,
           quality: that.data.compressQuality,
@@ -392,14 +502,20 @@ Page({
           },
           fail() {
             // 压缩失败，回退原图
-            that.setData({ convertProgress: 30, convertStage: '压缩不支持，使用原图' });
+            that.setData({
+              convertProgress: 30,
+              convertStage: '压缩不支持，使用原图'
+            });
             that._doReadBase64(src, origKB);
           },
         });
       },
       fail() {
         // 无法获取文件信息，直接读取
-        that.setData({ convertProgress: 30, convertStage: '读取中...' });
+        that.setData({
+          convertProgress: 30,
+          convertStage: '读取中...'
+        });
         that._doReadBase64(src, '');
       },
     });
@@ -412,8 +528,6 @@ Page({
     wx.getFileSystemManager().readFile({
       filePath: filePath, encoding: 'base64',
       success(res) {
-        that.setData({ convertProgress: 85, convertStage: '处理中...' });
-
         let b64 = 'data:image/jpeg;base64,' + res.data;
         let kb = fileSizeKB || (res.data.length * 0.75 / 1024).toFixed(1);
         that._fullCode = b64;
@@ -421,6 +535,7 @@ Page({
         that._imageCache = [{ base64: b64 }].concat(that._imageCache).slice(0, 10);
         let list = [itemMeta].concat(that.data.images).slice(0, 20);
 
+        // 合并所有更新到一次setData
         that.setData({
           convertProgress: 100,
           convertStage: '完成！' + kb + ' KB',
@@ -512,6 +627,7 @@ Page({
     let itemMeta = { id: Date.now(), type: 'text', path: '', size: raw.length + ' 字', preview: raw.slice(0, 30) };
     this._imageCache = [{ base64: b64, textContent: raw }].concat(this._imageCache).slice(0, 10);
     let list = [itemMeta].concat(this.data.images).slice(0, 20);
+    // 合并更新
     this.setData({ textResult: b64.length > 300 ? b64.slice(0, 300) + '...' : b64, images: list });
     this.saveImages(list);
   },
@@ -534,6 +650,7 @@ Page({
       let itemMeta = { id: Date.now(), type: 'text', path: '', size: r.length + ' 字', preview: r.slice(0, 30) };
       this._imageCache = [{ base64: this.data.decodeInput, textContent: r }].concat(this._imageCache).slice(0, 10);
       let list = [itemMeta].concat(this.data.images).slice(0, 20);
+      // 合并更新
       this.setData({ decodeResult: r.length > 500 ? r.slice(0, 500) + '...' : r, images: list });
       this.saveImages(list);
     } catch (e) { wx.showToast({ title: '格式错误，请检查输入', icon: 'none' }); }
@@ -646,7 +763,8 @@ Page({
   loadHistory(e) {
     let idx = e.currentTarget.dataset.index, item = this.data.images[idx];
     if (!item) return;
-    let ps = wx.getStorageSync('projects') || [];
+    // 使用缓存，避免频繁读取存储
+    let ps = this._projectsCache || wx.getStorageSync('projects') || [];
     let p = ps.find(x => x.id === this.data.curId);
     if (item.type === 'image') {
       let full = p && p.items ? p.items.find(x => x.id === item.id) : null;

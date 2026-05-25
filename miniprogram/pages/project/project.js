@@ -2,6 +2,8 @@ const app = getApp();
 
 Page({
   data: { list: [], darkMode: false, filesShow: false, filesList: [] },
+  _projectsCache: null, // 缓存项目数据
+  _lastLoadTime: 0, // 上次加载时间戳
 
   onLoad() {
     let dm = app.globalData.darkMode;
@@ -17,14 +19,21 @@ Page({
       this.setData({ darkMode: dm });
       this.applyDark(dm);
     }
-    let projects = wx.getStorageSync('projects') || [];
-    projects = projects.map(p => ({
-      id: p.id, name: p.name, date: p.date, deleted: p.deleted,
-      items: (p.items || []).map(img => ({
-        id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview,
-      })),
-    }));
-    this.setData({ list: projects });
+
+    // 防抖：500ms内不重复加载
+    let now = Date.now();
+    if (now - this._lastLoadTime > 500) {
+      let projects = wx.getStorageSync('projects') || [];
+      this._projectsCache = projects; // 缓存原始数据
+      projects = projects.map(p => ({
+        id: p.id, name: p.name, date: p.date, deleted: p.deleted,
+        items: (p.items || []).map(img => ({
+          id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview,
+        })),
+      }));
+      this.setData({ list: projects });
+      this._lastLoadTime = now;
+    }
   },
 
   // 点开项目 → 跳回首页并传项目ID
@@ -41,9 +50,14 @@ Page({
       title: '删除', content: '确定删除？(可在历史页恢复)',
       success: (res) => {
         if (res.confirm) {
-          let ps = wx.getStorageSync('projects') || [];
+          // 使用缓存，避免频繁读取存储
+          let ps = this._projectsCache || wx.getStorageSync('projects') || [];
           let i = ps.findIndex(p => p.id === id);
-          if (i >= 0) { ps[i].deleted = true; try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); } }
+          if (i >= 0) {
+            ps[i].deleted = true;
+            this._projectsCache = ps; // 更新缓存
+            try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+          }
           this.onShow();
         }
       },
@@ -95,8 +109,10 @@ Page({
       title: '彻底删除', content: '此操作不可恢复，确定删除？',
       success: (res) => {
         if (res.confirm) {
-          let ps = wx.getStorageSync('projects') || [];
+          // 使用缓存，避免频繁读取存储
+          let ps = this._projectsCache || wx.getStorageSync('projects') || [];
           ps = ps.filter(p => p.id !== id);
+          this._projectsCache = ps; // 更新缓存
           try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
           this.onShow();
           wx.showToast({ title: '已删除', icon: 'success' });
@@ -108,9 +124,14 @@ Page({
   // 恢复
   restoreProject(e) {
     let id = e.currentTarget.dataset.id;
-    let ps = wx.getStorageSync('projects') || [];
+    // 使用缓存，避免频繁读取存储
+    let ps = this._projectsCache || wx.getStorageSync('projects') || [];
     let i = ps.findIndex(p => p.id === id);
-    if (i >= 0) { ps[i].deleted = false; try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); } }
+    if (i >= 0) {
+      ps[i].deleted = false;
+      this._projectsCache = ps; // 更新缓存
+      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+    }
     this.onShow();
     wx.showToast({ title: '已恢复', icon: 'success' });
   },
