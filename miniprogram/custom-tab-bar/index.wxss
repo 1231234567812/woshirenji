@@ -41,7 +41,7 @@
   align-items: center;
   justify-content: center;
   height: 120rpx;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .tab-item:active { transform: scale(0.92); }
@@ -67,7 +67,7 @@
   font-size: 22rpx;
   color: #999;
   font-weight: 500;
-  transition: all 0.25s ease;
+  transition: color 0.25s ease;
 }
 
 .tab-text.on {

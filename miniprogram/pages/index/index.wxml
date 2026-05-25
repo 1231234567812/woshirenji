@@ -329,6 +329,54 @@
       <canvas type="2d" id="fmtCanvas" class="fmt-canvas"></canvas>
     </block>
 
+    <!-- ========== 图片尺寸调整 ========== -->
+    <block wx:if="{{mode === 'resize'}}">
+      <view class="rsz-hint">自定义宽高，支持等比缩放</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{!resizeImg}}" bindtap="chooseResizeImg">选择图片</view>
+      <view class="preview" wx:if="{{resizeImg}}" bindtap="previewResizeResult">
+        <image class="preview-img" src="{{resizeResult || resizeImg}}" mode="aspectFit" />
+        <text class="preview-tip">点击查看大图</text>
+      </view>
+
+      <view class="rsz-info" wx:if="{{resizeImg && !resizing}}">
+        <view class="rsz-row">
+          <text class="rsz-label">原始尺寸</text>
+          <text class="rsz-val">{{resizeW}} × {{resizeH}}</text>
+        </view>
+        <view class="rsz-row" wx:if="{{resizeSize}}">
+          <text class="rsz-label">文件大小</text>
+          <text class="rsz-val">{{resizeSize}}</text>
+        </view>
+      </view>
+
+      <view class="rsz-inputs" wx:if="{{resizeImg && !resizing}}">
+        <view class="rsz-input-group">
+          <text class="rsz-input-label">宽度</text>
+          <input class="rsz-input" type="number" value="{{resizeNewW}}" bindinput="onResizeW" />
+          <text class="rsz-unit">px</text>
+        </view>
+        <view class="rsz-lock {{resizeRatio ? 'active' : ''}}" bindtap="toggleResizeRatio">
+          <text>{{resizeRatio ? '🔒' : '🔓'}}</text>
+        </view>
+        <view class="rsz-input-group">
+          <text class="rsz-input-label">高度</text>
+          <input class="rsz-input" type="number" value="{{resizeNewH}}" bindinput="onResizeH" />
+          <text class="rsz-unit">px</text>
+        </view>
+      </view>
+
+      <view class="btn btn-loading" wx:if="{{resizing}}">处理中...</view>
+      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{resizeImg && !resizing}}" bindtap="doResize">开始调整</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{resizeImg && !resizing}}" bindtap="chooseResizeImg">重新选择</view>
+
+      <view class="rsz-actions" wx:if="{{resizeResult}}">
+        <view class="rsz-btn" hover-class="btn-press" bindtap="saveResizeImg">保存到相册</view>
+        <view class="rsz-btn rsz-btn-share" hover-class="btn-press" bindtap="shareResizeImg">分享</view>
+      </view>
+
+      <canvas type="2d" id="resizeCanvas" class="rsz-canvas"></canvas>
+    </block>
+
     <!-- ========== 图片压缩 ========== -->
     <block wx:if="{{mode === 'compress'}}">
       <view class="compress-hint">选择图片，压缩大小后保存或分享</view>
@@ -417,6 +465,10 @@
         <view class="menu-card" hover-class="menu-card-press" bindtap="startFmt">
           <view class="menu-card-icon mc-9"><text>&#x1F504;</text></view>
           <text class="menu-card-label">格式转换</text>
+        </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startResize">
+          <view class="menu-card-icon mc-10"><text>&#x1F4D0;</text></view>
+          <text class="menu-card-label">尺寸调整</text>
         </view>
       </view>
       <view class="menu-cancel" bindtap="hideMenu">取消</view>

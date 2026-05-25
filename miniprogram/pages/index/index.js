@@ -46,14 +46,33 @@ Page({
     fmtResult: '',
     fmtSize: '',
     fmtConverting: false,
+    // 图片尺寸调整
+    resizeImg: '',
+    resizeW: 0,
+    resizeH: 0,
+    resizeNewW: 0,
+    resizeNewH: 0,
+    resizeRatio: true,
+    resizeResult: '',
+    resizeSize: '',
+    resizing: false,
   },
 
   _fullCode: '',
   _fullText: '',
   _imageCache: [],
   _batchCodes: [],
-  _projectsCache: null, // 缓存项目数据，避免频繁读取存储
-  _lastLoadTime: 0, // 上次加载时间戳，用于防抖
+  _projectsCache: null,
+  _lastLoadTime: 0,
+  _dataDirty: false,
+
+  // 统一获取项目数据，优先用缓存
+  _getPs() {
+    if (this._projectsCache) return this._projectsCache;
+    let ps = wx.getStorageSync('projects') || [];
+    this._projectsCache = ps;
+    return ps;
+  },
 
   // ========== 批量转换 ==========
   chooseBatchImage() {
@@ -268,7 +287,7 @@ Page({
     let item = this.data.images[idx];
     if (!item) return;
     // 使用缓存，避免频繁读取存储
-    let ps = this._projectsCache || wx.getStorageSync('projects') || [];
+    let ps = this._getPs();
     let p = ps.find(x => x.id === this.data.curId);
     let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
     let code = full ? (full.base64 || '') : '';
@@ -300,7 +319,7 @@ Page({
     let pendingId = wx.getStorageSync('openProjectId');
     if (pendingId) {
       wx.removeStorageSync('openProjectId');
-      let ps = this._projectsCache || wx.getStorageSync('projects') || [];
+      let ps = this._getPs();
       let p = ps.find(x => x.id === pendingId);
       if (p && !p.deleted) {
         wx.setNavigationBarTitle({ title: p.name });
@@ -347,12 +366,14 @@ Page({
       title: '新建项目', editable: true, placeholderText: '输入项目名称',
       success: (res) => {
         if (res.confirm && res.content) {
-          // 使用缓存，避免频繁读取存储
-          let ps = this._projectsCache || wx.getStorageSync('projects') || [];
-          ps.unshift({ id: 'p_' + Date.now(), name: res.content, date: new Date().toLocaleString(), items: [] });
-          this._projectsCache = ps; // 更新缓存
+          let ps = this._getPs();
+          let newProj = { id: 'p_' + Date.now(), name: res.content, date: new Date().toLocaleString(), items: [] };
+          ps.unshift(newProj);
+          this._projectsCache = ps;
           try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
-          this.load();
+          // 局部更新，prepend到列表头部
+          let newList = [{ id: newProj.id, name: newProj.name, date: newProj.date, items: [] }].concat(this.data.projects);
+          this.setData({ projects: newList });
         }
       },
     });
@@ -361,7 +382,7 @@ Page({
   openProject(e) {
     let id = e.currentTarget.dataset.id;
     // 使用缓存，避免频繁读取存储
-    let ps = this._projectsCache || wx.getStorageSync('projects') || [];
+    let ps = this._getPs();
     let p = ps.find(x => x.id === id);
     if (!p || p.deleted) return;
     wx.setNavigationBarTitle({ title: p.name });
@@ -379,15 +400,16 @@ Page({
       title: '删除', content: '确定删除？',
       success: (res) => {
         if (res.confirm) {
-          // 使用缓存，避免频繁读取存储
-          let ps = this._projectsCache || wx.getStorageSync('projects') || [];
+          let ps = this._getPs();
           let i = ps.findIndex(p => p.id === id);
           if (i >= 0) {
             ps[i].deleted = true;
-            this._projectsCache = ps; // 更新缓存
+            this._projectsCache = ps;
             try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '操作失败', icon: 'none' }); }
+            // 局部更新，避免全量重载
+            let newList = this.data.projects.filter(item => item.id !== id);
+            this.setData({ projects: newList });
           }
-          this.load();
         }
       },
     });
@@ -396,12 +418,15 @@ Page({
   goBack() {
     wx.setNavigationBarTitle({ title: '图片转代码' });
     this.setData({ view: 'list' });
-    this.load();
+    // 只在数据有变更时才重载
+    if (this._dataDirty) {
+      this.load();
+      this._dataDirty = false;
+    }
   },
 
   saveImages(list) {
-    // 使用缓存，避免频繁读取存储
-    let ps = this._projectsCache || wx.getStorageSync('projects') || [];
+    let ps = this._getPs();
     let i = ps.findIndex(p => p.id === this.data.curId);
     if (i >= 0) {
       let target = list || this.data.images;
@@ -409,7 +434,8 @@ Page({
         let full = (this._imageCache && this._imageCache[idx]) ? this._imageCache[idx] : {};
         return { ...img, base64: full.base64 || '', textContent: full.textContent || '' };
       });
-      this._projectsCache = ps; // 更新缓存
+      this._projectsCache = ps;
+      this._dataDirty = true;
       try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
     }
   },
@@ -450,6 +476,14 @@ Page({
     this.setData({
       menuShow: false, mode: 'fmt', fmtImg: '', fmtFrom: '',
       fmtTo: 'png', fmtResult: '', fmtSize: '', fmtConverting: false,
+    });
+  },
+  startResize() {
+    this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
+    this.setData({
+      menuShow: false, mode: 'resize', resizeImg: '',
+      resizeW: 0, resizeH: 0, resizeNewW: 0, resizeNewH: 0,
+      resizeRatio: true, resizeResult: '', resizeSize: '', resizing: false,
     });
   },
 
@@ -967,12 +1001,160 @@ Page({
   previewFmtResult() {
     if (this.data.fmtResult) wx.previewImage({ urls: [this.data.fmtResult] });
   },
+  // ========== 图片尺寸调整 ==========
+  chooseResizeImg() {
+    let that = this;
+    let onSuccess = (res) => {
+      let p = '';
+      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
+      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      wx.getImageInfo({
+        src: p,
+        success(info) {
+          that.setData({
+            resizeImg: p, resizeW: info.width, resizeH: info.height,
+            resizeNewW: info.width, resizeNewH: info.height,
+            resizeResult: '', resizeSize: '',
+          });
+        },
+        fail() {
+          that.setData({ resizeImg: p, resizeW: 0, resizeH: 0, resizeNewW: 0, resizeNewH: 0, resizeResult: '', resizeSize: '' });
+        },
+      });
+    };
+    if (wx.chooseMedia) {
+      wx.chooseMedia({ count: 1, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    } else {
+      wx.chooseImage({ count: 1, sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    }
+  },
+
+  onResizeW(e) {
+    let w = Number(e.detail.value) || 0;
+    let h = this.data.resizeNewH;
+    if (this.data.resizeRatio && this.data.resizeW > 0) {
+      h = Math.round(w * this.data.resizeH / this.data.resizeW);
+    }
+    this.setData({ resizeNewW: w, resizeNewH: h });
+  },
+
+  onResizeH(e) {
+    let h = Number(e.detail.value) || 0;
+    let w = this.data.resizeNewW;
+    if (this.data.resizeRatio && this.data.resizeH > 0) {
+      w = Math.round(h * this.data.resizeW / this.data.resizeH);
+    }
+    this.setData({ resizeNewW: w, resizeNewH: h });
+  },
+
+  toggleResizeRatio() { this.setData({ resizeRatio: !this.data.resizeRatio }); },
+
+  doResize() {
+    let that = this;
+    let { resizeImg, resizeNewW, resizeNewH } = this.data;
+    if (!resizeImg || resizeNewW <= 0 || resizeNewH <= 0) return;
+    this.setData({ resizing: true });
+    wx.showNavigationBarLoading();
+
+    const query = wx.createSelectorQuery();
+    query.select('#resizeCanvas').fields({ node: true, size: true }).exec((res) => {
+      if (!res[0] || !res[0].node) {
+        that.setData({ resizing: false });
+        wx.hideNavigationBarLoading();
+        wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
+        return;
+      }
+      const canvas = res[0].node;
+      const ctx = canvas.getContext('2d');
+      canvas.width = resizeNewW;
+      canvas.height = resizeNewH;
+
+      const img = canvas.createImage();
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0, resizeNewW, resizeNewH);
+        wx.canvasToTempFilePath({
+          canvas: canvas,
+          quality: 0.9,
+          success(r) {
+            let fs = wx.getFileSystemManager();
+            let dest = wx.env.USER_DATA_PATH + '/resize_' + Date.now() + '.jpg';
+            fs.copyFile({
+              srcPath: r.tempFilePath, destPath: dest,
+              success() {
+                wx.getFileInfo({
+                  filePath: dest,
+                  success(fi) {
+                    let kb = (fi.size / 1024).toFixed(1);
+                    that.setData({ resizeResult: dest, resizeSize: kb + ' KB', resizing: false });
+                    wx.hideNavigationBarLoading();
+                    wx.showToast({ title: '调整完成', icon: 'success' });
+                  },
+                  fail() {
+                    that.setData({ resizeResult: dest, resizeSize: '', resizing: false });
+                    wx.hideNavigationBarLoading();
+                  },
+                });
+              },
+              fail() {
+                that.setData({ resizeResult: r.tempFilePath, resizeSize: '', resizing: false });
+                wx.hideNavigationBarLoading();
+              },
+            });
+          },
+          fail() {
+            that.setData({ resizing: false });
+            wx.hideNavigationBarLoading();
+            wx.showToast({ title: '导出失败', icon: 'none' });
+          },
+        });
+      };
+      img.onerror = function() {
+        that.setData({ resizing: false });
+        wx.hideNavigationBarLoading();
+        wx.showToast({ title: '图片加载失败', icon: 'none' });
+      };
+      img.src = resizeImg;
+    });
+  },
+
+  saveResizeImg() {
+    let p = this.data.resizeResult;
+    if (!p) return;
+    wx.saveImageToPhotosAlbum({
+      filePath: p,
+      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
+      fail(res) {
+        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
+          wx.showModal({ title: '需要授权', content: '请在设置中允许保存到相册', success(r) { if (r.confirm) wx.openSetting(); } });
+        } else {
+          wx.showToast({ title: '保存失败', icon: 'none' });
+        }
+      },
+    });
+  },
+
+  shareResizeImg() {
+    let p = this.data.resizeResult;
+    if (!p) return;
+    wx.showActionSheet({
+      itemList: ['转发给朋友', '用其他应用打开'],
+      success(r) {
+        if (r.tapIndex === 0) wx.shareFileMessage({ filePath: p, fileName: 'resized.jpg' });
+        else if (r.tapIndex === 1) wx.openDocument({ filePath: p, showMenu: true });
+      },
+    });
+  },
+
+  previewResizeResult() {
+    if (this.data.resizeResult) wx.previewImage({ urls: [this.data.resizeResult] });
+  },
 
   quickAction(e) {
     let mode = e.currentTarget.dataset.mode;
     if (!this.data.curId) {
       // 使用缓存，避免频繁读取存储
-      let ps = this._projectsCache || wx.getStorageSync('projects') || [];
+      let ps = this._getPs();
       let p = { id: 'p_' + Date.now(), name: '快速项目', date: new Date().toLocaleString(), items: [] };
       ps.unshift(p);
       this._projectsCache = ps; // 更新缓存
@@ -1312,7 +1494,7 @@ Page({
     let idx = e.currentTarget.dataset.index, item = this.data.images[idx];
     if (!item) return;
     // 使用缓存，避免频繁读取存储
-    let ps = this._projectsCache || wx.getStorageSync('projects') || [];
+    let ps = this._getPs();
     let p = ps.find(x => x.id === this.data.curId);
     if (item.type === 'image') {
       let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
