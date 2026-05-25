@@ -81,3 +81,10 @@ UI设计师 | 全面Apple风格配色迁移 | index.wxss/project.wxss/tabbar.wxs
 3. **goBack懒加载**：添加_dataDirty标记，只在数据确实变更时才重载项目列表
 4. **transition:all清零**：tabbar 2处+project 1处+index 1处，全部改为具体属性，整个项目0处transition:all
 
+性能优化师 → 第四轮优化要点：
+1. **_canvasExport公共方法**：doResize和doFmtConvert各40+行重复Canvas逻辑提取为公共方法，减少80行重复代码
+2. **reset()统一**：watermark/fmt/resize/crop/rotate 5个startXxx方法的重复清理逻辑合并到reset()，减少30行
+3. **批量转换并行**：从串行逐个处理改为3并发并行处理，9张图片预计提速2-3倍
+4. **project.js for循环**：onShow中两层map改为for循环，与index.js load()保持一致
+5. **兼容新功能**：reset()自动兼容颜色提取(color)模式
+
