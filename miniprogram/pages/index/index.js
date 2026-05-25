@@ -5,6 +5,7 @@ Page({
   data: {
     view: 'list',
     projects: [],
+    loading: false,
     darkMode: false,
     mode: '', menuShow: false,
     imagePath: '', codeShow: '', size: '',
@@ -396,6 +397,7 @@ Page({
   },
 
   load() {
+    this.setData({ loading: true });
     let ps = wx.getStorageSync('projects') || [];
     this._projectsCache = ps;
 
@@ -412,7 +414,7 @@ Page({
       }
       filtered.push({ id: p.id, name: p.name, date: p.date, items: mapped });
     }
-    this.setData({ projects: filtered });
+    this.setData({ projects: filtered, loading: false });
   },
 
   applyDark(dark) {
@@ -505,7 +507,6 @@ Page({
   hideMenu() { this.setData({ menuShow: false }); },
   reset(m) {
     this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
-    // 分组setData，减少单次数据传输量
     this.setData({ menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '' });
     if (m === 'text2code' || m === 'code2text' || m === 'code2img') {
       this.setData({ textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '' });
@@ -515,6 +516,16 @@ Page({
       this.setData({ qrInput: '', qrImagePath: '', qrGenerating: false, qrEcLevel: 'M' });
     } else if (m === 'compress') {
       this.setData({ compressImagePath: '', compressOrigSize: '', compressNewSize: '', compressRatio: '', compressResultPath: '', compressing: false, compressQualityLevel: 60 });
+    } else if (m === 'watermark') {
+      this.setData({ wmImagePath: '', wmText: '', wmPosition: 'bottom-right', wmColor: '#ffffff', wmOpacity: 60, wmFontSize: 32, wmResultPath: '', wmProcessing: false });
+    } else if (m === 'fmt') {
+      this.setData({ fmtImg: '', fmtFrom: '', fmtTo: 'png', fmtResult: '', fmtSize: '', fmtConverting: false });
+    } else if (m === 'resize') {
+      this.setData({ resizeImg: '', resizeW: 0, resizeH: 0, resizeNewW: 0, resizeNewH: 0, resizeRatio: true, resizeResult: '', resizeSize: '', resizing: false });
+    } else if (m === 'crop') {
+      this.setData({ cropImg: '', cropW: 0, cropH: 0, cropRatio: 'free', cropResult: '', cropSize: '', cropping: false });
+    } else if (m === 'rotate') {
+      this.setData({ rotImg: '', rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '', rotating: false });
     }
   },
   startImg2Code() { this.reset('img2code'); },
@@ -524,45 +535,11 @@ Page({
   startBatchImg() { this.reset('batch'); },
   startQrCode() { this.reset('qrcode'); },
   startCompress() { this.reset('compress'); },
-  startWatermark() {
-    this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
-    this.setData({
-      menuShow: false, mode: 'watermark', wmImagePath: '', wmText: '',
-      wmPosition: 'bottom-right', wmColor: '#ffffff', wmOpacity: 60,
-      wmFontSize: 32, wmResultPath: '', wmProcessing: false,
-    });
-  },
-  startFmt() {
-    this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
-    this.setData({
-      menuShow: false, mode: 'fmt', fmtImg: '', fmtFrom: '',
-      fmtTo: 'png', fmtResult: '', fmtSize: '', fmtConverting: false,
-    });
-  },
-  startResize() {
-    this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
-    this.setData({
-      menuShow: false, mode: 'resize', resizeImg: '',
-      resizeW: 0, resizeH: 0, resizeNewW: 0, resizeNewH: 0,
-      resizeRatio: true, resizeResult: '', resizeSize: '', resizing: false,
-    });
-  },
-  startCrop() {
-    this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
-    this.setData({
-      menuShow: false, mode: 'crop', cropImg: '',
-      cropW: 0, cropH: 0, cropRatio: 'free',
-      cropResult: '', cropSize: '', cropping: false,
-    });
-  },
-  startRotate() {
-    this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
-    this.setData({
-      menuShow: false, mode: 'rotate', rotImg: '',
-      rotDeg: 0, rotFlipH: false, rotFlipV: false,
-      rotResult: '', rotSize: '', rotating: false,
-    });
-  },
+  startWatermark() { this.reset('watermark'); },
+  startFmt() { this.reset('fmt'); },
+  startResize() { this.reset('resize'); },
+  startCrop() { this.reset('crop'); },
+  startRotate() { this.reset('rotate'); },
 
   // ========== 图片压缩 ==========
   chooseCompressImage() {
