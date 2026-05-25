@@ -1,4 +1,6 @@
-page { background: #F5F5F7; }
+import os
+
+css = r"""page { background: #F5F5F7; }
 .box { padding: 24rpx 28rpx calc(180rpx + env(safe-area-inset-bottom)); background: #F5F5F7; animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20rpx); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(60rpx); } to { opacity: 1; transform: translateY(0); } }
@@ -212,79 +214,6 @@ page { background: #F5F5F7; }
 .fmt-btn-share { background: #1D1D1F; box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.2); }
 .fmt-canvas { position: fixed; left: -9999rpx; top: -9999rpx; width: 600rpx; height: 600rpx; }
 .mc-9 { background: #FDE8F4; }
-.mc-7 { background: #E8F4FD; }
-.mc-8 { background: #FDF5E8; }
-.mc-10 { background: #E8E8FD; }
-.mc-11 { background: #FDE8F4; }
-
-/* 图片压缩 */
-.compress-hint { font-size: 24rpx; color: #86868B; text-align: center; margin-bottom: 16rpx; }
-.compress-info { padding: 16rpx 20rpx; margin-bottom: 16rpx; border-radius: 16rpx; background: #fff; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
-.compress-info-row { display: flex; justify-content: space-between; align-items: center; padding: 8rpx 0; }
-.compress-info-label { font-size: 26rpx; color: #86868B; }
-.compress-info-value { font-size: 26rpx; color: #1D1D1F; font-weight: 600; }
-.compress-highlight { color: #34C759; }
-.compress-ratio { color: #FF9500; }
-.compress-actions { display: flex; gap: 16rpx; margin-bottom: 16rpx; }
-.compress-action-btn { flex: 1; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 20rpx; background: #0071E3; color: #fff; font-size: 28rpx; font-weight: 600; box-shadow: 0 8rpx 24rpx rgba(0,113,227,0.25); }
-.compress-action-btn:active { transform: scale(0.97); }
-.compress-action-share { background: #1D1D1F; box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.2); }
-
-/* 水印 */
-.wm-hint { font-size: 24rpx; color: #86868B; text-align: center; margin-bottom: 16rpx; }
-.wm-settings { padding: 16rpx 20rpx; margin-bottom: 16rpx; border-radius: 16rpx; background: #fff; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
-.wm-input-group { margin-bottom: 16rpx; }
-.wm-label { font-size: 26rpx; color: #86868B; display: block; margin-bottom: 8rpx; }
-.wm-input { height: 72rpx; padding: 0 16rpx; border: 2rpx solid #E5E5EA; border-radius: 12rpx; font-size: 28rpx; }
-.wm-row { margin-bottom: 16rpx; }
-.wm-pos-opts { display: flex; gap: 10rpx; flex-wrap: wrap; }
-.wm-pos-opt { font-size: 24rpx; color: #86868B; padding: 10rpx 20rpx; border-radius: 12rpx; background: #F5F5F7; font-weight: 600; }
-.wm-pos-opt.active { color: #fff; background: #0071E3; }
-.wm-color-opts { display: flex; gap: 12rpx; }
-.wm-color-opt { width: 48rpx; height: 48rpx; border-radius: 50%; border: 3rpx solid #E5E5EA; }
-.wm-color-opt.active { border-color: #0071E3; box-shadow: 0 0 0 4rpx rgba(0,113,227,0.2); }
-.wm-slider { margin: 8rpx 0; }
-.wm-actions { display: flex; gap: 16rpx; margin-bottom: 16rpx; }
-.wm-action-btn { flex: 1; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 20rpx; background: #0071E3; color: #fff; font-size: 28rpx; font-weight: 600; box-shadow: 0 8rpx 24rpx rgba(0,113,227,0.25); }
-.wm-action-btn:active { transform: scale(0.97); }
-.wm-action-share { background: #1D1D1F; box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.2); }
-.wm-canvas { position: fixed; left: -9999rpx; top: -9999rpx; width: 600rpx; height: 600rpx; }
-
-/* 图片尺寸调整 */
-.rsz-hint { font-size: 24rpx; color: #86868B; text-align: center; margin-bottom: 16rpx; }
-.rsz-info { padding: 16rpx 20rpx; margin-bottom: 16rpx; border-radius: 16rpx; background: #fff; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
-.rsz-row { display: flex; justify-content: space-between; align-items: center; padding: 8rpx 0; }
-.rsz-label { font-size: 26rpx; color: #86868B; }
-.rsz-val { font-size: 26rpx; color: #1D1D1F; font-weight: 600; }
-.rsz-inputs { display: flex; align-items: center; gap: 16rpx; margin-bottom: 16rpx; padding: 16rpx 20rpx; border-radius: 16rpx; background: #fff; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
-.rsz-input-group { flex: 1; display: flex; align-items: center; gap: 8rpx; }
-.rsz-input-label { font-size: 24rpx; color: #86868B; flex-shrink: 0; }
-.rsz-input { flex: 1; height: 64rpx; padding: 0 12rpx; border: 2rpx solid #E5E5EA; border-radius: 12rpx; font-size: 28rpx; text-align: center; }
-.rsz-unit { font-size: 24rpx; color: #86868B; flex-shrink: 0; }
-.rsz-lock { width: 64rpx; height: 64rpx; display: flex; align-items: center; justify-content: center; border-radius: 12rpx; background: #F5F5F7; flex-shrink: 0; }
-.rsz-lock.active { background: #0071E3; }
-.rsz-actions { display: flex; gap: 16rpx; margin-bottom: 16rpx; }
-.rsz-btn { flex: 1; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 20rpx; background: #0071E3; color: #fff; font-size: 28rpx; font-weight: 600; box-shadow: 0 8rpx 24rpx rgba(0,113,227,0.25); }
-.rsz-btn:active { transform: scale(0.97); }
-.rsz-btn-share { background: #1D1D1F; box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.2); }
-.rsz-canvas { position: fixed; left: -9999rpx; top: -9999rpx; width: 600rpx; height: 600rpx; }
-
-/* 图片裁剪 */
-.crop-hint { font-size: 24rpx; color: #86868B; text-align: center; margin-bottom: 16rpx; }
-.crop-info { padding: 16rpx 20rpx; margin-bottom: 16rpx; border-radius: 16rpx; background: #fff; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
-.crop-row { display: flex; justify-content: space-between; align-items: center; padding: 8rpx 0; }
-.crop-label { font-size: 26rpx; color: #86868B; }
-.crop-val { font-size: 26rpx; color: #1D1D1F; font-weight: 600; }
-.crop-bar { display: flex; align-items: center; justify-content: space-between; padding: 16rpx 20rpx; margin-bottom: 16rpx; border-radius: 16rpx; background: #fff; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
-.crop-bar-label { font-size: 26rpx; color: #86868B; }
-.crop-opts { display: flex; gap: 12rpx; }
-.crop-opt { font-size: 24rpx; color: #86868B; padding: 10rpx 28rpx; border-radius: 12rpx; background: #F5F5F7; transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease; font-weight: 600; }
-.crop-opt.active { color: #fff; background: #0071E3; box-shadow: 0 4rpx 16rpx rgba(0,113,227,0.25); }
-.crop-actions { display: flex; gap: 16rpx; margin-bottom: 16rpx; }
-.crop-btn { flex: 1; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 20rpx; background: #0071E3; color: #fff; font-size: 28rpx; font-weight: 600; box-shadow: 0 8rpx 24rpx rgba(0,113,227,0.25); }
-.crop-btn:active { transform: scale(0.97); }
-.crop-btn-share { background: #1D1D1F; box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.2); }
-.crop-canvas { position: fixed; left: -9999rpx; top: -9999rpx; width: 600rpx; height: 600rpx; }
 
 .box.dark { background: #000; }
 .dark .hero::before { background: radial-gradient(circle, rgba(10,132,255,0.06) 0%, transparent 70%); }
@@ -397,36 +326,9 @@ page { background: #F5F5F7; }
 .dark .fmt-opt { border: none; }
 .dark .file-pick text { border: none; }
 .dark .batch-card { border: none; }
-.dark .compress-hint { color: #98989D; }
-.dark .compress-info { background: #1C1C1E; box-shadow: none; }
-.dark .compress-info-value { color: #F5F5F7; }
-.dark .compress-action-btn { background: #0A84FF; box-shadow: none; }
-.dark .compress-action-share { background: #F5F5F7; color: #000; }
-.dark .wm-hint { color: #98989D; }
-.dark .wm-settings { background: #1C1C1E; box-shadow: none; }
-.dark .wm-label { color: #98989D; }
-.dark .wm-input { background: #2C2C2E; border-color: #38383A; color: #F5F5F7; }
-.dark .wm-pos-opt { background: #2C2C2E; color: #98989D; }
-.dark .wm-pos-opt.active { background: #0A84FF; }
-.dark .wm-color-opt { border-color: #38383A; }
-.dark .wm-color-opt.active { border-color: #0A84FF; }
-.dark .wm-action-btn { background: #0A84FF; box-shadow: none; }
-.dark .wm-action-share { background: #F5F5F7; color: #000; }
-.dark .rsz-hint { color: #98989D; }
-.dark .rsz-info { background: #1C1C1E; box-shadow: none; }
-.dark .rsz-val { color: #F5F5F7; }
-.dark .rsz-inputs { background: #1C1C1E; box-shadow: none; }
-.dark .rsz-input { background: #2C2C2E; border-color: #38383A; color: #F5F5F7; }
-.dark .rsz-lock { background: #2C2C2E; }
-.dark .rsz-lock.active { background: #0A84FF; }
-.dark .rsz-btn { background: #0A84FF; box-shadow: none; }
-.dark .rsz-btn-share { background: #F5F5F7; color: #000; }
-.dark .crop-hint { color: #98989D; }
-.dark .crop-info { background: #1C1C1E; box-shadow: none; }
-.dark .crop-val { color: #F5F5F7; }
-.dark .crop-bar { background: #1C1C1E; box-shadow: none; }
-.dark .crop-bar-label { color: #98989D; }
-.dark .crop-opt { background: #2C2C2E; color: #98989D; }
-.dark .crop-opt.active { background: #0A84FF; box-shadow: 0 4rpx 16rpx rgba(10,132,255,0.2); }
-.dark .crop-btn { background: #0A84FF; box-shadow: none; }
-.dark .crop-btn-share { background: #F5F5F7; color: #000; }
+"""
+
+path = r"D:\Desktop\WeChatProjects\a\miniprogram\pages\index\index.wxss"
+with open(path, "w", encoding="utf-8") as f:
+    f.write(css.lstrip())
+print("DONE - wrote", len(css), "chars to index.wxss")

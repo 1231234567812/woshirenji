@@ -98,7 +98,7 @@ Page({
   closeFiles() { this.setData({ filesShow: false }); },
 
   applyDark(dark) {
-    let bg = dark ? '#0d0d1a' : '#f0f4f8';
+    let bg = dark ? '#000000' : '#F5F5F7';
     let fc = dark ? '#ffffff' : '#000000';
     wx.setNavigationBarColor({ frontColor: fc, backgroundColor: bg });
     wx.setBackgroundColor({ backgroundColor: bg, backgroundColorTop: bg, backgroundColorBottom: bg });

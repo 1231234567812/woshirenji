@@ -56,6 +56,14 @@ Page({
     resizeResult: '',
     resizeSize: '',
     resizing: false,
+    // 图片裁剪
+    cropImg: '',
+    cropW: 0,
+    cropH: 0,
+    cropRatio: 'free',
+    cropResult: '',
+    cropSize: '',
+    cropping: false,
   },
 
   _fullCode: '',
@@ -72,6 +80,51 @@ Page({
     let ps = wx.getStorageSync('projects') || [];
     this._projectsCache = ps;
     return ps;
+  },
+
+  // Canvas 图片处理公共方法：加载图片→绘制→导出→保存
+  // opts: { canvasId, imgSrc, drawW, drawH, fileType, quality, destPrefix }
+  // callback: (err, { path, size }) => void
+  _canvasExport(opts, callback) {
+    let that = this;
+    const query = wx.createSelectorQuery();
+    query.select('#' + opts.canvasId).fields({ node: true, size: true }).exec(function(res) {
+      if (!res[0] || !res[0].node) { callback('Canvas 初始化失败'); return; }
+      const canvas = res[0].node;
+      const ctx = canvas.getContext('2d');
+      canvas.width = opts.drawW;
+      canvas.height = opts.drawH;
+
+      const img = canvas.createImage();
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0, opts.drawW, opts.drawH);
+        let fileType = opts.fileType || 'jpg';
+        let quality = opts.quality;
+        wx.canvasToTempFilePath({
+          canvas: canvas,
+          fileType: fileType,
+          quality: quality,
+          success: function(r) {
+            let fs = wx.getFileSystemManager();
+            let dest = wx.env.USER_DATA_PATH + '/' + (opts.destPrefix || 'img') + '_' + Date.now() + '.' + fileType;
+            fs.copyFile({
+              srcPath: r.tempFilePath, destPath: dest,
+              success: function() {
+                wx.getFileInfo({
+                  filePath: dest,
+                  success: function(fi) { callback(null, { path: dest, size: (fi.size / 1024).toFixed(1) + ' KB' }); },
+                  fail: function() { callback(null, { path: dest, size: '' }); },
+                });
+              },
+              fail: function() { callback(null, { path: r.tempFilePath, size: '' }); },
+            });
+          },
+          fail: function() { callback('导出失败'); },
+        });
+      };
+      img.onerror = function() { callback('图片加载失败'); };
+      img.src = opts.imgSrc;
+    });
   },
 
   // ========== 批量转换 ==========
@@ -355,7 +408,7 @@ Page({
   },
 
   applyDark(dark) {
-    let bg = dark ? '#0d0d1a' : '#f0f4f8';
+    let bg = dark ? '#000000' : '#F5F5F7';
     let fc = dark ? '#ffffff' : '#000000';
     wx.setNavigationBarColor({ frontColor: fc, backgroundColor: bg });
     wx.setBackgroundColor({ backgroundColor: bg, backgroundColorTop: bg, backgroundColorBottom: bg });
@@ -484,6 +537,14 @@ Page({
       menuShow: false, mode: 'resize', resizeImg: '',
       resizeW: 0, resizeH: 0, resizeNewW: 0, resizeNewH: 0,
       resizeRatio: true, resizeResult: '', resizeSize: '', resizing: false,
+    });
+  },
+  startCrop() {
+    this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
+    this.setData({
+      menuShow: false, mode: 'crop', cropImg: '',
+      cropW: 0, cropH: 0, cropRatio: 'free',
+      cropResult: '', cropSize: '', cropping: false,
     });
   },
 
@@ -899,66 +960,20 @@ Page({
     wx.getImageInfo({
       src: fmtImg,
       success(info) {
-        const query = wx.createSelectorQuery();
-        query.select('#fmtCanvas').fields({ node: true, size: true }).exec((res) => {
-          if (!res[0] || !res[0].node) {
-            that.setData({ fmtConverting: false });
-            wx.hideNavigationBarLoading();
-            wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
-            return;
-          }
-          const canvas = res[0].node;
-          const ctx = canvas.getContext('2d');
-          canvas.width = info.width;
-          canvas.height = info.height;
-
-          const img = canvas.createImage();
-          img.onload = function() {
-            ctx.drawImage(img, 0, 0, info.width, info.height);
-            let quality = fmtTo === 'jpg' ? 0.9 : undefined;
-            wx.canvasToTempFilePath({
-              canvas: canvas,
-              fileType: fmtTo === 'jpg' ? 'jpg' : 'png',
-              quality: quality,
-              success(r) {
-                let fs = wx.getFileSystemManager();
-                let dest = wx.env.USER_DATA_PATH + '/fmt_' + Date.now() + '.' + fmtTo;
-                fs.copyFile({
-                  srcPath: r.tempFilePath, destPath: dest,
-                  success() {
-                    wx.getFileInfo({
-                      filePath: dest,
-                      success(fi) {
-                        let kb = (fi.size / 1024).toFixed(1);
-                        that.setData({ fmtResult: dest, fmtSize: kb + ' KB', fmtConverting: false });
-                        wx.hideNavigationBarLoading();
-                        wx.showToast({ title: '转换完成', icon: 'success' });
-                      },
-                      fail() {
-                        that.setData({ fmtResult: dest, fmtSize: '', fmtConverting: false });
-                        wx.hideNavigationBarLoading();
-                      },
-                    });
-                  },
-                  fail() {
-                    that.setData({ fmtResult: r.tempFilePath, fmtSize: '', fmtConverting: false });
-                    wx.hideNavigationBarLoading();
-                  },
-                });
-              },
-              fail() {
-                that.setData({ fmtConverting: false });
-                wx.hideNavigationBarLoading();
-                wx.showToast({ title: '转换失败', icon: 'none' });
-              },
-            });
-          };
-          img.onerror = function() {
-            that.setData({ fmtConverting: false });
-            wx.hideNavigationBarLoading();
-            wx.showToast({ title: '图片加载失败', icon: 'none' });
-          };
-          img.src = fmtImg;
+        that._canvasExport({
+          canvasId: 'fmtCanvas',
+          imgSrc: fmtImg,
+          drawW: info.width,
+          drawH: info.height,
+          fileType: fmtTo === 'jpg' ? 'jpg' : 'png',
+          quality: fmtTo === 'jpg' ? 0.9 : undefined,
+          destPrefix: 'fmt',
+        }, function(err, result) {
+          that.setData({ fmtConverting: false });
+          wx.hideNavigationBarLoading();
+          if (err) { wx.showToast({ title: err, icon: 'none' }); return; }
+          that.setData({ fmtResult: result.path, fmtSize: result.size });
+          wx.showToast({ title: '转换完成', icon: 'success' });
         });
       },
       fail() {
@@ -1057,64 +1072,20 @@ Page({
     this.setData({ resizing: true });
     wx.showNavigationBarLoading();
 
-    const query = wx.createSelectorQuery();
-    query.select('#resizeCanvas').fields({ node: true, size: true }).exec((res) => {
-      if (!res[0] || !res[0].node) {
-        that.setData({ resizing: false });
-        wx.hideNavigationBarLoading();
-        wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
-        return;
-      }
-      const canvas = res[0].node;
-      const ctx = canvas.getContext('2d');
-      canvas.width = resizeNewW;
-      canvas.height = resizeNewH;
-
-      const img = canvas.createImage();
-      img.onload = function() {
-        ctx.drawImage(img, 0, 0, resizeNewW, resizeNewH);
-        wx.canvasToTempFilePath({
-          canvas: canvas,
-          quality: 0.9,
-          success(r) {
-            let fs = wx.getFileSystemManager();
-            let dest = wx.env.USER_DATA_PATH + '/resize_' + Date.now() + '.jpg';
-            fs.copyFile({
-              srcPath: r.tempFilePath, destPath: dest,
-              success() {
-                wx.getFileInfo({
-                  filePath: dest,
-                  success(fi) {
-                    let kb = (fi.size / 1024).toFixed(1);
-                    that.setData({ resizeResult: dest, resizeSize: kb + ' KB', resizing: false });
-                    wx.hideNavigationBarLoading();
-                    wx.showToast({ title: '调整完成', icon: 'success' });
-                  },
-                  fail() {
-                    that.setData({ resizeResult: dest, resizeSize: '', resizing: false });
-                    wx.hideNavigationBarLoading();
-                  },
-                });
-              },
-              fail() {
-                that.setData({ resizeResult: r.tempFilePath, resizeSize: '', resizing: false });
-                wx.hideNavigationBarLoading();
-              },
-            });
-          },
-          fail() {
-            that.setData({ resizing: false });
-            wx.hideNavigationBarLoading();
-            wx.showToast({ title: '导出失败', icon: 'none' });
-          },
-        });
-      };
-      img.onerror = function() {
-        that.setData({ resizing: false });
-        wx.hideNavigationBarLoading();
-        wx.showToast({ title: '图片加载失败', icon: 'none' });
-      };
-      img.src = resizeImg;
+    this._canvasExport({
+      canvasId: 'resizeCanvas',
+      imgSrc: resizeImg,
+      drawW: resizeNewW,
+      drawH: resizeNewH,
+      fileType: 'jpg',
+      quality: 0.9,
+      destPrefix: 'resize',
+    }, function(err, result) {
+      that.setData({ resizing: false });
+      wx.hideNavigationBarLoading();
+      if (err) { wx.showToast({ title: err, icon: 'none' }); return; }
+      that.setData({ resizeResult: result.path, resizeSize: result.size });
+      wx.showToast({ title: '调整完成', icon: 'success' });
     });
   },
 
@@ -1148,6 +1119,164 @@ Page({
 
   previewResizeResult() {
     if (this.data.resizeResult) wx.previewImage({ urls: [this.data.resizeResult] });
+  },
+
+  // ========== 图片裁剪 ==========
+  chooseCropImg() {
+    let that = this;
+    let onSuccess = (res) => {
+      let p = '';
+      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
+      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      wx.getImageInfo({
+        src: p,
+        success(info) {
+          that.setData({ cropImg: p, cropW: info.width, cropH: info.height, cropResult: '', cropSize: '' });
+        },
+        fail() {
+          that.setData({ cropImg: p, cropW: 0, cropH: 0, cropResult: '', cropSize: '' });
+        },
+      });
+    };
+    if (wx.chooseMedia) {
+      wx.chooseMedia({ count: 1, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    } else {
+      wx.chooseImage({ count: 1, sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
+    }
+  },
+
+  setCropRatio(e) { this.setData({ cropRatio: e.currentTarget.dataset.ratio }); },
+
+  doCrop() {
+    let that = this;
+    let { cropImg, cropW, cropH, cropRatio } = this.data;
+    if (!cropImg || cropW <= 0 || cropH <= 0) return;
+
+    // 计算裁剪区域（居中裁剪）
+    let sx = 0, sy = 0, sw = cropW, sh = cropH;
+    if (cropRatio === '1:1') {
+      let side = Math.min(cropW, cropH);
+      sx = Math.floor((cropW - side) / 2);
+      sy = Math.floor((cropH - side) / 2);
+      sw = side; sh = side;
+    } else if (cropRatio === '4:3') {
+      let targetW = cropW;
+      let targetH = Math.floor(cropW * 3 / 4);
+      if (targetH > cropH) {
+        targetH = cropH;
+        targetW = Math.floor(cropH * 4 / 3);
+      }
+      sx = Math.floor((cropW - targetW) / 2);
+      sy = Math.floor((cropH - targetH) / 2);
+      sw = targetW; sh = targetH;
+    } else if (cropRatio === '16:9') {
+      let targetW = cropW;
+      let targetH = Math.floor(cropW * 9 / 16);
+      if (targetH > cropH) {
+        targetH = cropH;
+        targetW = Math.floor(cropH * 16 / 9);
+      }
+      sx = Math.floor((cropW - targetW) / 2);
+      sy = Math.floor((cropH - targetH) / 2);
+      sw = targetW; sh = targetH;
+    }
+    // free 模式不裁剪，使用原图
+
+    this.setData({ cropping: true });
+    wx.showNavigationBarLoading();
+
+    const query = wx.createSelectorQuery();
+    query.select('#cropCanvas').fields({ node: true, size: true }).exec((res) => {
+      if (!res[0] || !res[0].node) {
+        that.setData({ cropping: false });
+        wx.hideNavigationBarLoading();
+        wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
+        return;
+      }
+      const canvas = res[0].node;
+      const ctx = canvas.getContext('2d');
+      canvas.width = sw;
+      canvas.height = sh;
+
+      const img = canvas.createImage();
+      img.onload = function() {
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+        wx.canvasToTempFilePath({
+          canvas: canvas,
+          quality: 0.9,
+          success(r) {
+            let fs = wx.getFileSystemManager();
+            let dest = wx.env.USER_DATA_PATH + '/crop_' + Date.now() + '.jpg';
+            fs.copyFile({
+              srcPath: r.tempFilePath, destPath: dest,
+              success() {
+                wx.getFileInfo({
+                  filePath: dest,
+                  success(fi) {
+                    let kb = (fi.size / 1024).toFixed(1);
+                    that.setData({ cropResult: dest, cropSize: kb + ' KB', cropping: false });
+                    wx.hideNavigationBarLoading();
+                    wx.showToast({ title: '裁剪完成', icon: 'success' });
+                  },
+                  fail() {
+                    that.setData({ cropResult: dest, cropSize: '', cropping: false });
+                    wx.hideNavigationBarLoading();
+                  },
+                });
+              },
+              fail() {
+                that.setData({ cropResult: r.tempFilePath, cropSize: '', cropping: false });
+                wx.hideNavigationBarLoading();
+              },
+            });
+          },
+          fail() {
+            that.setData({ cropping: false });
+            wx.hideNavigationBarLoading();
+            wx.showToast({ title: '导出失败', icon: 'none' });
+          },
+        });
+      };
+      img.onerror = function() {
+        that.setData({ cropping: false });
+        wx.hideNavigationBarLoading();
+        wx.showToast({ title: '图片加载失败', icon: 'none' });
+      };
+      img.src = cropImg;
+    });
+  },
+
+  saveCropImg() {
+    let p = this.data.cropResult;
+    if (!p) return;
+    wx.saveImageToPhotosAlbum({
+      filePath: p,
+      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
+      fail(res) {
+        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
+          wx.showModal({ title: '需要授权', content: '请在设置中允许保存到相册', success(r) { if (r.confirm) wx.openSetting(); } });
+        } else {
+          wx.showToast({ title: '保存失败', icon: 'none' });
+        }
+      },
+    });
+  },
+
+  shareCropImg() {
+    let p = this.data.cropResult;
+    if (!p) return;
+    wx.showActionSheet({
+      itemList: ['转发给朋友', '用其他应用打开'],
+      success(r) {
+        if (r.tapIndex === 0) wx.shareFileMessage({ filePath: p, fileName: 'cropped.jpg' });
+        else if (r.tapIndex === 1) wx.openDocument({ filePath: p, showMenu: true });
+      },
+    });
+  },
+
+  previewCropResult() {
+    if (this.data.cropResult) wx.previewImage({ urls: [this.data.cropResult] });
   },
 
   quickAction(e) {

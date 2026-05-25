@@ -267,12 +267,12 @@
 
         <view class="wm-row">
           <text class="wm-label">透明度 {{wmOpacity}}%</text>
-          <slider class="wm-slider" min="10" max="100" step="5" value="{{wmOpacity}}" activeColor="#667eea" bindchange="onWmOpacityChange" />
+          <slider class="wm-slider" min="10" max="100" step="5" value="{{wmOpacity}}" activeColor="#0071E3" bindchange="onWmOpacityChange" />
         </view>
 
         <view class="wm-row">
           <text class="wm-label">字体大小 {{wmFontSize}}px</text>
-          <slider class="wm-slider" min="16" max="80" step="2" value="{{wmFontSize}}" activeColor="#667eea" bindchange="onWmFontSizeChange" />
+          <slider class="wm-slider" min="16" max="80" step="2" value="{{wmFontSize}}" activeColor="#0071E3" bindchange="onWmFontSizeChange" />
         </view>
       </view>
 
@@ -377,6 +377,48 @@
       <canvas type="2d" id="resizeCanvas" class="rsz-canvas"></canvas>
     </block>
 
+    <!-- ========== 图片裁剪 ========== -->
+    <block wx:if="{{mode === 'crop'}}">
+      <view class="crop-hint">选择裁剪比例，居中裁剪图片</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{!cropImg}}" bindtap="chooseCropImg">选择图片</view>
+      <view class="preview" wx:if="{{cropImg}}" bindtap="previewCropResult">
+        <image class="preview-img" src="{{cropResult || cropImg}}" mode="aspectFit" />
+        <text class="preview-tip">点击查看大图</text>
+      </view>
+
+      <view class="crop-info" wx:if="{{cropImg && !cropping}}">
+        <view class="crop-row">
+          <text class="crop-label">原始尺寸</text>
+          <text class="crop-val">{{cropW}} × {{cropH}}</text>
+        </view>
+        <view class="crop-row" wx:if="{{cropSize}}">
+          <text class="crop-label">文件大小</text>
+          <text class="crop-val">{{cropSize}}</text>
+        </view>
+      </view>
+
+      <view class="crop-bar" wx:if="{{cropImg && !cropping}}">
+        <text class="crop-bar-label">裁剪比例</text>
+        <view class="crop-opts">
+          <text class="crop-opt {{cropRatio === 'free' ? 'active' : ''}}" bindtap="setCropRatio" data-ratio="free">自由</text>
+          <text class="crop-opt {{cropRatio === '1:1' ? 'active' : ''}}" bindtap="setCropRatio" data-ratio="1:1">1:1</text>
+          <text class="crop-opt {{cropRatio === '4:3' ? 'active' : ''}}" bindtap="setCropRatio" data-ratio="4:3">4:3</text>
+          <text class="crop-opt {{cropRatio === '16:9' ? 'active' : ''}}" bindtap="setCropRatio" data-ratio="16:9">16:9</text>
+        </view>
+      </view>
+
+      <view class="btn btn-loading" wx:if="{{cropping}}">裁剪中...</view>
+      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{cropImg && !cropping}}" bindtap="doCrop">开始裁剪</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{cropImg && !cropping}}" bindtap="chooseCropImg">重新选择</view>
+
+      <view class="crop-actions" wx:if="{{cropResult}}">
+        <view class="crop-btn" hover-class="btn-press" bindtap="saveCropImg">保存到相册</view>
+        <view class="crop-btn crop-btn-share" hover-class="btn-press" bindtap="shareCropImg">分享</view>
+      </view>
+
+      <canvas type="2d" id="cropCanvas" class="crop-canvas"></canvas>
+    </block>
+
     <!-- ========== 图片压缩 ========== -->
     <block wx:if="{{mode === 'compress'}}">
       <view class="compress-hint">选择图片，压缩大小后保存或分享</view>
@@ -469,6 +511,10 @@
         <view class="menu-card" hover-class="menu-card-press" bindtap="startResize">
           <view class="menu-card-icon mc-10"><text>&#x1F4D0;</text></view>
           <text class="menu-card-label">尺寸调整</text>
+        </view>
+        <view class="menu-card" hover-class="menu-card-press" bindtap="startCrop">
+          <view class="menu-card-icon mc-11"><text>&#x2702;</text></view>
+          <text class="menu-card-label">图片裁剪</text>
         </view>
       </view>
       <view class="menu-cancel" bindtap="hideMenu">取消</view>
