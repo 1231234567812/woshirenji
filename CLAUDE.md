@@ -161,6 +161,65 @@ git push origin main
 
 **每次提交必须包含：改了什么、为什么改、审查了什么。禁止一行提交信息。**
 
+## GitHub 使用规则
+
+### 仓库地址
+https://github.com/1231234567812/woshirenji.git
+
+### 每次提交后必须推送
+```bash
+git push origin main
+```
+
+### 开工前先拉最新代码
+```bash
+git pull origin main
+```
+**因为你不知道其他 AI 有没有提交过新代码。不拉就写，容易冲突。**
+
+### 推送失败怎么办
+```bash
+# 情况1：网络问题
+# 重试一次，还是失败就跳过推送，本地提交保留了就行
+git push origin main
+
+# 情况2：远程有新代码（rejected）
+git pull origin main
+# 如果有冲突 → 解决冲突 → 再推送
+# 如果没冲突 → 直接推送
+
+# 情况3：认证失败
+# 记到 PROGRESS.md 讨论区，让人类处理
+```
+
+### 冲突怎么解决
+```bash
+# 1. 拉最新代码
+git pull origin main
+
+# 2. 如果提示冲突，打开冲突文件，找 <<<<<<< HEAD 标记
+# 上半部分是你改的，下半部分是其他 AI 改的
+# 选择保留哪个，或者合并两边的改动
+# 删掉 <<<<<<< ======= >>>>>>> 标记
+
+# 3. 保存后提交
+git add -A && git commit -m "merge: 解决冲突" -m "详细说明：和谁冲突了，怎么解决的"
+git push origin main
+```
+
+### 总结：AI 的 Git 工作流
+```
+开工 → git pull origin main（拉最新）
+  ↓
+写代码 → 审查 → 通过
+  ↓
+git add -A && git commit -m "..." -m "..."
+  ↓
+git push origin main（推送到 GitHub）
+  ↓
+更新 PROGRESS.md → 结束
+```
+
 ## 安全规则
 禁止提交：API 密钥、Secret、Token、.env 文件、project.private.config.json
 
