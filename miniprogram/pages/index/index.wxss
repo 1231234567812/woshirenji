@@ -458,3 +458,21 @@ page { background: #F5F5F7; }
 .dark .rot-angle { color: #98989D; }
 .dark .rot-save { background: #0A84FF; box-shadow: none; }
 .dark .rot-share { background: #F5F5F7; color: #000; }
+
+/* Skeleton Loading */
+@keyframes skeletonPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.skeleton-card { display: flex; border-radius: 28rpx; overflow: hidden; background: #fff; margin-bottom: 24rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06); animation: skeletonPulse 1.5s ease-in-out infinite; }
+.skeleton-accent { width: 8rpx; flex-shrink: 0; background: #E5E5EA; }
+.skeleton-body { flex: 1; padding: 32rpx; }
+.skeleton-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18rpx; }
+.skeleton-line { border-radius: 8rpx; background: #E5E5EA; }
+.skeleton-title { width: 200rpx; height: 32rpx; }
+.skeleton-date { width: 120rpx; height: 24rpx; }
+.skeleton-imgs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12rpx; margin-bottom: 18rpx; }
+.skeleton-img { aspect-ratio: 1; border-radius: 18rpx; background: #E5E5EA; }
+.skeleton-count { width: 80rpx; height: 24rpx; }
+
+.dark .skeleton-card { background: #1C1C1E; box-shadow: none; }
+.dark .skeleton-accent { background: #2C2C2E; }
+.dark .skeleton-line { background: #2C2C2E; }
+.dark .skeleton-img { background: #2C2C2E; }

@@ -183,20 +183,36 @@ Page({
     if (valid.length === 0) { wx.showToast({ title: '图片保存失败', icon: 'none' }); return; }
     this._batchCodes = [];
     this.setData({ batchItems: [], batchConverting: true, batchProgress: '0/' + valid.length, batchTotal: valid.length });
-    this._batchConvertNext(valid, 0);
+    this._batchDone = 0;
+    this._batchNextSlot = 0;
+    this._batchImgStart = this.data.images.length;
+    // 并行处理，每次最多3个
+    this._batchConvertParallel(valid, 0);
   },
 
-  _batchConvertNext(paths, idx) {
-    if (idx >= paths.length) {
-      this.setData({ batchConverting: false, batchProgress: '全部完成' });
-      this.saveImages(this.data.images.slice(0, 30));
-      wx.showToast({ title: '转换完成', icon: 'success' });
-      return;
-    }
-
+  _batchConvertParallel(paths, startIdx) {
     let that = this;
-    this.setData({ batchProgress: (idx + 1) + '/' + paths.length });
+    let concurrency = 3;
+    let endIdx = Math.min(startIdx + concurrency, paths.length);
 
+    for (let i = startIdx; i < endIdx; i++) {
+      this._batchConvertOne(paths, i, function() {
+        that._batchDone++;
+        that.setData({ batchProgress: that._batchDone + '/' + paths.length });
+        if (that._batchDone >= paths.length) {
+          that.setData({ batchConverting: false, batchProgress: '全部完成' });
+          that.saveImages(that.data.images.slice(0, 30));
+          wx.showToast({ title: '转换完成', icon: 'success' });
+        }
+      });
+    }
+    if (endIdx < paths.length) {
+      setTimeout(function() { that._batchConvertParallel(paths, endIdx); }, 100);
+    }
+  },
+
+  _batchConvertOne(paths, idx, onDone) {
+    let that = this;
     wx.getFileSystemManager().readFile({
       filePath: paths[idx],
       encoding: 'base64',
@@ -205,25 +221,24 @@ Page({
         let kb = (res.data.length * 0.75 / 1024).toFixed(1);
         that._batchCodes.push(b64);
 
-        let batchIdx = that.data.batchItems.length;
-        let imgIdx = that.data.images.length;
+        let slot = that._batchNextSlot++;
+        let imgIdx = that._batchImgStart + idx;
         let item = { id: Date.now() + idx, path: paths[idx], size: kb + ' KB', code: b64.slice(0, 80) + '...', fullCode: b64 };
         let itemMeta = { id: item.id, type: 'image', path: paths[idx], size: kb + ' KB', preview: '' };
 
-        // 合并成一次setData，减少通信开销
         that.setData({
-          ['batchItems[' + batchIdx + ']']: item,
+          ['batchItems[' + slot + ']']: item,
           ['images[' + imgIdx + ']']: itemMeta
         });
         that._imageCache = [{ base64: b64 }].concat(that._imageCache).slice(0, 20);
-        that._batchConvertNext(paths, idx + 1);
+        onDone();
       },
       fail() {
-        let batchIdx = that.data.batchItems.length;
+        let slot = that._batchNextSlot++;
         that.setData({
-          ['batchItems[' + batchIdx + ']']: { id: Date.now() + idx, path: paths[idx], size: '失败', code: '读取失败', fullCode: '' }
+          ['batchItems[' + slot + ']']: { id: Date.now() + idx, path: paths[idx], size: '失败', code: '读取失败', fullCode: '' }
         });
-        that._batchConvertNext(paths, idx + 1);
+        onDone();
       },
     });
   },
