@@ -125,7 +125,7 @@ page { background: #F5F5F7; }
 .menu-card:active { transform: scale(0.95); opacity: 0.8; }
 .menu-card-press { transform: scale(0.95); opacity: 0.8; }
 .menu-card-icon { width: 80rpx; height: 80rpx; border-radius: 22rpx; display: flex; align-items: center; justify-content: center; font-size: 36rpx; margin-bottom: 14rpx; position: relative; }
-.menu-card-icon::after { content: ''; position: absolute; inset: -4rpx; border-radius: 26rpx; background: inherit; opacity: 0.3; filter: blur(6rpx); z-index: -1; }
+.menu-card-icon::after { content: ''; position: absolute; inset: -4rpx; border-radius: 26rpx; background: inherit; opacity: 0.4; filter: blur(8rpx); z-index: -1; }
 .mc-1 { background: #E8F4FD; }
 .mc-2 { background: #FDE8F4; }
 .mc-3 { background: #FDF5E8; }
