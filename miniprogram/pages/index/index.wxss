@@ -286,6 +286,26 @@ page { background: #F5F5F7; }
 .crop-btn-share { background: #1D1D1F; box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.2); }
 .crop-canvas { position: fixed; left: -9999rpx; top: -9999rpx; width: 600rpx; height: 600rpx; }
 
+/* 图片旋转 */
+.rot-hint { font-size: 24rpx; color: #86868B; text-align: center; margin-bottom: 16rpx; }
+.rot-ctrl { display: grid; grid-template-columns: 1fr 1fr; gap: 14rpx; margin-bottom: 16rpx; }
+.rot-btn { display: flex; flex-direction: column; align-items: center; padding: 24rpx 16rpx; border-radius: 16rpx; background: #fff; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); transition: transform 0.2s ease, background 0.2s ease; }
+.rot-btn:active { transform: scale(0.95); }
+.rot-btn-on { background: #0071E3; }
+.rot-btn-on .rot-icon { color: #fff; }
+.rot-btn-on .rot-label { color: #fff; }
+.rot-icon { font-size: 40rpx; color: #1D1D1F; margin-bottom: 8rpx; }
+.rot-label { font-size: 24rpx; color: #86868B; font-weight: 600; }
+.rot-info { text-align: center; margin-bottom: 16rpx; }
+.rot-angle { font-size: 26rpx; color: #86868B; }
+.rot-actions { display: flex; gap: 16rpx; margin-bottom: 16rpx; }
+.rot-save { flex: 1; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 20rpx; background: #0071E3; color: #fff; font-size: 28rpx; font-weight: 600; box-shadow: 0 8rpx 24rpx rgba(0,113,227,0.25); }
+.rot-save:active { transform: scale(0.97); }
+.rot-share { flex: 1; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 20rpx; background: #1D1D1F; color: #fff; font-size: 28rpx; font-weight: 600; box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.2); }
+.rot-share:active { transform: scale(0.97); }
+.rot-canvas { position: fixed; left: -9999rpx; top: -9999rpx; width: 600rpx; height: 600rpx; }
+.mc-12 { background: #E8FDE8; }
+
 .box.dark { background: #000; }
 .dark .hero::before { background: radial-gradient(circle, rgba(10,132,255,0.06) 0%, transparent 70%); }
 .dark .hero::after { background: radial-gradient(circle, rgba(10,132,255,0.04) 0%, transparent 70%); }
@@ -430,3 +450,11 @@ page { background: #F5F5F7; }
 .dark .crop-opt.active { background: #0A84FF; box-shadow: 0 4rpx 16rpx rgba(10,132,255,0.2); }
 .dark .crop-btn { background: #0A84FF; box-shadow: none; }
 .dark .crop-btn-share { background: #F5F5F7; color: #000; }
+.dark .rot-hint { color: #98989D; }
+.dark .rot-btn { background: #1C1C1E; box-shadow: none; }
+.dark .rot-icon { color: #F5F5F7; }
+.dark .rot-label { color: #98989D; }
+.dark .rot-btn-on { background: #0A84FF; }
+.dark .rot-angle { color: #98989D; }
+.dark .rot-save { background: #0A84FF; box-shadow: none; }
+.dark .rot-share { background: #F5F5F7; color: #000; }
