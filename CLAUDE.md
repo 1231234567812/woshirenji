@@ -28,6 +28,30 @@
 - "微信小程序 性能优化 官方指南"
 - "dribbble image converter app design"
 
+### 找代码和参考的渠道
+
+**搜代码实现：**
+- GitHub: 搜 "wechat miniprogram image converter" 或 "微信小程序 base64"
+- Stack Overflow: 搜报错信息的关键词
+- CSDN/掘金: 搜 "微信小程序 + 你要实现的功能"
+- npm: 搜有没有现成的库可以直接用
+
+**搜设计灵感：**
+- dribbble.com: 搜 "mobile app design" "image converter ui"
+- 站酷 zcool.com.cn: 搜 "小程序设计"
+- colorhunt.co: 找配色方案
+- mobbin.com: 看真实 App 的 UI 截图
+
+**搜微信 API 用法：**
+- 微信官方文档（必看）: https://developers.weixin.qq.com/miniprogram/dev/api/
+- 微信社区: 搜 API 名称 + 问题
+
+**搜到代码后怎么用：**
+- **不要直接复制粘贴**，读懂它在做什么，然后用自己的方式实现
+- 如果用了搜到的方案，在 commit message 里注明来源
+- 搜到的代码可能过时了，确认 API 还是最新用法
+- 搜到的代码可能有 bug，审查时要特别注意
+
 ### 你必须
 - **写完代码必须审查**：提交前重新读一遍自己写的每一行代码，检查逻辑、边界、样式
 - **零 bug**：宁可少做一个功能，也不要留一个 bug
