@@ -19,7 +19,7 @@ Page({
     filesShow: false,
     filesList: [],
     fileMode: '',
-    batchItems: [], batchConverting: false, batchProgress: '',
+    batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0,
   },
 
   _fullCode: '',
@@ -73,7 +73,7 @@ Page({
     let valid = paths.filter(Boolean);
     if (valid.length === 0) { wx.showToast({ title: '图片保存失败', icon: 'none' }); return; }
     this._batchCodes = [];
-    this.setData({ batchItems: [], batchConverting: true, batchProgress: '0/' + valid.length });
+    this.setData({ batchItems: [], batchConverting: true, batchProgress: '0/' + valid.length, batchTotal: valid.length });
     this._batchConvertNext(valid, 0);
   },
 
@@ -132,9 +132,14 @@ Page({
         if (!res.confirm) return;
         let prefix = (res.content || 'batch').replace(/[:"<>|?*\n\r\\/]/g, '-').slice(0, 30);
         let fs = wx.getFileSystemManager();
+        let ok = 0, fail = 0;
         that._batchCodes.forEach((code, i) => {
           let fname = wx.env.USER_DATA_PATH + '/' + prefix + '_' + (i + 1) + '.txt';
-          fs.writeFile({ filePath: fname, data: code, encoding: 'utf8' });
+          fs.writeFile({
+            filePath: fname, data: code, encoding: 'utf8',
+            success() { ok++; },
+            fail() { fail++; },
+          });
         });
         wx.showToast({ title: '已保存 ' + that._batchCodes.length + ' 个文件', icon: 'success' });
       },
@@ -143,7 +148,7 @@ Page({
 
   clearBatch() {
     this._batchCodes = [];
-    this.setData({ batchItems: [], batchConverting: false, batchProgress: '' });
+    this.setData({ batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0 });
   },
 
   // ========== 一键复制（历史记录中的单条） ==========
@@ -273,7 +278,7 @@ Page({
   hideMenu() { this.setData({ menuShow: false }); },
   reset(m) {
     this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
-    this.setData({ menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '', batchItems: [], batchConverting: false, batchProgress: '' });
+    this.setData({ menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '', batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0 });
   },
   startImg2Code() { this.reset('img2code'); },
   startText2Code() { this.reset('text2code'); },

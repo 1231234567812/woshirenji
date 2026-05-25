@@ -161,7 +161,7 @@
 
       <view class="progress-wrap" wx:if="{{batchConverting}}">
         <view class="progress-bar">
-          <view class="progress-fill" style="width: {{batchItems.length > 0 ? (batchItems.length / batchProgress.split('/')[1] * 100) : 10}}%"></view>
+          <view class="progress-fill" style="width: {{batchTotal > 0 ? (batchItems.length / batchTotal * 100) : 10}}%"></view>
         </view>
         <text class="progress-text">转换中 {{batchProgress}}</text>
       </view>
