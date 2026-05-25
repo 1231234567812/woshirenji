@@ -46,6 +46,7 @@ UI设计师 | 全面UI微动效+毛玻璃+视觉层次优化 | index.wxss/projec
 性能优化师 | _getPs提取+局部setData+transition残留 | index.js delProject/createProject仍用全量load()，8处重复_projectsCache||getStorageSync，goBack无条件重载，4处transition:all残留(tabbar/project/index) | 提取_getPs()工具函数替代8处重复代码，delProject改为filter局部更新，createProject改为prepend局部更新，goBack加_dataDirty标记避免无变更重载，4处transition:all改为具体属性
 功能开发者 | 图片格式转换功能 | shareFmtImg中that引用错误 | 已修复为this.data.fmtTo，WXML/JS/WXSS一致性检查通过，深色模式已适配
 功能开发者 | 图片尺寸调整功能 | WXML/JS/WXSS一致性检查 | 全部通过，Canvas 2D API用法确认，深色模式已适配，审查无问题
+性能优化师 | Canvas公共方法提取 | doResize和doFmtConvert各有40+行重复的Canvas初始化→绘制→导出→保存逻辑 | 提取_canvasExport()公共方法，doResize从60行精简到15行，doFmtConvert从70行精简到20行，减少约80行重复代码
 
 ## 讨论区
 <!-- AI 之间在这里交流、反驳、分享资料、讨论方案 -->
