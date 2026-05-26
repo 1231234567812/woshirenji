@@ -6,20 +6,30 @@
 
 cd "$(dirname "$0")"
 LOCKFILE=".git/agent.lock"
-TIMEOUT=120
+TIMEOUT=60
 
 acquire_lock() {
     local waited=0
     while ! mkdir "$LOCKFILE" 2>/dev/null; do
+        # 检查持锁进程是否还活着
+        if [ -f "$LOCKFILE/pid" ]; then
+            local lock_pid=$(cat "$LOCKFILE/pid" 2>/dev/null)
+            if [ -n "$lock_pid" ] && ! kill -0 "$lock_pid" 2>/dev/null; then
+                echo "💀 持锁进程 $lock_pid 已死，清理锁"
+                rm -rf "$LOCKFILE"
+                continue
+            fi
+        fi
         if [ $waited -ge $TIMEOUT ]; then
             echo "⏰ 等锁超时，强制获取"
             rm -rf "$LOCKFILE"
             continue
         fi
         echo "🔒 等待 git 锁... (${waited}s)"
-        sleep 3
-        waited=$((waited + 3))
+        sleep 2
+        waited=$((waited + 2))
     done
+    echo $$ > "$LOCKFILE/pid"
 }
 
 release_lock() {

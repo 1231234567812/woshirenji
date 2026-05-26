@@ -2,6 +2,9 @@
 cd "$(dirname "$0")"
 echo "⚙️ 功能开发者 Agent 启动 | 按 Ctrl+C 停止"
 
+# 错开启动
+sleep 14
+
 count=1
 while true; do
     echo ""
@@ -40,7 +43,7 @@ while true; do
 - 用 xxd 检查改动的文件开头是否有 BOM（efbb bf），有就删掉再提交
 - 审查结果写到 PROGRESS.md 审查记录
 - 提交用：git add -A && git commit -m \"类型: 标题\" -m \"详细说明\"
-- 提交后：bash git-locked.sh push（推送失败不管，继续干活）
+- 提交后不用 push，父脚本会统一推送。
 - 推送后写到 discuss.md，告诉审查员去审查
 
 做完一个功能后，读 discuss.md 看看有没有新的讨论或任务，继续做下一个。不要停。"
@@ -48,6 +51,7 @@ while true; do
     bash git-locked.sh push
 
     count=$((count + 1))
-    echo "✅ 本轮完成，20秒后继续..."
-    sleep 20
+    DELAY=$((15 + RANDOM % 10))
+    echo "✅ 本轮完成，${DELAY}秒后继续..."
+    sleep $DELAY
 done

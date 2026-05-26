@@ -262,10 +262,10 @@
           <view class="wm-color-opts">
             <view class="wm-color-opt {{wmColor === '#ffffff' ? 'active' : ''}}" style="background: #ffffff;" bindtap="setWmColor" data-color="#ffffff"></view>
             <view class="wm-color-opt {{wmColor === '#000000' ? 'active' : ''}}" style="background: #000000;" bindtap="setWmColor" data-color="#000000"></view>
-            <view class="wm-color-opt {{wmColor === '#ff0000' ? 'active' : ''}}" style="background: #ff0000;" bindtap="setWmColor" data-color="#ff0000"></view>
-            <view class="wm-color-opt {{wmColor === '#00ff00' ? 'active' : ''}}" style="background: #00ff00;" bindtap="setWmColor" data-color="#00ff00"></view>
-            <view class="wm-color-opt {{wmColor === '#0000ff' ? 'active' : ''}}" style="background: #0000ff;" bindtap="setWmColor" data-color="#0000ff"></view>
-            <view class="wm-color-opt {{wmColor === '#ffff00' ? 'active' : ''}}" style="background: #ffff00;" bindtap="setWmColor" data-color="#ffff00"></view>
+            <view class="wm-color-opt {{wmColor === '#8B4513' ? 'active' : ''}}" style="background: #8B4513;" bindtap="setWmColor" data-color="#8B4513"></view>
+            <view class="wm-color-opt {{wmColor === '#2F4F4F' ? 'active' : ''}}" style="background: #2F4F4F;" bindtap="setWmColor" data-color="#2F4F4F"></view>
+            <view class="wm-color-opt {{wmColor === '#4A6FA5' ? 'active' : ''}}" style="background: #4A6FA5;" bindtap="setWmColor" data-color="#4A6FA5"></view>
+            <view class="wm-color-opt {{wmColor === '#8B7355' ? 'active' : ''}}" style="background: #8B7355;" bindtap="setWmColor" data-color="#8B7355"></view>
           </view>
         </view>
 

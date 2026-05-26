@@ -189,6 +189,14 @@ Page({
     }
   },
 
+  // 从选择结果中提取临时路径（公共方法）
+  _getTempPath(res) {
+    let p = '';
+    if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
+    if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+    return p;
+  },
+
   // ========== 批量转换 ==========
   chooseBatchImage() {
     let that = this;
@@ -585,13 +593,7 @@ Page({
   chooseCompressImage() {
     let that = this;
     this._chooseImage(1, 'original', (res) => {
-      let tempPath = '';
-      if (res.tempFiles && res.tempFiles[0]) {
-        tempPath = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
-      }
-      if (!tempPath && res.tempFilePaths && res.tempFilePaths[0]) {
-        tempPath = res.tempFilePaths[0];
-      }
+      let tempPath = this._getTempPath(res);
       if (!tempPath) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       // 保存到本地
       let fs = wx.getFileSystemManager();
@@ -705,13 +707,7 @@ Page({
   chooseWmImage() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
-      let tempPath = '';
-      if (res.tempFiles && res.tempFiles[0]) {
-        tempPath = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
-      }
-      if (!tempPath && res.tempFilePaths && res.tempFilePaths[0]) {
-        tempPath = res.tempFilePaths[0];
-      }
+      let tempPath = this._getTempPath(res);
       if (!tempPath) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       // 保存到本地
       let fs = wx.getFileSystemManager();
@@ -893,9 +889,7 @@ Page({
   chooseFmtImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
-      let p = '';
-      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
-      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       // 检测格式
       let ext = p.split('.').pop().toLowerCase();
@@ -953,9 +947,7 @@ Page({
   chooseResizeImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
-      let p = '';
-      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
-      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       wx.getImageInfo({
         src: p,
@@ -1029,9 +1021,7 @@ Page({
   chooseCropImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
-      let p = '';
-      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
-      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       wx.getImageInfo({
         src: p,
@@ -1158,9 +1148,7 @@ Page({
   chooseRotImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
-      let p = '';
-      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
-      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that.setData({ rotImg: p, rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '' });
     });
@@ -1275,9 +1263,7 @@ Page({
   chooseColorImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
-      let p = '';
-      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
-      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that.setData({ colorImg: p, colorList: [] });
       that._extractColors(p);

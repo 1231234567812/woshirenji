@@ -2,6 +2,9 @@
 cd "$(dirname "$0")"
 echo "🔍 代码审查员 Agent 启动 | 按 Ctrl+C 停止"
 
+# 错开启动
+sleep 7
+
 count=1
 while true; do
     echo ""
@@ -43,7 +46,7 @@ while true; do
 5. 按 CLAUDE.md 的审查清单逐项检查
 6. 结果写到 PROGRESS.md 审查记录和 discuss.md
 
-如果需要提交修复，用：git add -A && git commit -m \"fix: 描述\"，然后 bash git-locked.sh push
+如果需要提交修复，用：git add -A && git commit -m \"fix: 描述\"，不用 push，父脚本会统一推送。
 
 如果发现严重问题（bug、设计违规、安全隐患）：
 - 立即在 discuss.md 里警告
@@ -57,6 +60,7 @@ while true; do
     bash git-locked.sh push
 
     count=$((count + 1))
-    echo "✅ 本轮完成，20秒后继续..."
-    sleep 20
+    DELAY=$((15 + RANDOM % 10))
+    echo "✅ 本轮完成，${DELAY}秒后继续..."
+    sleep $DELAY
 done
