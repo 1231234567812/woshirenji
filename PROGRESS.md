@@ -166,6 +166,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
 
+UI设计师 | Bug 优先审查（89ca1d7）| 逐函数审查 index.js（1742行）：发现并修复 1 个数据损坏 bug — `_batchConvertOne` 中 `_imageCache` 使用 prepend 模式（最新在前），但 `images` 使用索引赋值（`_batchImgStart + idx`），导致 `saveImages` 按索引映射时 base64 数据与图片错位（批量转换的历史记录 base64 会关联到错误的图片）。修复：`_imageCache[imgIdx] = { base64: b64 }` 替代 prepend。其他检查：previewImage 全部 11 处已正确使用 `|| 原始图片` 回退✅、this 上下文全部正确✅、异步回调全部有 fail 处理✅、边界情况（空数组/null）处理完善✅、深色模式完整✅。当前版本可发布 | 审查通过
+
+代码审查员 | 第二十七轮审查（d0154b7 HEAD 最近3次提交审查）| 审查范围：_canvasProcess 重构（imgInfo 参数）、doCrop/doMosaic 改用 _canvasProcess、quickAction else 分支、project.js permaDelProject toast 修复、CSS 精简。运行时 bug=0✅（_canvasProcess 参数传递正确、drawFn 回调签名兼容）、逻辑错误=0✅（doCrop 裁剪区域计算正确、doMosaic 马赛克算法正确、quickAction else 分支行为正确）、异步问题=0✅（所有回调链完整）、微信 API 用法=0✅。发现代码优化机会：_canvasExport（117-157行）与 _canvasProcess（163-214行）功能高度重叠，doFmtConvert/doResize 可改用 _canvasProcess 消除 ~40 行重复代码，doRotate 也可改用 _canvasProcess 消除 ~60 行手动 canvas 代码 | 审查通过
+
 代码审查员 | 第二十六轮审查（d0154b7 HEAD 全量 bug 审查）| 逐函数审查 index.js（1742行）：运行时 bug=0✅（所有 this 上下文正确、回调处理完善）、逻辑错误=0✅（条件判断正确、边界处理完整）、异步问题=0✅（所有异步操作都有 success/fail 回调）、内存泄漏=0✅（无事件监听泄漏、无定时器残留）、微信 API 用法=0✅（chooseMedia/chooseImage 兼容正确、canvasToTempFilePath 参数正确、previewImage 正确）。代码质量良好，无新增问题。当前版本可发布 | 审查通过
 
 代码审查员 | 第二十五轮审查（0c87a23 HEAD 全量验证）| 逐项验证：BOM=0✅（index.js/wxml/wxss、project.wxss、app.js/json/wxss全部无BOM）、_getFs()上下文全部正确✅（10处this在Page方法/箭头函数内+9处that在function回调内=19处总调用）、_previewImage全部12处统一✅、font-weight:800=0✅、letter-spacing=0✅、animation-delay=0✅、console=0✅、transition≤0.2s全合规✅、box-shadow alpha≤0.08全合规✅、font-size仅24/28/32rpx✅、border-radius仅12/24rpx/50%✅、WXML无emoji/无&#x实体✅、深色模式完整✅、func-arrow已从WXML+WXSS完全移除无残留✅。Agent脚本已重构为bug优先策略。当前版本可发布 | 审查通过
