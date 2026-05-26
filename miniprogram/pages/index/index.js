@@ -321,16 +321,15 @@ Page({
         if (!res.confirm) return;
         let prefix = (res.content || 'batch').replace(/[:"<>|?*\n\r\\/]/g, '-').slice(0, 30);
         let fs = wx.getFileSystemManager();
-        let ok = 0, fail = 0;
+        let ok = 0, fail = 0, total = that._batchCodes.length;
         that._batchCodes.forEach((code, i) => {
           let fname = wx.env.USER_DATA_PATH + '/' + prefix + '_' + (i + 1) + '.txt';
           fs.writeFile({
             filePath: fname, data: code, encoding: 'utf8',
-            success() { ok++; },
-            fail() { fail++; },
+            success() { ok++; if (ok + fail === total) wx.showToast({ title: '已保存 ' + ok + ' 个文件', icon: 'success' }); },
+            fail() { fail++; if (ok + fail === total) wx.showToast({ title: '已保存 ' + ok + ' 个文件', icon: 'success' }); },
           });
         });
-        wx.showToast({ title: '已保存 ' + that._batchCodes.length + ' 个文件', icon: 'success' });
       },
     });
   },
@@ -595,20 +594,7 @@ Page({
     this._chooseImage(1, 'original', (res) => {
       let tempPath = this._getTempPath(res);
       if (!tempPath) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      // 保存到本地
-      let fs = wx.getFileSystemManager();
-      let dest = wx.env.USER_DATA_PATH + '/compress_' + Date.now() + '.jpg';
-      fs.copyFile({
-        srcPath: tempPath, destPath: dest,
-        success() { that._onCompressImagePicked(dest); },
-        fail() {
-          fs.saveFile({
-            tempFilePath: tempPath,
-            success(r) { that._onCompressImagePicked(r.savedFilePath); },
-            fail() { wx.showToast({ title: '图片保存失败', icon: 'none' }); },
-          });
-        },
-      });
+      that._saveToTempFile(tempPath, 'compress', (p) => that._onCompressImagePicked(p));
     });
   },
 
@@ -1481,6 +1467,23 @@ Page({
     this.setData({ imagePath: tempPath, codeShow: '', size: '' });
   },
 
+  _saveToTempFile(tempPath, prefix, callback) {
+    if (!tempPath) { wx.showToast({ title: '图片路径无效', icon: 'none' }); return; }
+    let fs = wx.getFileSystemManager();
+    let dest = wx.env.USER_DATA_PATH + '/' + prefix + '_' + Date.now() + '.jpg';
+    fs.copyFile({
+      srcPath: tempPath, destPath: dest,
+      success: () => callback(dest),
+      fail: () => {
+        fs.saveFile({
+          tempFilePath: tempPath,
+          success: (res) => callback(res.savedFilePath),
+          fail: () => wx.showToast({ title: '图片保存失败', icon: 'none' }),
+        });
+      },
+    });
+  },
+
   _saveTempImage(tempPath) {
     if (!tempPath) {
       wx.showToast({ title: '图片路径无效', icon: 'none' });
@@ -1576,7 +1579,9 @@ Page({
     wx.getFileSystemManager().readFile({
       filePath: filePath, encoding: 'base64',
       success(res) {
-        let b64 = 'data:image/jpeg;base64,' + res.data;
+        let ext = filePath.split('.').pop().toLowerCase();
+        let mime = ext === 'png' ? 'image/png' : (ext === 'gif' ? 'image/gif' : (ext === 'webp' ? 'image/webp' : 'image/jpeg'));
+        let b64 = 'data:' + mime + ';base64,' + res.data;
         let kb = fileSizeKB || (res.data.length * 0.75 / 1024).toFixed(1);
         that._fullCode = b64;
         let itemMeta = { id: Date.now(), type: 'image', path: that.data.imagePath, size: kb + ' KB', preview: '' };
@@ -1722,7 +1727,9 @@ Page({
       return;
     }
     if (!b64.startsWith('data:image')) b64 = 'data:image/png;base64,' + raw;
-    let fname = wx.env.USER_DATA_PATH + '/dc' + Date.now() + '.jpg';
+    let mimeMatch = b64.match(/^data:(image\/\w+);/);
+    let ext = mimeMatch ? (mimeMatch[1].split('/')[1] === 'jpeg' ? 'jpg' : mimeMatch[1].split('/')[1]) : 'png';
+    let fname = wx.env.USER_DATA_PATH + '/dc' + Date.now() + '.' + ext;
     let that = this;
     wx.getFileSystemManager().writeFile({
       filePath: fname, data: raw, encoding: 'base64',

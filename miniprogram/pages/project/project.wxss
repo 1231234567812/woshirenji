@@ -1,11 +1,9 @@
-page { background: #F5F5F7; }
-
 .box { padding: 24rpx 40rpx calc(160rpx + env(safe-area-inset-bottom)); background: #F5F5F7; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20rpx); } to { opacity: 1; transform: translateY(0); } }
 
 .tip { text-align: center; padding-top: 200rpx; color: #86868B; font-size: 28rpx; }
 .tip-icon-wrap { width: 120rpx; height: 120rpx; border-radius: 50%; background: #F0F4FF; display: flex; align-items: center; justify-content: center; margin: 0 auto 28rpx; }
-.tip-icon-txt { font-size: 48rpx; font-weight: 600; color: #0071E3; }
+.tip-icon-txt { font-size: 32rpx; font-weight: 600; color: #0071E3; }
 .tip-text { font-weight: 500; color: #0071E3; }
 
 .card {
@@ -59,7 +57,6 @@ page { background: #F5F5F7; }
 .files-empty { text-align: center; color: #86868B; font-size: 24rpx; padding-top: 80rpx; font-weight: 500; }
 
 /* Dark Mode */
-.box.dark { background: #000; }
 .dark .tip { color: #98989D; }
 .dark .tip-icon-wrap { background: #1C1C1E; }
 .dark .tip-icon-txt { color: #0A84FF; }
