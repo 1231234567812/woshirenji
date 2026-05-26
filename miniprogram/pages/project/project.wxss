@@ -18,7 +18,7 @@ page { background: #F5F5F7; }
 .card-body { padding: 40rpx 36rpx; }
 
 .card-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx; }
-.card-name { font-size: 30rpx; font-weight: 600; color: #1D1D1F; }
+.card-name { font-size: 28rpx; font-weight: 600; color: #1D1D1F; }
 .card-ft { display: flex; justify-content: space-between; align-items: center; }
 .card-date { font-size: 22rpx; color: #86868B; font-weight: 500; }
 .card-num { font-size: 22rpx; color: #0071E3; font-weight: 600; }
@@ -50,12 +50,12 @@ page { background: #F5F5F7; }
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 .files-hd { display: flex; justify-content: space-between; align-items: center; padding: 30rpx 32rpx; border-bottom: 1rpx solid #F5F5F7; }
 .files-title { font-size: 32rpx; font-weight: 700; color: #1D1D1F; }
-.files-close { font-size: 34rpx; color: #86868B; padding: 10rpx; font-weight: 300; }
+.files-close { font-size: 28rpx; color: #86868B; padding: 10rpx; font-weight: 300; }
 .files-body { flex: 1; padding: 8rpx 0; }
 .files-item { display: flex; justify-content: space-between; align-items: center; padding: 30rpx 32rpx; border-bottom: 1rpx solid #F5F5F7; transition: background 0.15s ease; }
 .files-item:active { background: #F5F5F7; }
 .files-name { font-size: 28rpx; color: #1D1D1F; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
-.files-arrow { font-size: 38rpx; color: #0071E3; margin-left: 12rpx; font-weight: 300; }
+.files-arrow { font-size: 32rpx; color: #0071E3; margin-left: 12rpx; font-weight: 300; }
 .files-empty { text-align: center; color: #86868B; font-size: 26rpx; padding-top: 80rpx; font-weight: 500; }
 
 /* Dark Mode */

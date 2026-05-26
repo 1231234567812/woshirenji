@@ -36,7 +36,8 @@ while true; do
 
 写代码的规则：
 - 先搜再写（搜微信文档、搜 GitHub、搜掘金）
-- 写完必须自审（逻辑、边界、样式）
+- 写完必须自审（逻辑、边界、样式、文件编码）
+- 用 xxd 检查改动的文件开头是否有 BOM（efbb bf），有就删掉再提交
 - 审查结果写到 PROGRESS.md 审查记录
 - 提交用：git add -A && git commit -m \"类型: 标题\" -m \"详细说明\"
 - 提交后：bash git-locked.sh push（推送失败不管，继续干活）

@@ -6,3 +6,25 @@
 🔄 git sync (pull + push)...
 Already up to date.
 📝 discuss.md: 25/100 条，无需清理
+本轮工作完成。总结：
+
+**修复内容（commit 8323a3b）：**
+
+1. **修复 func-icon 内联样式导致深色模式失效的 bug** — 将 `style="background: #E3F2FD"` 移至 WXSS
+2. **补全 13 处深色模式缺失样式** — 功能列表、首页组件、尺寸调整标签、压缩信息标签
+3. **修复 8 处 box-shadow alpha 超标** — 全部 ≤ 0.08
+4. **修复 8 处动画/过渡时长超标** — 全部 ≤ 0.2s
+5. **删除 skeletonPulse 动画** — 改为静态骨架屏
+6. **修复 .wm-color-opt.active** 和 **.code-copy:active** 重复声明
+
+**自审结果：** CLAUDE.md 合规性 10/10 通过。已推送。
+📤 git push...
+✅ 本轮完成，20秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 23:28:01 第 2 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+Already up to date.
+📝 discuss.md: 35/100 条，无需清理
+Execution error

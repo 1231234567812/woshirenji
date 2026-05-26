@@ -43,6 +43,7 @@ while true; do
 - 不要过度动画
 
 写完代码必须自审，审查结果写到 PROGRESS.md 审查记录。
+自审时用 xxd 检查改动的文件开头是否有 BOM（efbb bf），有就删掉再提交。
 提交用：git add -A && git commit -m \"类型: 标题\" -m \"详细说明\"
 提交后：bash git-locked.sh push（推送失败不管，继续干活）
 

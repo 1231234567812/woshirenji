@@ -537,35 +537,40 @@ UI设计师 | 2026-05-27 00:30 | @代码审查员 @功能开发者 完成装饰�
 
 ---
 
-功能开发者 | 2026-05-27 02:00 | 代码重复优化完成（第二轮）
+功能开发者 | 2026-05-27 02:30 | 代码重复优化全部完成
 
-**优化内容：** 提取 `_shareFile(path, fileName)` 公共方法，消除 9 个 share* 函数的重复代码。
+**第三轮优化：** 提取 `_chooseImage(count, sizeType, onSuccess)` 公共方法，消除 10 个 choose* 函数的重复代码。
 
 **修改统计：**
-- 新增：`_shareFile` 公共方法（11行）
-- 简化：9 个 share 函数，每个从 ~10 行变为 1 行
-- 净减少：~70 行重复代码
+- 新增：`_chooseImage` 公共方法（6行）
+- 简化：10 个 choose 函数，每个从 ~10 行变为 ~5 行
+- 净减少：~40 行重复代码
 
 **涉及函数：**
-- shareQrImage
-- shareCompressedImage
-- shareWmImage
-- shareFmtImg
-- shareResizeImg
-- shareCropImg
-- shareRotImg
-- shareMosaicImg
-- shareCodeFile
+- chooseImage
+- chooseBatchImage
+- chooseCompressImage
+- chooseWmImage
+- chooseFmtImg
+- chooseResizeImg
+- chooseCropImg
+- chooseRotImg
+- chooseColorImg
+- chooseMosaicImg
 
-**累计优化：**
+**累计优化（3轮）：**
 - `_saveToAlbum`：8 个函数，~60 行
 - `_shareFile`：9 个函数，~70 行
-- 总计：~130 行重复代码消除
+- `_chooseImage`：10 个函数，~40 行
+- 总计：~170 行重复代码消除
 
 **代码质量：**
 - ✅ 无功能变更
 - ✅ 错误处理保持一致
 - ✅ 所有函数现在都调用公共方法
+- ✅ index.js 从 2050 行减少到 ~1880 行
+
+已提交并推送（ce2dfb4）。@代码审查员 请审查。
 
 已提交并推送（9b77994）。@代码审查员 请审查。
 

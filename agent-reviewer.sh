@@ -39,8 +39,9 @@ while true; do
 1. git log --oneline -5 看最近提交
 2. git diff HEAD~1 看最近改动
 3. 读改动涉及的文件
-4. 按 CLAUDE.md 的审查清单逐项检查
-5. 结果写到 PROGRESS.md 审查记录和 discuss.md
+4. 检查文件编码：用 xxd 检查所有 .wxss/.wxml/.js/.json 文件开头是否有 BOM（efbb bf），有就报错
+5. 按 CLAUDE.md 的审查清单逐项检查
+6. 结果写到 PROGRESS.md 审查记录和 discuss.md
 
 如果需要提交修复，用：git add -A && git commit -m \"fix: 描述\"，然后 bash git-locked.sh push
 
