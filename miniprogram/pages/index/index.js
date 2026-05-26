@@ -157,16 +157,14 @@ Page({
   },
 
   // Canvas 处理+导出（公共方法）
-  // opts: { canvasId, imgSrc, drawW, drawH, fileType, quality, destPrefix }
+  // opts: { canvasId, imgSrc, imgInfo, drawW, drawH, fileType, quality, destPrefix }
   // drawFn: (ctx, canvas, img, info) => void
   // callback: (err, { path, size }) => void
   _canvasProcess(opts, drawFn, callback) {
     let that = this;
-    wx.getImageInfo({
-      src: opts.imgSrc,
-      success(info) {
-        const query = wx.createSelectorQuery();
-        query.select('#' + opts.canvasId).fields({ node: true, size: true }).exec((res) => {
+    let doProcess = function(info) {
+      const query = wx.createSelectorQuery();
+      query.select('#' + opts.canvasId).fields({ node: true, size: true }).exec((res) => {
           if (!res[0] || !res[0].node) { callback('Canvas 初始化失败'); return; }
           const canvas = res[0].node;
           const ctx = canvas.getContext('2d');
@@ -203,9 +201,16 @@ Page({
           img.onerror = function() { callback('图片加载失败'); };
           img.src = opts.imgSrc;
         });
-      },
-      fail() { callback('获取图片信息失败'); },
-    });
+      };
+    if (opts.imgInfo) {
+      doProcess(opts.imgInfo);
+    } else {
+      wx.getImageInfo({
+        src: opts.imgSrc,
+        success: doProcess,
+        fail() { callback('获取图片信息失败'); },
+      });
+    }
   },
 
   // 保存图片到相册（公共方法）
@@ -1391,84 +1396,26 @@ Page({
     this.setData({ mosaicing: true });
     wx.showNavigationBarLoading();
 
-    wx.getImageInfo({
-      src: mosaicImg,
-      success(info) {
-        let iw = info.width, ih = info.height;
-        // 缩小到 1/level 大小再放大，实现马赛克效果
-        let sw = Math.max(1, Math.floor(iw / mosaicLevel));
-        let sh = Math.max(1, Math.floor(ih / mosaicLevel));
-
-        const query = wx.createSelectorQuery();
-        query.select('#mosaicCanvas').fields({ node: true, size: true }).exec((res) => {
-          if (!res[0] || !res[0].node) {
-            that.setData({ mosaicing: false });
-            wx.hideNavigationBarLoading();
-            wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
-            return;
-          }
-          const canvas = res[0].node;
-          const ctx = canvas.getContext('2d');
-          canvas.width = iw;
-          canvas.height = ih;
-
-          const img = canvas.createImage();
-          img.onload = function() {
-            // 先画小图
-            ctx.imageSmoothingEnabled = false;
-            ctx.drawImage(img, 0, 0, sw, sh);
-            // 再放大到原尺寸
-            ctx.drawImage(canvas, 0, 0, sw, sh, 0, 0, iw, ih);
-
-            wx.canvasToTempFilePath({
-              canvas: canvas,
-              quality: 0.9,
-              success(r) {
-                let fs = that._getFs();
-                let dest = wx.env.USER_DATA_PATH + '/mosaic_' + Date.now() + '.jpg';
-                fs.copyFile({
-                  srcPath: r.tempFilePath, destPath: dest,
-                  success() {
-                    wx.getFileInfo({
-                      filePath: dest,
-                      success(fi) {
-                        let kb = (fi.size / 1024).toFixed(1);
-                        that.setData({ mosaicResult: dest, mosaicSize: kb + ' KB', mosaicing: false });
-                        wx.hideNavigationBarLoading();
-                        wx.showToast({ title: '马赛克完成', icon: 'success' });
-                      },
-                      fail() {
-                        that.setData({ mosaicResult: dest, mosaicSize: '', mosaicing: false });
-                        wx.hideNavigationBarLoading();
-                      },
-                    });
-                  },
-                  fail() {
-                    that.setData({ mosaicResult: r.tempFilePath, mosaicSize: '', mosaicing: false });
-                    wx.hideNavigationBarLoading();
-                  },
-                });
-              },
-              fail() {
-                that.setData({ mosaicing: false });
-                wx.hideNavigationBarLoading();
-                wx.showToast({ title: '导出失败', icon: 'none' });
-              },
-            });
-          };
-          img.onerror = function() {
-            that.setData({ mosaicing: false });
-            wx.hideNavigationBarLoading();
-            wx.showToast({ title: '图片加载失败', icon: 'none' });
-          };
-          img.src = mosaicImg;
-        });
-      },
-      fail() {
-        that.setData({ mosaicing: false });
-        wx.hideNavigationBarLoading();
-        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
-      },
+    this._canvasProcess({
+      canvasId: 'mosaicCanvas',
+      imgSrc: mosaicImg,
+      destPrefix: 'mosaic',
+    }, function(ctx, canvas, img, info) {
+      let iw = info.width, ih = info.height;
+      let sw = Math.max(1, Math.floor(iw / mosaicLevel));
+      let sh = Math.max(1, Math.floor(ih / mosaicLevel));
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(img, 0, 0, sw, sh);
+      ctx.drawImage(canvas, 0, 0, sw, sh, 0, 0, iw, ih);
+    }, function(err, result) {
+      that.setData({ mosaicing: false });
+      wx.hideNavigationBarLoading();
+      if (err) {
+        wx.showToast({ title: err, icon: 'none' });
+      } else {
+        that.setData({ mosaicResult: result.path, mosaicSize: result.size });
+        wx.showToast({ title: '马赛克完成', icon: 'success' });
+      }
     });
   },
 
@@ -1488,6 +1435,8 @@ Page({
       this._projectsCache = ps; // 更新缓存
       try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
       this.setData({ view: 'work', curId: p.id, curName: p.name, images: [] });
+    } else {
+      this.setData({ view: 'work' });
     }
     this.reset(mode);
   },
