@@ -368,7 +368,7 @@ Page({
       }
       that.setData({ qrImagePath: path });
       // 保存到历史
-      var fs = this._getFs();
+      var fs = that._getFs();
       var dest = wx.env.USER_DATA_PATH + '/qr_' + Date.now() + '.png';
       fs.copyFile({
         srcPath: path, destPath: dest,
@@ -1067,7 +1067,7 @@ Page({
           canvas: canvas,
           quality: 0.9,
           success(r) {
-            let fs = this._getFs();
+            let fs = that._getFs();
             let dest = wx.env.USER_DATA_PATH + '/crop_' + Date.now() + '.jpg';
             fs.copyFile({
               srcPath: r.tempFilePath, destPath: dest,
@@ -1173,7 +1173,7 @@ Page({
               canvas: canvas,
               quality: 0.9,
               success(r) {
-                let fs = this._getFs();
+                let fs = that._getFs();
                 let dest = wx.env.USER_DATA_PATH + '/rot_' + Date.now() + '.jpg';
                 fs.copyFile({
                   srcPath: r.tempFilePath, destPath: dest,
@@ -1372,7 +1372,7 @@ Page({
               canvas: canvas,
               quality: 0.9,
               success(r) {
-                let fs = this._getFs();
+                let fs = that._getFs();
                 let dest = wx.env.USER_DATA_PATH + '/mosaic_' + Date.now() + '.jpg';
                 fs.copyFile({
                   srcPath: r.tempFilePath, destPath: dest,
