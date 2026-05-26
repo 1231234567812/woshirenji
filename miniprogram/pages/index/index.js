@@ -132,7 +132,7 @@ Page({
           fileType: fileType,
           quality: quality,
           success: function(r) {
-            let fs = this._getFs();
+            let fs = that._getFs();
             let dest = wx.env.USER_DATA_PATH + '/' + (opts.destPrefix || 'img') + '_' + Date.now() + '.' + fileType;
             fs.copyFile({
               srcPath: r.tempFilePath, destPath: dest,
