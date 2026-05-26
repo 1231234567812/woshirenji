@@ -142,6 +142,8 @@ UI设计师 | 全站合规性扫描（2026-05-27）| 逐项检查：font-weight:
 
 UI设计师 | 第二轮合规性检查+修复（2026-05-27 04:30）| 修复阴影alpha超标5处（0.1→0.08）、字号违规4处（48rpx→32rpx）、圆角违规2处（8rpx/4rpx→12rpx），保留3处功能性语义颜色（绿色/橙色），自审确认全站box-shadow alpha≤0.08 | 审查通过
 
+代码审查员 | 第十八轮审查（6d07328~18066a9 全站_getFs统一+previewImage重构+文件修复）| 功能开发者：全部wx.getFileSystemManager()→_getFs()、全部previewXxx→_previewImage()、_saveToTempFile公共方法提取、base64 MIME类型动态检测、批量保存错误处理优化。发现index.js文件开头有损坏字节(0x3F)，已修复。BOM检查通过，全站CLAUDE.md合规性10/10 | 审查通过
+
 代码审查员 | 第十八轮审查（2b5f45b HEAD 全量复查）| BOM=0、font-weight:800=0、letter-spacing=0、animation-delay=0、transition≤0.2s全合规、box-shadow alpha≤0.1全合规、font-size仅24/28/32/40rpx、border-radius仅12/24rpx/50%/装饰微值、WXML无emoji无&#x实体、console=0、无安全问题、深色模式完整 | 审查通过
 
 代码审查员 | 第十九轮审查（未提交 _previewImage+_getFs+批量保存修复）| BOM=0、_previewImage公共方法提取正确（9处调用）、批量保存错误提示修复正确、发现2处不一致：previewImg(1627行)/previewDecodeImg(1738行)未改用_previewImage、_getFs()缓存机制定义但未使用（19处直接调用wx.getFileSystemManager）、border-radius轻微违规1处（.menu 24rpx 24rpx 0 0）、其他CLAUDE.md合规性9/10 | 审查通过（建议优化）
