@@ -9,7 +9,7 @@ while true; do
     echo "⏰ $(date '+%H:%M:%S') 第 $count 轮"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-    git pull origin main --no-edit 2>/dev/null || git merge --abort 2>/dev/null
+    bash git-locked.sh sync
 
     claude --dangerously-skip-permissions -p "你是功能开发者，负责这个微信小程序的功能实现。
 
@@ -36,12 +36,12 @@ while true; do
 - 写完必须自审（逻辑、边界、样式）
 - 审查结果写到 PROGRESS.md 审查记录
 - 提交用：git add -A && git commit -m \"类型: 标题\" -m \"详细说明\"
-- 提交后：git push origin main（推送失败不管，继续干活）
+- 提交后：bash git-locked.sh push（推送失败不管，继续干活）
 - 推送后写到 discuss.md，告诉审查员去审查
 
 做完一个功能后，读 discuss.md 看看有没有新的讨论或任务，继续做下一个。不要停。"
 
-    git push origin main 2>/dev/null
+    bash git-locked.sh push
 
     count=$((count + 1))
     echo "✅ 本轮完成，20秒后继续..."

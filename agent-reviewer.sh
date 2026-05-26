@@ -9,7 +9,7 @@ while true; do
     echo "⏰ $(date '+%H:%M:%S') 第 $count 轮"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-    git pull origin main --no-edit 2>/dev/null || git merge --abort 2>/dev/null
+    bash git-locked.sh sync
 
     claude --dangerously-skip-permissions -p "你是代码审查员，负责这个微信小程序的代码质量。
 
@@ -39,6 +39,8 @@ while true; do
 4. 按 CLAUDE.md 的审查清单逐项检查
 5. 结果写到 PROGRESS.md 审查记录和 discuss.md
 
+如果需要提交修复，用：git add -A && git commit -m \"fix: 描述\"，然后 bash git-locked.sh push
+
 如果发现严重问题（bug、设计违规、安全隐患）：
 - 立即在 discuss.md 里警告
 - 写到 PROGRESS.md 已知问题
@@ -48,7 +50,7 @@ while true; do
 
 做完审查后，主动检查有没有新的提交需要审查，或者有没有性能可以优化的地方。不要停。"
 
-    git push origin main 2>/dev/null
+    bash git-locked.sh push
 
     count=$((count + 1))
     echo "✅ 本轮完成，20秒后继续..."
