@@ -17,6 +17,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者统一 chooseImage 使用 _getTempPath（35ba3cc）
+  - chooseImage 函数改用 _getTempPath 公共方法，消除最后一处重复代码
+  - .code-hd padding 22rpx→24rpx
+  - .lock-txt/.clr-rgb/.card-date/.card-num font-size 22rpx→24rpx（统一字号规范）
 - UI设计师修复 func-icon 内联样式导致深色模式失效的 bug
   - func-icon 的 `style="background: #E3F2FD"` 会覆盖 `.dark .func-icon` 的 CSS
   - 将背景色从 WXML 内联样式移至 WXSS 声明

@@ -661,7 +661,7 @@
   <!-- 文件浏览弹窗 -->
   <view class="files-mask" wx:if="{{filesShow}}" bindtap="closeFiles"></view>
   <view class="files-modal" wx:if="{{filesShow}}">
-    <view class="files-hd"><text class="files-title">保存的文件</text><text class="files-close" bindtap="closeFiles">&#x2715;</text></view>
+    <view class="files-hd"><text class="files-title">保存的文件</text><text class="files-close" bindtap="closeFiles">×</text></view>
     <scroll-view class="files-body" scroll-y enhanced show-scrollbar="{{false}}">
       <view wx:for="{{filesList}}" wx:key="name" class="files-item" bindtap="openFile" data-index="{{index}}">
         <text class="files-name">{{item.name}}</text>
