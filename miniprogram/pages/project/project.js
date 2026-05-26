@@ -126,8 +126,8 @@ Page({
             // 局部更新：从列表中移除
             let newList = this.data.list.filter(item => item.id !== id);
             this.setData({ list: newList });
+            wx.showToast({ title: '已删除', icon: 'success' });
           }
-          wx.showToast({ title: '已删除', icon: 'success' });
         }
       },
     });

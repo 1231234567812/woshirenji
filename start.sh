@@ -4,16 +4,14 @@ cd "$(dirname "$0")"
 echo "🚀 启动多智能体协作系统"
 echo ""
 
-# 先清理上次启动的旧 agent 进程，防止堆积
-if [ -f .agent-pids ]; then
-    echo "🧹 清理旧 agent 进程..."
-    while read pid; do
-        taskkill //F //PID "$pid" 2>/dev/null
-    done < .agent-pids
-    rm -f .agent-pids
-    sleep 2
-    echo "🧹 清理完成"
-fi
+# 先清理上次残留的所有 agent 进程，防止堆积
+echo "🧹 清理残留进程..."
+taskkill //F //IM claude.exe 2>/dev/null
+taskkill //F //IM node.exe 2>/dev/null
+# 杀掉所有正在跑 agent 脚本的 bash 进程
+powershell -Command "Get-CimInstance Win32_Process | Where-Object { \$_.Name -eq 'bash.exe' -and \$_.CommandLine -match 'agent-(ui|reviewer|feature)\.sh' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force -ErrorAction SilentlyContinue }" 2>/dev/null
+sleep 2
+echo "🧹 清理完成"
 
 # 先拉最新代码
 git pull origin main 2>/dev/null

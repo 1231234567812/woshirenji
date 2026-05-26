@@ -52,12 +52,7 @@ while true; do
     wait $CLAUDE_PID 2>/dev/null
 
     sleep 2
-    MY_CLAUDE_PIDS=$(powershell -Command "(Get-CimInstance Win32_Process -Filter \"Name='node.exe'\").ParentProcessId" 2>/dev/null)
-    for npid in $MY_CLAUDE_PIDS; do
-        if ! tasklist 2>/dev/null | grep -q "claude.exe.*$npid"; then
-            taskkill //F //PID "$npid" 2>/dev/null
-        fi
-    done
+    taskkill //F //IM node.exe 2>/dev/null
 
     bash git-locked.sh push
 

@@ -1099,69 +1099,27 @@ Page({
       sy = Math.floor((cropH - targetH) / 2);
       sw = targetW; sh = targetH;
     }
-    // free 模式不裁剪，使用原图
 
     this.setData({ cropping: true });
     wx.showNavigationBarLoading();
 
-    const query = wx.createSelectorQuery();
-    query.select('#cropCanvas').fields({ node: true, size: true }).exec((res) => {
-      if (!res[0] || !res[0].node) {
-        that.setData({ cropping: false });
-        wx.hideNavigationBarLoading();
-        wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
-        return;
+    this._canvasProcess({
+      canvasId: 'cropCanvas',
+      imgSrc: cropImg,
+      imgInfo: { width: cropW, height: cropH },
+      drawW: sw, drawH: sh,
+      destPrefix: 'crop',
+    }, function(ctx, canvas, img) {
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+    }, function(err, result) {
+      that.setData({ cropping: false });
+      wx.hideNavigationBarLoading();
+      if (err) {
+        wx.showToast({ title: err, icon: 'none' });
+      } else {
+        that.setData({ cropResult: result.path, cropSize: result.size });
+        wx.showToast({ title: '裁剪完成', icon: 'success' });
       }
-      const canvas = res[0].node;
-      const ctx = canvas.getContext('2d');
-      canvas.width = sw;
-      canvas.height = sh;
-
-      const img = canvas.createImage();
-      img.onload = function() {
-        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
-        wx.canvasToTempFilePath({
-          canvas: canvas,
-          quality: 0.9,
-          success(r) {
-            let fs = that._getFs();
-            let dest = wx.env.USER_DATA_PATH + '/crop_' + Date.now() + '.jpg';
-            fs.copyFile({
-              srcPath: r.tempFilePath, destPath: dest,
-              success() {
-                wx.getFileInfo({
-                  filePath: dest,
-                  success(fi) {
-                    let kb = (fi.size / 1024).toFixed(1);
-                    that.setData({ cropResult: dest, cropSize: kb + ' KB', cropping: false });
-                    wx.hideNavigationBarLoading();
-                    wx.showToast({ title: '裁剪完成', icon: 'success' });
-                  },
-                  fail() {
-                    that.setData({ cropResult: dest, cropSize: '', cropping: false });
-                    wx.hideNavigationBarLoading();
-                  },
-                });
-              },
-              fail() {
-                that.setData({ cropResult: r.tempFilePath, cropSize: '', cropping: false });
-                wx.hideNavigationBarLoading();
-              },
-            });
-          },
-          fail() {
-            that.setData({ cropping: false });
-            wx.hideNavigationBarLoading();
-            wx.showToast({ title: '导出失败', icon: 'none' });
-          },
-        });
-      };
-      img.onerror = function() {
-        that.setData({ cropping: false });
-        wx.hideNavigationBarLoading();
-        wx.showToast({ title: '图片加载失败', icon: 'none' });
-      };
-      img.src = cropImg;
     });
   },
 
