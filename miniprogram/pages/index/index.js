@@ -146,6 +146,25 @@ Page({
     });
   },
 
+  // 保存图片到相册（公共方法）
+  _saveToAlbum(path) {
+    if (!path) return;
+    wx.saveImageToPhotosAlbum({
+      filePath: path,
+      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
+      fail(res) {
+        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
+          wx.showModal({
+            title: '需要授权', content: '请在设置中允许保存到相册',
+            success(r) { if (r.confirm) wx.openSetting(); },
+          });
+        } else {
+          wx.showToast({ title: '保存失败', icon: 'none' });
+        }
+      },
+    });
+  },
+
   // ========== 批量转换 ==========
   chooseBatchImage() {
     let that = this;
@@ -330,24 +349,7 @@ Page({
     });
   },
 
-  saveQrImage() {
-    var path = this.data.qrImagePath;
-    if (!path) return;
-    wx.saveImageToPhotosAlbum({
-      filePath: path,
-      success: function() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
-      fail: function(res) {
-        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
-          wx.showModal({
-            title: '需要授权', content: '请在设置中允许保存到相册',
-            success: function(r) { if (r.confirm) wx.openSetting(); }
-          });
-        } else {
-          wx.showToast({ title: '保存失败', icon: 'none' });
-        }
-      }
-    });
-  },
+  saveQrImage() { this._saveToAlbum(this.data.qrImagePath); },
 
   shareQrImage() {
     var path = this.data.qrImagePath;
@@ -690,24 +692,7 @@ Page({
     });
   },
 
-  saveCompressedImage() {
-    let path = this.data.compressResultPath;
-    if (!path) return;
-    wx.saveImageToPhotosAlbum({
-      filePath: path,
-      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
-      fail(res) {
-        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
-          wx.showModal({
-            title: '需要授权', content: '请在设置中允许保存到相册',
-            success(r) { if (r.confirm) wx.openSetting(); },
-          });
-        } else {
-          wx.showToast({ title: '保存失败', icon: 'none' });
-        }
-      },
-    });
-  },
+  saveCompressedImage() { this._saveToAlbum(this.data.compressResultPath); },
 
   shareCompressedImage() {
     let path = this.data.compressResultPath;
@@ -912,24 +897,7 @@ Page({
     });
   },
 
-  saveWmImage() {
-    let path = this.data.wmResultPath;
-    if (!path) return;
-    wx.saveImageToPhotosAlbum({
-      filePath: path,
-      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
-      fail(res) {
-        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
-          wx.showModal({
-            title: '需要授权', content: '请在设置中允许保存到相册',
-            success(r) { if (r.confirm) wx.openSetting(); },
-          });
-        } else {
-          wx.showToast({ title: '保存失败', icon: 'none' });
-        }
-      },
-    });
-  },
+  saveWmImage() { this._saveToAlbum(this.data.wmResultPath); },
 
   shareWmImage() {
     let path = this.data.wmResultPath;
@@ -1009,21 +977,7 @@ Page({
     });
   },
 
-  saveFmtImg() {
-    let p = this.data.fmtResult;
-    if (!p) return;
-    wx.saveImageToPhotosAlbum({
-      filePath: p,
-      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
-      fail(res) {
-        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
-          wx.showModal({ title: '需要授权', content: '请在设置中允许保存到相册', success(r) { if (r.confirm) wx.openSetting(); } });
-        } else {
-          wx.showToast({ title: '保存失败', icon: 'none' });
-        }
-      },
-    });
-  },
+  saveFmtImg() { this._saveToAlbum(this.data.fmtResult); },
 
   shareFmtImg() {
     let p = this.data.fmtResult;
@@ -1114,21 +1068,7 @@ Page({
     });
   },
 
-  saveResizeImg() {
-    let p = this.data.resizeResult;
-    if (!p) return;
-    wx.saveImageToPhotosAlbum({
-      filePath: p,
-      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
-      fail(res) {
-        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
-          wx.showModal({ title: '需要授权', content: '请在设置中允许保存到相册', success(r) { if (r.confirm) wx.openSetting(); } });
-        } else {
-          wx.showToast({ title: '保存失败', icon: 'none' });
-        }
-      },
-    });
-  },
+  saveResizeImg() { this._saveToAlbum(this.data.resizeResult); },
 
   shareResizeImg() {
     let p = this.data.resizeResult;
@@ -1272,21 +1212,7 @@ Page({
     });
   },
 
-  saveCropImg() {
-    let p = this.data.cropResult;
-    if (!p) return;
-    wx.saveImageToPhotosAlbum({
-      filePath: p,
-      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
-      fail(res) {
-        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
-          wx.showModal({ title: '需要授权', content: '请在设置中允许保存到相册', success(r) { if (r.confirm) wx.openSetting(); } });
-        } else {
-          wx.showToast({ title: '保存失败', icon: 'none' });
-        }
-      },
-    });
-  },
+  saveCropImg() { this._saveToAlbum(this.data.cropResult); },
 
   shareCropImg() {
     let p = this.data.cropResult;
@@ -1418,21 +1344,7 @@ Page({
     });
   },
 
-  saveRotImg() {
-    let p = this.data.rotResult;
-    if (!p) return;
-    wx.saveImageToPhotosAlbum({
-      filePath: p,
-      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
-      fail(res) {
-        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
-          wx.showModal({ title: '需要授权', content: '请在设置中允许保存到相册', success(r) { if (r.confirm) wx.openSetting(); } });
-        } else {
-          wx.showToast({ title: '保存失败', icon: 'none' });
-        }
-      },
-    });
-  },
+  saveRotImg() { this._saveToAlbum(this.data.rotResult); },
 
   shareRotImg() {
     let p = this.data.rotResult;
@@ -1659,21 +1571,7 @@ Page({
     });
   },
 
-  saveMosaicImg() {
-    let p = this.data.mosaicResult;
-    if (!p) return;
-    wx.saveImageToPhotosAlbum({
-      filePath: p,
-      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
-      fail(res) {
-        if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
-          wx.showModal({ title: '需要授权', content: '请在设置中允许保存到相册', success(r) { if (r.confirm) wx.openSetting(); } });
-        } else {
-          wx.showToast({ title: '保存失败', icon: 'none' });
-        }
-      },
-    });
-  },
+  saveMosaicImg() { this._saveToAlbum(this.data.mosaicResult); },
 
   shareMosaicImg() {
     let p = this.data.mosaicResult;
