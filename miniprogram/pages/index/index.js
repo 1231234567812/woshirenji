@@ -1357,9 +1357,7 @@ Page({
   chooseMosaicImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
-      let p = '';
-      if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
-      if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
+      let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that.setData({ mosaicImg: p, mosaicResult: '', mosaicSize: '' });
     });
@@ -1506,15 +1504,9 @@ Page({
   chooseImage() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
-      let tempPath = '';
-      if (res.tempFiles && res.tempFiles[0]) {
-        tempPath = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
-      }
-      if (!tempPath && res.tempFilePaths && res.tempFilePaths[0]) {
-        tempPath = res.tempFilePaths[0];
-      }
-      if (!tempPath) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      that._saveTempImage(tempPath);
+      let p = this._getTempPath(res);
+      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      that._saveTempImage(p);
     });
   },
 
