@@ -4,46 +4,32 @@
 
     <!-- Hero 区域 -->
     <view class="hero">
-      <view class="hero-icon-wrap">
-        <text class="hero-icon">&#x2B22;</text>
-      </view>
       <text class="hero-title">Base64 工具箱</text>
-      <text class="hero-sub">图片 / 文字 / 代码 / 二维码 &mdash; 全能工具箱</text>
+      <text class="hero-sub">图片 / 文字 / 二维码</text>
     </view>
 
-    <!-- 快捷功能入口 -->
-    <view class="quick-grid">
-      <view class="quick-card" hover-class="quick-press" bindtap="quickAction" data-mode="img2code">
-        <view class="quick-icon-box qi-1"><text class="quick-emoji">&#x1F5BC;</text></view>
-        <text class="quick-label">图片转代码</text>
+    <!-- 功能入口 -->
+    <view class="func-list">
+      <view class="func-item" hover-class="func-press" bindtap="quickAction" data-mode="img2code">
+        <view class="func-icon" style="background: #E3F2FD"><text>图</text></view>
+        <text class="func-label">图片转代码</text>
+        <text class="func-arrow">›</text>
       </view>
-      <view class="quick-card" hover-class="quick-press" bindtap="quickAction" data-mode="code2img">
-        <view class="quick-icon-box qi-2"><text class="quick-emoji">&#x1F4E6;</text></view>
-        <text class="quick-label">代码转图片</text>
+      <view class="func-item" hover-class="func-press" bindtap="quickAction" data-mode="code2img">
+        <view class="func-icon" style="background: #E3F2FD"><text>码</text></view>
+        <text class="func-label">代码转图片</text>
+        <text class="func-arrow">›</text>
       </view>
-      <view class="quick-card" hover-class="quick-press" bindtap="quickAction" data-mode="text2code">
-        <view class="quick-icon-box qi-3"><text class="quick-emoji">&#x270D;</text></view>
-        <text class="quick-label">文字转代码</text>
+      <view class="func-item" hover-class="func-press" bindtap="quickAction" data-mode="text2code">
+        <view class="func-icon" style="background: #E3F2FD"><text>文</text></view>
+        <text class="func-label">文字转代码</text>
+        <text class="func-arrow">›</text>
       </view>
-      <view class="quick-card" hover-class="quick-press" bindtap="quickAction" data-mode="code2text">
-        <view class="quick-icon-box qi-4"><text class="quick-emoji">&#x1F4DC;</text></view>
-        <text class="quick-label">代码转文字</text>
+      <view class="func-item" hover-class="func-press" bindtap="quickAction" data-mode="qrcode">
+        <view class="func-icon" style="background: #E3F2FD"><text>码</text></view>
+        <text class="func-label">生成二维码</text>
+        <text class="func-arrow">›</text>
       </view>
-      <view class="quick-card" hover-class="quick-press" bindtap="quickAction" data-mode="qrcode">
-        <view class="quick-icon-box qi-5"><text class="quick-emoji">&#x1F4F2;</text></view>
-        <text class="quick-label">生成二维码</text>
-      </view>
-      <view class="quick-card" hover-class="quick-press" bindtap="quickAction" data-mode="batch">
-        <view class="quick-icon-box qi-6"><text class="quick-emoji">&#x1F501;</text></view>
-        <text class="quick-label">批量转换</text>
-      </view>
-    </view>
-
-    <!-- 文件浏览入口 -->
-    <view class="browse-bar" hover-class="browse-press" bindtap="browseFiles">
-      <text class="browse-icon">&#x1F4C2;</text>
-      <text class="browse-text">浏览保存的文件</text>
-      <text class="browse-arrow">›</text>
     </view>
 
     <!-- 骨架屏加载 -->
@@ -75,32 +61,29 @@
         <text class="section-count">{{projects.length}} 个</text>
       </view>
       <view wx:for="{{projects}}" wx:key="id" class="card" bindtap="openProject" data-id="{{item.id}}">
-        <view class="card-accent"></view>
-        <view class="card-body">
-          <view class="card-hd">
-            <text class="card-name">{{item.name}}</text>
-            <text class="card-date">{{item.date}}</text>
-          </view>
-          <view class="card-imgs" wx:if="{{item.items.length > 0}}">
-            <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" lazy-load wx:if="{{img.type === 'image' && index < 4}}" />
-          </view>
-          <view class="card-ft">
-            <text class="card-num">{{item.items.length}} 项</text>
-            <text class="card-del" catchtap="delProject" data-id="{{item.id}}">删除</text>
-          </view>
+        <view class="card-hd">
+          <text class="card-name">{{item.name}}</text>
+          <text class="card-date">{{item.date}}</text>
+        </view>
+        <view class="card-imgs" wx:if="{{item.items.length > 0}}">
+          <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" lazy-load wx:if="{{img.type === 'image' && index < 4}}" />
+        </view>
+        <view class="card-ft">
+          <text class="card-num">{{item.items.length}} 项</text>
+          <text class="card-del" catchtap="delProject" data-id="{{item.id}}">删除</text>
         </view>
       </view>
     </block>
 
     <!-- 空状态 -->
     <view wx:if="{{!loading && projects.length === 0}}" class="empty-state">
-      <text class="empty-icon">&#x1F4E6;</text>
+      <view class="empty-icon-wrap"><text class="empty-icon-text">空</text></view>
       <text class="empty-text">还没有项目</text>
-      <text class="empty-hint">点击下方 + 创建第一个项目</text>
+      <text class="empty-hint">点击下方按钮创建第一个项目</text>
     </view>
 
-    <view class="fab" hover-class="fab-press" bindtap="createProject">
-      <text class="fab-txt">+</text>
+    <view class="create-btn" hover-class="create-press" bindtap="createProject">
+      <text>新建项目</text>
     </view>
   </block>
 

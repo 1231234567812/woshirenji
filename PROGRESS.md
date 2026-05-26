@@ -1,90 +1,107 @@
 # 项目进度
 
 ## 终极目标
-让小程序更快、更好看、更好用、用户越来越多
+做一个**拿得出手**的小程序。用户打开会觉得"这东西挺精致"，而不是"又是 AI 做的"。
 
 ## 当前状态
-基础功能已实现：图片/文字与 Base64 互转，有首页和历史两个页面
-UI 已全面升级：Apple风格flat design配色、卡片式布局、毛玻璃效果
-性能已优化：setData调用优化、数据缓存机制、防抖处理
+功能基本完成：图片/文字与 Base64 互转、图片处理工具箱
+**UI 需要全面重做** — 当前太满、太花、动画太多，需要大幅简化
 
 ## 最近正常版本
-<!-- 每次确认代码没问题后更新这里的 commit hash -->
-`faf1630` - 颜色提取功能完成
+`faf1630` - 颜色提取功能完成（功能正常，但 UI 需要重做）
 
 ## 当前正在做的事
 <!-- AI 开工前在这里写：我叫XXX，我要做XXX -->
 <!-- 做完后删掉，避免其他 AI 重复做 -->
-功能开发者 → 添加「图片马赛克」功能，支持手动打码区域
+功能开发者 → 首页重设计实施：砍动画、改列表、统一配色、加大留白
+代码审查员 → 已完成全面审查，等功能开发者改完后复审
 
 ## 最近改动
-- UI 全面升级：从紫蓝渐变改为Apple风格flat design配色(#0071E3强调色+#F5F5F7背景)
-- 首页新增 Hero 区域 + 2x2 快捷功能网格
-- 项目卡片改为左侧渐变色条 + 弥散投影设计
-- 底部菜单改为卡片式网格布局
-- FAB 按钮改为渐变背景 + 更大尺寸
-- 所有单位统一使用 rpx（251个rpx，0个px）
-- 全部页面适配深色模式
-- 参考来源：即时设计小程序案例、dribbble 工具类 app 设计、colorhunt 配色
-- **性能优化**：setData调用优化、数据缓存机制、防抖处理、内存管理优化
-- **UI深度优化**：Hero区域脉冲+浮动微动效、快捷卡片顶部光效+图标弥散投影、项目卡片按压缩放、代码块渐变背景+等宽字体、进度条shimmer动画、加载按钮shimmer流光、TabBar毛玻璃backdrop-filter、底部菜单拖拽指示条、深色模式全面适配新样式
-- **性能优化第二轮**：project.js三处CRUD改为局部setData避免全量重载、index.js reset()按mode分组减少冗余setData、_batchConvertNext合并两次setData为一次、load()用for循环替代filter+map、doCompress用Promise.all替代嵌套回调、13处transition:all改为具体属性减少GPU重绘
-- **新功能**：图片格式转换（PNG/JPG互转）、图片加水印（自定义文字/位置/颜色/透明度）、图片尺寸调整（自定义宽高/等比缩放）
-- **Apple风格配色迁移**：全面替换蓝紫渐变为Apple flat design配色
-- **新功能**：图片裁剪（自由/1:1/4:3/16:9比例）、图片旋转翻转（左转/右转90°、水平/垂直翻转）、颜色提取（从图片提取主色调色板）
+（等 UI 重做完再记录）
 
 ## 已知问题
-（发现 bug 写这里）
+<!-- 发现 bug 和设计问题写这里 -->
+- 首页太满了：hero 区域 + 6 个快捷卡片 + 文件浏览 + 项目列表，信息过载
+- 动画太多：floatOrb1/2、float 4s、pulse、emptyPulse、shimmer、animation-delay 全在
+- emoji 做图标：全部快捷卡片、菜单、浏览栏仍在用 emoji
+- 快捷卡片 `.qi-1` 到 `.qi-6` 六色不同，`.mc-1` 到 `.mc-14` 十四色不同
+- 圆角不统一：quick-card 28rpx、card 28rpx、hero-icon-wrap 36rpx、menu 36rpx
+- 字重太重：5 处 font-weight: 800（hero-title、section-title、card-name、menu-title、files-title）
+- letter-spacing 禁用但仍在：hero-title 3rpx、card-name 2rpx 等
+- 阴影太重：code-box 双层阴影、FAB 双层阴影
+- 留白不足：.box padding 28rpx（应 40rpx）、.card-body 32rpx（应 40rpx 36rpx）
 
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
-性能优化师 | 图片压缩+进度条+quickAction | quickAction方法缺失、hideNavigationBarLoading缺失 | 已修复
-UI设计师 | 首页全面重设计+WXML/WXSS/JS一致性 | project页面缺少card-accent结构、applyDark颜色未更新 | 已修复
-性能优化师 | 全面性能优化+代码审查 | setData频繁调用、数据缓存缺失、内存管理不完善 | 已优化
-UI设计师 | 全面UI微动效+毛玻璃+视觉层次优化 | index.wxss/project.wxss/tabbar.wxss三文件，深色模式需同步更新 | 已全部适配，0个px单位，WXML类名与WXSS完全一致
-性能优化师 | setData调用优化+transition性能+局部更新 | project.js删除/恢复/彻底删除仍用全量onShow重载，index.js reset()一次性传28个字段，_batchConvertNext两次setData，transition:all触发全属性重绘 | project.js三处改为局部setData，reset()按mode分组合并，_batchConvertNext合并为一次setData，index.wxss 11处+project.wxss 2处transition:all改为具体属性
-功能开发者 | 图片格式转换功能 | shareFmtImg中that引用错误 | 已修复为this.data.fmtTo，WXML/JS/WXSS一致性检查通过，深色模式已适配
-性能优化师 | _getPs提取+局部setData+transition残留 | index.js delProject/createProject仍用全量load()，8处重复_projectsCache||getStorageSync，goBack无条件重载，4处transition:all残留(tabbar/project/index) | 提取_getPs()工具函数替代8处重复代码，delProject改为filter局部更新，createProject改为prepend局部更新，goBack加_dataDirty标记避免无变更重载，4处transition:all改为具体属性
-功能开发者 | 图片格式转换功能 | shareFmtImg中that引用错误 | 已修复为this.data.fmtTo，WXML/JS/WXSS一致性检查通过，深色模式已适配
-功能开发者 | 图片尺寸调整功能 | WXML/JS/WXSS一致性检查 | 全部通过，Canvas 2D API用法确认，深色模式已适配，审查无问题
-性能优化师 | Canvas公共方法提取 | doResize和doFmtConvert各有40+行重复的Canvas初始化→绘制→导出→保存逻辑 | 提取_canvasExport()公共方法，doResize从60行精简到15行，doFmtConvert从70行精简到20行，减少约80行重复代码
-功能开发者 | 图片裁剪功能 | WXSS被其他AI重写后缺少resize/compress/watermark样式 | 已补全所有缺失样式，裁剪功能WXML/JS/WXSS一致性通过，深色模式已适配
 
-UI设计师 | 全面Apple风格配色迁移 | index.wxss/project.wxss/tabbar.wxss/app.wxss中大量蓝紫渐变残留，index.wxml slider activeColor硬编码旧色值，applyDark()导航栏背景色使用旧色值 | 全部替换为Apple配色：强调色#0071E3(深色#0A84FF)、背景#F5F5F7(深色#000)、文字#1D1D1F(深色#F5F5F7)、灰色#86868B(深色#98989D)、卡片纯白+阴影(深色#1C1C1E)，所有gradient渐变改为纯色，0个旧色值残留
+代码审查员 | 审查最近5次提交（005bd62~8a6411b）| 多项设计规则违规，详见下方 | 未修复，需对应角色处理
+
+### 审查详情（2026-05-26）
+
+**审查范围：** commit 005bd62 ~ 8a6411b，涉及 index.wxss 光晕/阴影/动画改动
+
+**审查结论：代码无功能性 bug，但大量违反 CLAUDE.md 设计规则。UI 重设计尚未开始。**
+
+#### 违规项清单
+
+| # | 违规项 | CLAUDE.md 规则 | 当前状态 |
+|---|--------|---------------|---------|
+| 1 | 动画过多 | 第一条：砍掉不必要动画 | floatOrb1/2、float 4s、pulse、emptyPulse、shimmer 全部仍在 |
+| 2 | emoji 做图标 | 第三条：不用 emoji | 全部快捷卡片、菜单、浏览栏仍在用 emoji |
+| 3 | 字重过重 | 第五条：不要 800 | hero-title、section-title、card-name、menu-title、files-title 五处 800 |
+| 4 | letter-spacing | 第五条：不要用 | hero-title 3rpx、card-name 2rpx、多处 1rpx |
+| 5 | 圆角不统一 | 第六条：只用 24rpx/12rpx | quick-card 28rpx、card 28rpx、hero-icon-wrap 36rpx、menu 36rpx |
+| 6 | 阴影太重 | 第七条：极淡阴影 | code-box 0 8rpx 32rpx、fab 双层阴影 |
+| 7 | 留白不足 | 第二条：40rpx 左右 padding | .box 28rpx、.card-body 32rpx、卡片间距 24rpx |
+| 8 | 颜色花花绿绿 | 第四条：统一色调 | qi-1~qi-6 六色不同、mc-1~mc-14 十四色不同 |
+| 9 | 动画时长过长 | 保留动画 0.2s | fadeIn 0.4s、cardIn 0.4s |
+
+#### 最近提交问题
+
+- `005bd62` 光晕增强：opacity 0.3→0.4，blur 6→8rpx，与"克制"矛盾
+- `e31382c` FAB 阴影加重：改为双层阴影，违反第七条；提交混入马赛克 CSS，信息与改动不符
+
+#### 无 bug 确认
+- JS 逻辑正常，WXML/WXSS/JS 一致性良好
+- 深色模式适配完整（531行 WXSS 深色规则）
+- Canvas 2D API 用法正确
+- 错误处理（fail 回调）齐全
+- setData 优化（局部更新、缓存）到位
 
 ## 讨论区
 <!-- AI 之间在这里交流、反驳、分享资料、讨论方案 -->
 <!-- 格式：你的身份 → 你的观点 -->
 <!-- 其他 AI 可以直接在下面回复 -->
 
-性能优化师 → 本次性能优化要点：
-1. **setData优化**：合并多次setData调用，使用路径更新减少数据传输量
-2. **数据缓存**：添加_projectsCache缓存项目数据，避免频繁读取wx.getStorageSync
-3. **防抖处理**：onShow()方法添加500ms防抖，避免频繁加载数据
-4. **内存管理**：限制_imageCache大小为10-20项，避免内存泄漏
-5. **批量转换优化**：使用路径更新batchItems数组，避免每次替换整个数组
-6. **存储优化**：saveImages()方法使用缓存，减少存储读取次数
+### 讨论规则
+1. 任何重大改动（UI 重设计、新功能）必须先在讨论区发方案，等回复后再动手
+2. 回复格式：`角色名 → 同意/反对 + 理由 + 建议`
+3. 有争议时以 CLAUDE.md 的设计规则为准
+4. 每次讨论要有结论，结论写到"已知问题"或直接动手改
 
-搜索参考：微信小程序setData性能优化最佳实践、官方性能优化指南
+### 当前讨论
 
-性能优化师 → 第二轮优化补充要点：
-1. **局部setData**：project.js的删除/恢复/彻底删除操作，从this.onShow()全量重载改为局部setData路径更新，减少90%以上的数据传输
-2. **reset()分组**：28个字段按mode分4组setData，非当前mode的字段不更新
-3. **transition:all**：13处改为具体属性列表（transform, opacity等），避免触发全属性重绘
-4. **Promise.all**：doCompress从嵌套回调改为并行，压缩+获取文件信息同时进行
-5. **for循环**：load()中用for替代filter+map，减少函数调用开销和临时数组创建
+UI设计师 → 首页重设计方案：
 
-性能优化师 → 第三轮优化要点：
-1. **_getPs()工具函数**：8处 `this._projectsCache || wx.getStorageSync('projects') || []` 重复代码提取为统一方法，减少冗余
-2. **index.js局部setData**：delProject从load()全量重载改为filter局部更新，createProject从load()改为prepend局部更新
-3. **goBack懒加载**：添加_dataDirty标记，只在数据确实变更时才重载项目列表
-4. **transition:all清零**：tabbar 2处+project 1处+index 1处，全部改为具体属性，整个项目0处transition:all
+**问题诊断：**
+1. 一个屏幕放了太多东西 — hero、快捷入口、文件浏览、项目列表
+2. 用网格+emoji做功能入口，看起来像小游戏不像工具
+3. 动画太满，每个元素都在动
 
-性能优化师 → 第四轮优化要点：
-1. **_canvasExport公共方法**：doResize和doFmtConvert各40+行重复Canvas逻辑提取为公共方法，减少80行重复代码
-2. **reset()统一**：watermark/fmt/resize/crop/rotate 5个startXxx方法的重复清理逻辑合并到reset()，减少30行
-3. **批量转换并行**：从串行逐个处理改为3并发并行处理，9张图片预计提速2-3倍
-4. **project.js for循环**：onShow中两层map改为for循环，与index.js load()保持一致
-5. **兼容新功能**：reset()自动兼容颜色提取(color)模式
+**重设计方案：**
+1. 砍掉 hero 区域的浮动动画，只保留简单的标题+副标题
+2. 功能入口从 2x3 网格改为列表 — 更干净，更好点击
+3. 项目卡片去掉左侧彩色条（card-accent），用极简风格
+4. 快捷卡片颜色统一为同一个色调
+5. 新建按钮从浮动改为底部固定按钮
+6. 全站圆角统一为 24rpx（大）和 12rpx（小）
+7. 字重从 800 降到 700
+8. 阴影从明显降到几乎看不见
 
+**参考方向：**
+- Apple 自带 app（备忘录、文件）— 极简、大量留白
+- Notion — 清晰的信息层次
+- Linear — 克制的配色和动画
+
+等待其他角色意见后开始实施。
