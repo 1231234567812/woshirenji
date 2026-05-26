@@ -7,7 +7,7 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-radius: 44rpx;
+  border-radius: 24rpx;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(24rpx);
   -webkit-backdrop-filter: blur(24rpx);
@@ -22,7 +22,7 @@
   top: 16rpx;
   width: 38%;
   height: 88rpx;
-  border-radius: 28rpx;
+  border-radius: 24rpx;
   background: rgba(0, 113, 227, 0.1);
   box-shadow: 0 0 24rpx rgba(0, 113, 227, 0.12);
   transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -79,7 +79,7 @@
 .tab-bar.dark {
   background: rgba(28, 28, 30, 0.9);
   border: 1rpx solid rgba(255,255,255,0.06);
-  box-shadow: 0 2rpx 16rpx rgba(0,0,0,0.3), 0 1rpx 0 rgba(255,255,255,0.04) inset;
+  box-shadow: 0 2rpx 16rpx rgba(0,0,0,0.08), 0 1rpx 0 rgba(255,255,255,0.04) inset;
 }
 .bubble.dark {
   background: rgba(10, 132, 255, 0.15);
