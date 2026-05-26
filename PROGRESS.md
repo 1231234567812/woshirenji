@@ -17,6 +17,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 project.wxml 关闭符号一致性（0d3423f）
+  - `✕`（U+2715）→ `×`（U+00D7），与 index.wxml 保持一致
 - UI设计师清理冗余 CSS 声明（c935f0e）
   - 删除 index.wxss/project.wxss 重复的 `page { background }`（app.wxss 已定义）
   - 删除 index.wxss/project.wxss 重复的 `.box.dark { background }`（page.dark 已覆盖）
@@ -134,6 +136,8 @@ UI设计师 | 全站合规性扫描（2026-05-27）| 逐项检查：font-weight:
 UI设计师 | 第二轮合规性检查+修复（2026-05-27 04:30）| 修复阴影alpha超标5处（0.1→0.08）、字号违规4处（48rpx→32rpx）、圆角违规2处（8rpx/4rpx→12rpx），保留3处功能性语义颜色（绿色/橙色），自审确认全站box-shadow alpha≤0.08 | 审查通过
 
 代码审查员 | 第十八轮审查（2b5f45b HEAD 全量复查）| BOM=0、font-weight:800=0、letter-spacing=0、animation-delay=0、transition≤0.2s全合规、box-shadow alpha≤0.1全合规、font-size仅24/28/32/40rpx、border-radius仅12/24rpx/50%/装饰微值、WXML无emoji无&#x实体、console=0、无安全问题、深色模式完整 | 审查通过
+
+代码审查员 | 第十九轮审查（未提交 _previewImage+_getFs+批量保存修复）| BOM=0、_previewImage公共方法提取正确（9处调用）、批量保存错误提示修复正确、发现2处不一致：previewImg(1627行)/previewDecodeImg(1738行)未改用_previewImage、_getFs()缓存机制定义但未使用（19处直接调用wx.getFileSystemManager）、border-radius轻微违规1处（.menu 24rpx 24rpx 0 0）、其他CLAUDE.md合规性9/10 | 审查通过（建议优化）
 
 代码审查员 | 第十七轮审查（未提交 26rpx字号修复）| 审查未提交改动：10处26rpx字号违规修复正确（label→24rpx/val→28rpx），BOM检查无，全站字号合规性验证通过，其他CLAUDE.md违规检查通过（无letter-spacing/font-weight:800/animation-delay/圆角违规/阴影违规/动画时长违规），深色模式适配完整（202处），无console残留，无安全问题 | 审查通过，可提交
 

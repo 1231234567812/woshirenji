@@ -274,7 +274,7 @@ Page({
 
   _batchConvertOne(paths, idx, onDone) {
     let that = this;
-    wx.getFileSystemManager().readFile({
+    this._getFs().readFile({
       filePath: paths[idx],
       encoding: 'base64',
       success(res) {

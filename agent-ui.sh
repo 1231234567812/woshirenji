@@ -52,6 +52,8 @@ while true; do
 
 做完一个任务后，立即找下一个任务继续做，不要停。"
 
+    # 等待 claude 进程完全退出，防止堆积
+    wait
     bash git-locked.sh push
 
     count=$((count + 1))

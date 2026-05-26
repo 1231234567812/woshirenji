@@ -44,7 +44,7 @@
     "disableSWC": true
   },
   "appid": "wx48c849c5bb166a07",
-  "projectname": "quickstart-wx-cloud",
+  "projectname": "base64-toolbox",
   "libVersion": "3.14.3",
 "condition": {
     "search": {
