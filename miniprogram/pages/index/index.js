@@ -1,4 +1,4 @@
-const app = getApp();
+?const app = getApp();
 var qrRenderer = require('../../utils/qr-renderer');
 
 Page({
@@ -23,7 +23,7 @@ Page({
     fileMode: '',
     batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0,
     qrInput: '', qrImagePath: '', qrGenerating: false, qrEcLevel: 'M',
-    // 图片压缩功能
+    // ͼƬѹ������
     compressImagePath: '',
     compressOrigSize: '',
     compressNewSize: '',
@@ -31,7 +31,7 @@ Page({
     compressResultPath: '',
     compressing: false,
     compressQualityLevel: 60,
-    // 图片加水印功�?    wmImagePath: '',
+    // ͼƬ��ˮӡ����?    wmImagePath: '',
     wmText: '',
     wmPosition: 'bottom-right',
     wmColor: '#ffffff',
@@ -39,14 +39,14 @@ Page({
     wmFontSize: 32,
     wmResultPath: '',
     wmProcessing: false,
-    // 图片格式转换
+    // ͼƬ��ʽת��
     fmtImg: '',
     fmtFrom: '',
     fmtTo: 'png',
     fmtResult: '',
     fmtSize: '',
     fmtConverting: false,
-    // 图片尺寸调整
+    // ͼƬ�ߴ����
     resizeImg: '',
     resizeW: 0,
     resizeH: 0,
@@ -56,7 +56,7 @@ Page({
     resizeResult: '',
     resizeSize: '',
     resizing: false,
-    // 图片裁剪
+    // ͼƬ�ü�
     cropImg: '',
     cropW: 0,
     cropH: 0,
@@ -64,7 +64,7 @@ Page({
     cropResult: '',
     cropSize: '',
     cropping: false,
-    // 图片旋转
+    // ͼƬ��ת
     rotImg: '',
     rotDeg: 0,
     rotFlipH: false,
@@ -72,11 +72,11 @@ Page({
     rotResult: '',
     rotSize: '',
     rotating: false,
-    // 颜色提取
+    // ��ɫ��ȡ
     colorImg: '',
     colorList: [],
     colorPicking: false,
-    // 图片马赛�?    mosaicImg: '',
+    // ͼƬ������?    mosaicImg: '',
     mosaicLevel: 8,
     mosaicResult: '',
     mosaicSize: '',
@@ -101,7 +101,7 @@ Page({
     if (path) wx.previewImage({ urls: [path] });
   },
 
-  // 统一获取项目数据，优先用缓存
+  // ͳһ��ȡ��Ŀ���ݣ������û���
   _getPs() {
     if (this._projectsCache) return this._projectsCache;
     let ps = wx.getStorageSync('projects') || [];
@@ -109,14 +109,14 @@ Page({
     return ps;
   },
 
-  // Canvas 图片处理公共方法：加载图片→绘制→导出→保存
+  // Canvas ͼƬ������������������ͼƬ�����ơ�����������
   // opts: { canvasId, imgSrc, drawW, drawH, fileType, quality, destPrefix }
   // callback: (err, { path, size }) => void
   _canvasExport(opts, callback) {
     let that = this;
     const query = wx.createSelectorQuery();
     query.select('#' + opts.canvasId).fields({ node: true, size: true }).exec(function(res) {
-      if (!res[0] || !res[0].node) { callback('Canvas 初始化失�?); return; }
+      if (!res[0] || !res[0].node) { callback('Canvas ��ʼ��ʧ��?); return; }
       const canvas = res[0].node;
       const ctx = canvas.getContext('2d');
       canvas.width = opts.drawW;
@@ -146,37 +146,37 @@ Page({
               fail: function() { callback(null, { path: r.tempFilePath, size: '' }); },
             });
           },
-          fail: function() { callback('导出失败'); },
+          fail: function() { callback('����ʧ��'); },
         });
       };
-      img.onerror = function() { callback('图片加载失败'); };
+      img.onerror = function() { callback('ͼƬ����ʧ��'); };
       img.src = opts.imgSrc;
     });
   },
 
-  // 保存图片到相册（公共方法�?  _saveToAlbum(path) {
+  // ����ͼƬ����ᣨ����������?  _saveToAlbum(path) {
     if (!path) return;
     wx.saveImageToPhotosAlbum({
       filePath: path,
-      success() { wx.showToast({ title: '已保存到相册', icon: 'success' }); },
+      success() { wx.showToast({ title: '�ѱ��浽���', icon: 'success' }); },
       fail(res) {
         if (res.errMsg && res.errMsg.indexOf('auth deny') >= 0) {
           wx.showModal({
-            title: '需要授�?, content: '请在设置中允许保存到相册',
+            title: '��Ҫ�ڴ�?, content: '�����������������浽���',
             success(r) { if (r.confirm) wx.openSetting(); },
           });
         } else {
-          wx.showToast({ title: '保存失败', icon: 'none' });
+          wx.showToast({ title: '����ʧ��', icon: 'none' });
         }
       },
     });
   },
 
-  // 分享文件（公共方法）
+  // �����ļ�������������
   _shareFile(path, fileName) {
     if (!path) return;
     wx.showActionSheet({
-      itemList: ['转发给朋�?, '用其他应用打开'],
+      itemList: ['ת�������?, '������Ӧ�ô�'],
       success(r) {
         if (r.tapIndex === 0) {
           wx.shareFileMessage({ filePath: path, fileName: fileName });
@@ -187,7 +187,7 @@ Page({
     });
   },
 
-  // 选择图片（公共方法）
+  // ѡ��ͼƬ������������
   _chooseImage(count, sizeType, onSuccess) {
     if (wx.chooseMedia) {
       wx.chooseMedia({ count: count, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: sizeType, success: onSuccess, fail: () => {} });
@@ -196,14 +196,14 @@ Page({
     }
   },
 
-  // 从选择结果中提取临时路径（公共方法�?  _getTempPath(res) {
+  // ��ѡ��������ȡ��ʱ·��������������?  _getTempPath(res) {
     let p = '';
     if (res.tempFiles && res.tempFiles[0]) p = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
     if (!p && res.tempFilePaths && res.tempFilePaths[0]) p = res.tempFilePaths[0];
     return p;
   },
 
-  // ========== 批量转换 ==========
+  // ========== ����ת�� ==========
   chooseBatchImage() {
     let that = this;
     this._chooseImage(9, 'compressed', (res) => {
@@ -214,7 +214,7 @@ Page({
       if (paths.length === 0 && res.tempFilePaths) {
         paths = res.tempFilePaths.filter(Boolean);
       }
-      if (paths.length === 0) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      if (paths.length === 0) { wx.showToast({ title: '��ȡͼƬʧ��', icon: 'none' }); return; }
       that._saveTempImages(paths);
     });
   },
@@ -242,13 +242,13 @@ Page({
 
   _startBatchConvert(paths) {
     let valid = paths.filter(Boolean);
-    if (valid.length === 0) { wx.showToast({ title: '图片保存失败', icon: 'none' }); return; }
+    if (valid.length === 0) { wx.showToast({ title: 'ͼƬ����ʧ��', icon: 'none' }); return; }
     this._batchCodes = [];
     this.setData({ batchItems: [], batchConverting: true, batchProgress: '0/' + valid.length, batchTotal: valid.length });
     this._batchDone = 0;
     this._batchNextSlot = 0;
     this._batchImgStart = this.data.images.length;
-    // 并行处理，每次最�?�?    this._batchConvertParallel(valid, 0);
+    // ���д�����ÿ�����?��?    this._batchConvertParallel(valid, 0);
   },
 
   _batchConvertParallel(paths, startIdx) {
@@ -261,9 +261,9 @@ Page({
         that._batchDone++;
         that.setData({ batchProgress: that._batchDone + '/' + paths.length });
         if (that._batchDone >= paths.length) {
-          that.setData({ batchConverting: false, batchProgress: '全部完成' });
+          that.setData({ batchConverting: false, batchProgress: 'ȫ�����' });
           that.saveImages(that.data.images.slice(0, 30));
-          wx.showToast({ title: '转换完成', icon: 'success' });
+          wx.showToast({ title: 'ת�����', icon: 'success' });
         }
       });
     }
@@ -278,7 +278,9 @@ Page({
       filePath: paths[idx],
       encoding: 'base64',
       success(res) {
-        let b64 = 'data:image/jpeg;base64,' + res.data;
+        let ext = paths[idx].split('.').pop().toLowerCase();
+        let mime = ext === 'png' ? 'image/png' : (ext === 'gif' ? 'image/gif' : (ext === 'webp' ? 'image/webp' : 'image/jpeg'));
+        let b64 = 'data:' + mime + ';base64,' + res.data;
         let kb = (res.data.length * 0.75 / 1024).toFixed(1);
         that._batchCodes.push(b64);
 
@@ -297,7 +299,7 @@ Page({
       fail() {
         let slot = that._batchNextSlot++;
         that.setData({
-          ['batchItems[' + slot + ']']: { id: Date.now() + idx, path: paths[idx], size: '失败', code: '读取失败', fullCode: '' }
+          ['batchItems[' + slot + ']']: { id: Date.now() + idx, path: paths[idx], size: 'ʧ��', code: '��ȡʧ��', fullCode: '' }
         });
         onDone();
       },
@@ -308,20 +310,20 @@ Page({
     let idx = e.currentTarget.dataset.index;
     let item = this.data.batchItems[idx];
     if (!item || !item.fullCode) return;
-    wx.setClipboardData({ data: item.fullCode.slice(0, 80000), success: () => wx.showToast({ title: '已复�?, icon: 'success' }) });
+    wx.setClipboardData({ data: item.fullCode.slice(0, 80000), success: () => wx.showToast({ title: '�Ѹ���?, icon: 'success' }) });
   },
 
   copyAllBatch() {
     if (this._batchCodes.length === 0) return;
     let all = this._batchCodes.join('\n');
-    wx.setClipboardData({ data: all.slice(0, 80000), success: () => wx.showToast({ title: '已复制全�?, icon: 'success' }), fail: () => wx.showToast({ title: '太长了，分批复制', icon: 'none' }) });
+    wx.setClipboardData({ data: all.slice(0, 80000), success: () => wx.showToast({ title: '�Ѹ���ȫ��?, icon: 'success' }), fail: () => wx.showToast({ title: '̫���ˣ���������', icon: 'none' }) });
   },
 
   saveAllBatch() {
     if (this._batchCodes.length === 0) return;
     let that = this;
     wx.showModal({
-      title: '批量保存', editable: true, placeholderText: '输入文件名前缀',
+      title: '��������', editable: true, placeholderText: '�����ļ���ǰ׺',
       success(res) {
         if (!res.confirm) return;
         let prefix = (res.content || 'batch').replace(/[:"<>|?*\n\r\\/]/g, '-').slice(0, 30);
@@ -331,8 +333,8 @@ Page({
           let fname = wx.env.USER_DATA_PATH + '/' + prefix + '_' + (i + 1) + '.txt';
           fs.writeFile({
             filePath: fname, data: code, encoding: 'utf8',
-            success() { ok++; if (ok + fail === total) { wx.showToast({ title: fail > 0 ? '已保�?' + ok + ' 个，失败 ' + fail + ' �? : '已保�?' + ok + ' 个文�?, icon: fail > 0 ? 'none' : 'success' }); } },
-            fail() { fail++; if (ok + fail === total) { wx.showToast({ title: ok > 0 ? '已保�?' + ok + ' 个，失败 ' + fail + ' �? : '保存失败', icon: 'none' }); } },
+            success() { ok++; if (ok + fail === total) { wx.showToast({ title: fail > 0 ? '�ѱ���' + ok + ' ����ʧ�� ' + fail + ' ��? : '�ѱ���' + ok + ' ���Ĵ�?, icon: fail > 0 ? 'none' : 'success' }); } },
+            fail() { fail++; if (ok + fail === total) { wx.showToast({ title: ok > 0 ? '�ѱ���' + ok + ' ����ʧ�� ' + fail + ' ��? : '����ʧ��', icon: 'none' }); } },
           });
         });
       },
@@ -344,13 +346,13 @@ Page({
     this.setData({ batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0 });
   },
 
-  // ========== 二维码生�?==========
+  // ========== ��ά������?==========
   onQrInput(e) { this.setData({ qrInput: e.detail.value }); },
   setQrEc(e) { this.setData({ qrEcLevel: e.currentTarget.dataset.ec }); },
 
   generateQR() {
     let text = this.data.qrInput;
-    if (!text || !text.trim()) { wx.showToast({ title: '请输入内�?, icon: 'none' }); return; }
+    if (!text || !text.trim()) { wx.showToast({ title: '�������ڴ�?, icon: 'none' }); return; }
     this.setData({ qrGenerating: true });
     let that = this;
     qrRenderer.generateQRImage(text.trim(), {
@@ -358,16 +360,16 @@ Page({
     }, function(err, path) {
       that.setData({ qrGenerating: false });
       if (err) {
-        wx.showToast({ title: '生成失败，内容可能过�?, icon: 'none' });
+        wx.showToast({ title: '����ʧ�ܣ����ݿ��ܹ���?, icon: 'none' });
         return;
       }
       that.setData({ qrImagePath: path });
-      // 保存到历�?      let fs = this._getFs();
+      // ���浽����?      let fs = this._getFs();
       let dest = wx.env.USER_DATA_PATH + '/qr_' + Date.now() + '.png';
       fs.copyFile({
         srcPath: path, destPath: dest,
         success: function() {
-          let itemMeta = { id: Date.now(), type: 'image', path: dest, size: '二维�?, preview: text.slice(0, 30) };
+          let itemMeta = { id: Date.now(), type: 'image', path: dest, size: '��ά��?, preview: text.slice(0, 30) };
           that._imageCache = [{ base64: '', textContent: 'QR:' + text }].concat(that._imageCache).slice(0, 10);
           let list = [itemMeta].concat(that.data.images).slice(0, 20);
           that.setData({ images: list });
@@ -375,7 +377,7 @@ Page({
         },
         fail: function() {}
       });
-      wx.showToast({ title: '已生�?, icon: 'success' });
+      wx.showToast({ title: '������?, icon: 'success' });
     });
   },
 
@@ -385,17 +387,17 @@ Page({
 
   previewQrImage() { this._previewImage(this.data.qrImagePath); },
 
-  // ========== 一键复制（历史记录中的单条�?==========
+  // ========== һ�����ƣ���ʷ��¼�еĵ�����?==========
   copyHistoryCode(e) {
     let idx = e.currentTarget.dataset.index;
     let item = this.data.images[idx];
     if (!item) return;
-    // 使用缓存，避免频繁读取存�?    let ps = this._getPs();
+    // ʹ�û��棬����Ƶ����ȡ���?    let ps = this._getPs();
     let p = ps.find(x => x.id === this.data.curId);
     let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
     let code = full ? (full.base64 || '') : '';
-    if (!code) { wx.showToast({ title: '无数�?, icon: 'none' }); return; }
-    wx.setClipboardData({ data: code.slice(0, 80000), success: () => wx.showToast({ title: '已复�?, icon: 'success' }) });
+    if (!code) { wx.showToast({ title: '������?, icon: 'none' }); return; }
+    wx.setClipboardData({ data: code.slice(0, 80000), success: () => wx.showToast({ title: '�Ѹ���?, icon: 'success' }) });
   },
 
   onLoad() {
@@ -407,7 +409,7 @@ Page({
     const tabBar = this.getTabBar();
     if (tabBar) tabBar.setData({ selected: 0, dark: app.globalData.darkMode });
 
-    // 防抖�?00ms内不重复加载
+    // ������?00ms�ڲ��ظ�����
     let now = Date.now();
     if (now - this._lastLoadTime > 500) {
       this.load();
@@ -442,7 +444,7 @@ Page({
     let ps = wx.getStorageSync('projects') || [];
     this._projectsCache = ps;
 
-    // 过滤+映射，只取需要的字段
+    // ����+ӳ�䣬ֻȡ��Ҫ���ֶ�
     let filtered = [];
     for (let i = 0; i < ps.length; i++) {
       let p = ps[i];
@@ -467,15 +469,15 @@ Page({
 
   createProject() {
     wx.showModal({
-      title: '新建项目', editable: true, placeholderText: '输入项目名称',
+      title: '�½���Ŀ', editable: true, placeholderText: '������Ŀ����',
       success: (res) => {
         if (res.confirm && res.content) {
           let ps = this._getPs();
           let newProj = { id: 'p_' + Date.now(), name: res.content, date: new Date().toLocaleString(), items: [] };
           ps.unshift(newProj);
           this._projectsCache = ps;
-          try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
-          // 局部更新，prepend到列表头�?          let newList = [{ id: newProj.id, name: newProj.name, date: newProj.date, items: [] }].concat(this.data.projects);
+          try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '�洢�ռ䲻��', icon: 'none' }); }
+          // �ֲ����£�prepend���б�ͷ��?          let newList = [{ id: newProj.id, name: newProj.name, date: newProj.date, items: [] }].concat(this.data.projects);
           this.setData({ projects: newList });
         }
       },
@@ -484,7 +486,7 @@ Page({
 
   openProject(e) {
     let id = e.currentTarget.dataset.id;
-    // 使用缓存，避免频繁读取存�?    let ps = this._getPs();
+    // ʹ�û��棬����Ƶ����ȡ���?    let ps = this._getPs();
     let p = ps.find(x => x.id === id);
     if (!p || p.deleted) return;
     wx.setNavigationBarTitle({ title: p.name });
@@ -499,7 +501,7 @@ Page({
   delProject(e) {
     let id = e.currentTarget.dataset.id;
     wx.showModal({
-      title: '删除', content: '确定删除�?,
+      title: 'ɾ��', content: 'ȷ��ɾ����?,
       success: (res) => {
         if (res.confirm) {
           let ps = this._getPs();
@@ -507,8 +509,8 @@ Page({
           if (i >= 0) {
             ps[i].deleted = true;
             this._projectsCache = ps;
-            try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '操作失败', icon: 'none' }); }
-            // 局部更新，避免全量重载
+            try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '����ʧ��', icon: 'none' }); }
+            // �ֲ����£�����ȫ������
             let newList = this.data.projects.filter(item => item.id !== id);
             this.setData({ projects: newList });
           }
@@ -518,9 +520,9 @@ Page({
   },
 
   goBack() {
-    wx.setNavigationBarTitle({ title: '图片转代�? });
+    wx.setNavigationBarTitle({ title: 'ͼƬת����? });
     this.setData({ view: 'list' });
-    // 只在数据有变更时才重�?    if (this._dataDirty) {
+    // ֻ�������б��ʱ���ش�?    if (this._dataDirty) {
       this.load();
       this._dataDirty = false;
     }
@@ -537,7 +539,7 @@ Page({
       });
       this._projectsCache = ps;
       this._dataDirty = true;
-      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '�洢�ռ䲻��', icon: 'none' }); }
     }
   },
 
@@ -586,12 +588,12 @@ Page({
   startColor() { this.reset('color'); },
   startMosaic() { this.reset('mosaic'); },
 
-  // ========== 图片压缩 ==========
+  // ========== ͼƬѹ�� ==========
   chooseCompressImage() {
     let that = this;
     this._chooseImage(1, 'original', (res) => {
       let tempPath = this._getTempPath(res);
-      if (!tempPath) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      if (!tempPath) { wx.showToast({ title: '��ȡͼƬʧ��', icon: 'none' }); return; }
       that._saveToTempFile(tempPath, 'compress', (p) => that._onCompressImagePicked(p));
     });
   },
@@ -615,7 +617,7 @@ Page({
       fail() {
         that.setData({
           compressImagePath: path,
-          compressOrigSize: '未知',
+          compressOrigSize: 'δ֪',
           compressNewSize: '',
           compressRatio: '',
           compressResultPath: '',
@@ -640,7 +642,7 @@ Page({
       quality: this.data.compressQualityLevel,
       success(res) {
         let compressedPath = res.tempFilePath;
-        // 同时获取压缩后和原始文件信息，减少嵌�?        let getInfo = (path) => new Promise((resolve) => {
+        // ͬʱ��ȡѹ�����ԭʼ�ļ���Ϣ������Ƕ��?        let getInfo = (path) => new Promise((resolve) => {
           wx.getFileInfo({ filePath: path, success: resolve, fail: () => resolve({ size: 0 }) });
         });
         Promise.all([getInfo(compressedPath), getInfo(src)]).then(([compInfo, origInfo]) => {
@@ -649,7 +651,7 @@ Page({
           let ratio = origKB > 0 ? ((1 - newKB / origKB) * 100).toFixed(0) : '0';
           let newSizeStr = newKB > 1024 * 1024 ? (newKB / 1024 / 1024).toFixed(2) + ' MB' : (newKB / 1024).toFixed(1) + ' KB';
 
-          // 保存压缩结果
+          // ����ѹ�����
           let fs = this._getFs();
           let dest = wx.env.USER_DATA_PATH + '/compressed_' + Date.now() + '.jpg';
           fs.copyFile({
@@ -657,7 +659,7 @@ Page({
             success() {
               that.setData({ compressing: false, compressNewSize: newSizeStr, compressRatio: ratio, compressResultPath: dest });
               wx.hideNavigationBarLoading();
-              wx.showToast({ title: '压缩完成', icon: 'success' });
+              wx.showToast({ title: 'ѹ�����', icon: 'success' });
             },
             fail() {
               that.setData({ compressing: false, compressNewSize: newSizeStr, compressRatio: ratio, compressResultPath: compressedPath });
@@ -667,13 +669,13 @@ Page({
         }).catch(() => {
           that.setData({ compressing: false });
           wx.hideNavigationBarLoading();
-          wx.showToast({ title: '获取压缩结果失败', icon: 'none' });
+          wx.showToast({ title: '��ȡѹ�����ʧ��', icon: 'none' });
         });
       },
       fail() {
         that.setData({ compressing: false });
         wx.hideNavigationBarLoading();
-        wx.showToast({ title: '压缩失败', icon: 'none' });
+        wx.showToast({ title: 'ѹ��ʧ��', icon: 'none' });
       },
     });
   },
@@ -684,12 +686,12 @@ Page({
 
   previewCompressResult() { this._previewImage(this.data.compressResultPath); },
 
-  // ========== 图片加水�?==========
+  // ========== ͼƬ��ˮ��?==========
   chooseWmImage() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
       let tempPath = this._getTempPath(res);
-      if (!tempPath) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      if (!tempPath) { wx.showToast({ title: '��ȡͼƬʧ��', icon: 'none' }); return; }
       that._saveToTempFile(tempPath, 'wm', (p) => that.setData({ wmImagePath: p, wmResultPath: '' }));
     });
   },
@@ -708,43 +710,43 @@ Page({
     this.setData({ wmProcessing: true });
     wx.showNavigationBarLoading();
 
-    // 获取图片信息
+    // ��ȡͼƬ��Ϣ
     wx.getImageInfo({
       src: wmImagePath,
       success(imgInfo) {
         let imgWidth = imgInfo.width;
         let imgHeight = imgInfo.height;
 
-        // 使用 Canvas 2D 绘制水印
+        // ʹ�� Canvas 2D ����ˮӡ
         const query = wx.createSelectorQuery();
         query.select('#wmCanvas').fields({ node: true, size: true }).exec((res) => {
           if (!res[0] || !res[0].node) {
             that.setData({ wmProcessing: false });
             wx.hideNavigationBarLoading();
-            wx.showToast({ title: 'Canvas 初始化失�?, icon: 'none' });
+            wx.showToast({ title: 'Canvas ��ʼ��ʧ��?, icon: 'none' });
             return;
           }
 
           const canvas = res[0].node;
           const ctx = canvas.getContext('2d');
 
-          // 设置 Canvas 尺寸为图片尺�?          canvas.width = imgWidth;
+          // ���� Canvas �ߴ�ΪͼƬ�ߴ�?          canvas.width = imgWidth;
           canvas.height = imgHeight;
 
-          // 创建图片对象
+          // ����ͼƬ����
           const img = canvas.createImage();
           img.onload = function() {
-            // 绘制原图
+            // ����ԭͼ
             ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
 
-            // 计算水印位置
+            // ����ˮӡλ��
             let x = 0, y = 0;
             let textAlign = 'left';
             let textBaseline = 'top';
             let padding = 20;
 
-            // 根据字体大小调整位置
-            let fontSize = wmFontSize * (imgWidth / 750); // 按比例缩�?
+            // ���������С����λ��
+            let fontSize = wmFontSize * (imgWidth / 750); // ����������?
             switch (wmPosition) {
               case 'top-left':
                 x = padding;
@@ -778,16 +780,16 @@ Page({
                 break;
             }
 
-            // 设置水印样式
+            // ����ˮӡ��ʽ
             ctx.font = 'bold ' + fontSize + 'px sans-serif';
             ctx.textAlign = textAlign;
             ctx.textBaseline = textBaseline;
 
-            // 绘制文字阴影（增强可读性）
+            // ����������Ӱ����ǿ�ɶ��ԣ�
             ctx.fillStyle = 'rgba(0, 0, 0, ' + (wmOpacity / 100 * 0.5) + ')';
             ctx.fillText(wmText, x + 2, y + 2);
 
-            // 绘制水印文字
+            // ����ˮӡ����
             let color = wmColor;
             let alpha = wmOpacity / 100;
             ctx.fillStyle = color;
@@ -795,12 +797,12 @@ Page({
             ctx.fillText(wmText, x, y);
             ctx.globalAlpha = 1;
 
-            // 导出图片
+            // ����ͼƬ
             wx.canvasToTempFilePath({
               canvas: canvas,
               quality: 0.9,
               success(res) {
-                // 保存结果
+                // ������
                 let fs = this._getFs();
                 let dest = wx.env.USER_DATA_PATH + '/wm_result_' + Date.now() + '.jpg';
                 fs.copyFile({
@@ -808,19 +810,19 @@ Page({
                   success() {
                     that.setData({ wmResultPath: dest, wmProcessing: false });
                     wx.hideNavigationBarLoading();
-                    wx.showToast({ title: '水印添加成功', icon: 'success' });
+                    wx.showToast({ title: 'ˮӡ���ӳɹ�', icon: 'success' });
                   },
                   fail() {
                     that.setData({ wmResultPath: res.tempFilePath, wmProcessing: false });
                     wx.hideNavigationBarLoading();
-                    wx.showToast({ title: '水印添加成功', icon: 'success' });
+                    wx.showToast({ title: 'ˮӡ���ӳɹ�', icon: 'success' });
                   },
                 });
               },
               fail(err) {
                 that.setData({ wmProcessing: false });
                 wx.hideNavigationBarLoading();
-                wx.showToast({ title: '导出失败', icon: 'none' });
+                wx.showToast({ title: '����ʧ��', icon: 'none' });
               },
             });
           };
@@ -828,7 +830,7 @@ Page({
           img.onerror = function() {
             that.setData({ wmProcessing: false });
             wx.hideNavigationBarLoading();
-            wx.showToast({ title: '图片加载失败', icon: 'none' });
+            wx.showToast({ title: 'ͼƬ����ʧ��', icon: 'none' });
           };
 
           img.src = wmImagePath;
@@ -837,7 +839,7 @@ Page({
       fail() {
         that.setData({ wmProcessing: false });
         wx.hideNavigationBarLoading();
-        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
+        wx.showToast({ title: '��ȡͼƬ��Ϣʧ��', icon: 'none' });
       },
     });
   },
@@ -848,13 +850,13 @@ Page({
 
   previewWmResult() { this._previewImage(this.data.wmResultPath || this.data.wmImagePath); },
 
-  // ========== 图片格式转换 ==========
+  // ========== ͼƬ��ʽת�� ==========
   chooseFmtImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
-      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      // 检测格�?      let ext = p.split('.').pop().toLowerCase();
+      if (!p) { wx.showToast({ title: '��ȡͼƬʧ��', icon: 'none' }); return; }
+      // �����?      let ext = p.split('.').pop().toLowerCase();
       let from = 'jpg';
       if (ext === 'png') from = 'png';
       else if (ext === 'webp') from = 'webp';
@@ -887,13 +889,13 @@ Page({
           wx.hideNavigationBarLoading();
           if (err) { wx.showToast({ title: err, icon: 'none' }); return; }
           that.setData({ fmtResult: result.path, fmtSize: result.size });
-          wx.showToast({ title: '转换完成', icon: 'success' });
+          wx.showToast({ title: 'ת�����', icon: 'success' });
         });
       },
       fail() {
         that.setData({ fmtConverting: false });
         wx.hideNavigationBarLoading();
-        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
+        wx.showToast({ title: '��ȡͼƬ��Ϣʧ��', icon: 'none' });
       },
     });
   },
@@ -903,12 +905,12 @@ Page({
   shareFmtImg() { this._shareFile(this.data.fmtResult, 'converted.' + this.data.fmtTo); },
 
   previewFmtResult() { this._previewImage(this.data.fmtResult); },
-  // ========== 图片尺寸调整 ==========
+  // ========== ͼƬ�ߴ���� ==========
   chooseResizeImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
-      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      if (!p) { wx.showToast({ title: '��ȡͼƬʧ��', icon: 'none' }); return; }
       wx.getImageInfo({
         src: p,
         success(info) {
@@ -965,7 +967,7 @@ Page({
       wx.hideNavigationBarLoading();
       if (err) { wx.showToast({ title: err, icon: 'none' }); return; }
       that.setData({ resizeResult: result.path, resizeSize: result.size });
-      wx.showToast({ title: '调整完成', icon: 'success' });
+      wx.showToast({ title: '�������', icon: 'success' });
     });
   },
 
@@ -975,12 +977,12 @@ Page({
 
   previewResizeResult() { this._previewImage(this.data.resizeResult); },
 
-  // ========== 图片裁剪 ==========
+  // ========== ͼƬ�ü� ==========
   chooseCropImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
-      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      if (!p) { wx.showToast({ title: '��ȡͼƬʧ��', icon: 'none' }); return; }
       wx.getImageInfo({
         src: p,
         success(info) {
@@ -1000,7 +1002,7 @@ Page({
     let { cropImg, cropW, cropH, cropRatio } = this.data;
     if (!cropImg || cropW <= 0 || cropH <= 0) return;
 
-    // 计算裁剪区域（居中裁剪）
+    // ����ü����򣨾��вü���
     let sx = 0, sy = 0, sw = cropW, sh = cropH;
     if (cropRatio === '1:1') {
       let side = Math.min(cropW, cropH);
@@ -1028,7 +1030,7 @@ Page({
       sy = Math.floor((cropH - targetH) / 2);
       sw = targetW; sh = targetH;
     }
-    // free 模式不裁剪，使用原图
+    // free ģʽ���ü���ʹ��ԭͼ
 
     this.setData({ cropping: true });
     wx.showNavigationBarLoading();
@@ -1038,7 +1040,7 @@ Page({
       if (!res[0] || !res[0].node) {
         that.setData({ cropping: false });
         wx.hideNavigationBarLoading();
-        wx.showToast({ title: 'Canvas 初始化失�?, icon: 'none' });
+        wx.showToast({ title: 'Canvas ��ʼ��ʧ��?, icon: 'none' });
         return;
       }
       const canvas = res[0].node;
@@ -1064,7 +1066,7 @@ Page({
                     let kb = (fi.size / 1024).toFixed(1);
                     that.setData({ cropResult: dest, cropSize: kb + ' KB', cropping: false });
                     wx.hideNavigationBarLoading();
-                    wx.showToast({ title: '裁剪完成', icon: 'success' });
+                    wx.showToast({ title: '�ü����', icon: 'success' });
                   },
                   fail() {
                     that.setData({ cropResult: dest, cropSize: '', cropping: false });
@@ -1081,14 +1083,14 @@ Page({
           fail() {
             that.setData({ cropping: false });
             wx.hideNavigationBarLoading();
-            wx.showToast({ title: '导出失败', icon: 'none' });
+            wx.showToast({ title: '����ʧ��', icon: 'none' });
           },
         });
       };
       img.onerror = function() {
         that.setData({ cropping: false });
         wx.hideNavigationBarLoading();
-        wx.showToast({ title: '图片加载失败', icon: 'none' });
+        wx.showToast({ title: 'ͼƬ����ʧ��', icon: 'none' });
       };
       img.src = cropImg;
     });
@@ -1100,12 +1102,12 @@ Page({
 
   previewCropResult() { this._previewImage(this.data.cropResult); },
 
-  // ========== 图片旋转 ==========
+  // ========== ͼƬ��ת ==========
   chooseRotImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
-      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      if (!p) { wx.showToast({ title: '��ȡͼƬʧ��', icon: 'none' }); return; }
       that.setData({ rotImg: p, rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '' });
     });
   },
@@ -1127,7 +1129,7 @@ Page({
       src: rotImg,
       success(info) {
         let iw = info.width, ih = info.height;
-        // 90/270度旋转时宽高互换
+        // 90/270����תʱ���߻���
         let isRightAngle = (rotDeg === 90 || rotDeg === 270);
         let cw = isRightAngle ? ih : iw;
         let ch = isRightAngle ? iw : ih;
@@ -1137,7 +1139,7 @@ Page({
           if (!res[0] || !res[0].node) {
             that.setData({ rotating: false });
             wx.hideNavigationBarLoading();
-            wx.showToast({ title: 'Canvas 初始化失�?, icon: 'none' });
+            wx.showToast({ title: 'Canvas ��ʼ��ʧ��?, icon: 'none' });
             return;
           }
           const canvas = res[0].node;
@@ -1170,7 +1172,7 @@ Page({
                         let kb = (fi.size / 1024).toFixed(1);
                         that.setData({ rotResult: dest, rotSize: kb + ' KB', rotating: false });
                         wx.hideNavigationBarLoading();
-                        wx.showToast({ title: '旋转完成', icon: 'success' });
+                        wx.showToast({ title: '��ת���', icon: 'success' });
                       },
                       fail() {
                         that.setData({ rotResult: dest, rotSize: '', rotating: false });
@@ -1187,14 +1189,14 @@ Page({
               fail() {
                 that.setData({ rotating: false });
                 wx.hideNavigationBarLoading();
-                wx.showToast({ title: '导出失败', icon: 'none' });
+                wx.showToast({ title: '����ʧ��', icon: 'none' });
               },
             });
           };
           img.onerror = function() {
             that.setData({ rotating: false });
             wx.hideNavigationBarLoading();
-            wx.showToast({ title: '图片加载失败', icon: 'none' });
+            wx.showToast({ title: 'ͼƬ����ʧ��', icon: 'none' });
           };
           img.src = rotImg;
         });
@@ -1202,7 +1204,7 @@ Page({
       fail() {
         that.setData({ rotating: false });
         wx.hideNavigationBarLoading();
-        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
+        wx.showToast({ title: '��ȡͼƬ��Ϣʧ��', icon: 'none' });
       },
     });
   },
@@ -1213,12 +1215,12 @@ Page({
 
   previewRotResult() { this._previewImage(this.data.rotResult); },
 
-  // ========== 颜色提取 ==========
+  // ========== ��ɫ��ȡ ==========
   chooseColorImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
-      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      if (!p) { wx.showToast({ title: '��ȡͼƬʧ��', icon: 'none' }); return; }
       that.setData({ colorImg: p, colorList: [] });
       that._extractColors(p);
     });
@@ -1232,13 +1234,13 @@ Page({
     wx.getImageInfo({
       src: imgPath,
       success(info) {
-        // 缩小�?50x50 加速采�?        let sw = 50, sh = 50;
+        // ��С��?50x50 ���ٲɴ�?        let sw = 50, sh = 50;
         const query = wx.createSelectorQuery();
         query.select('#colorCanvas').fields({ node: true, size: true }).exec((res) => {
           if (!res[0] || !res[0].node) {
             that.setData({ colorPicking: false });
             wx.hideNavigationBarLoading();
-            wx.showToast({ title: 'Canvas 初始化失�?, icon: 'none' });
+            wx.showToast({ title: 'Canvas ��ʼ��ʧ��?, icon: 'none' });
             return;
           }
           const canvas = res[0].node;
@@ -1258,7 +1260,7 @@ Page({
           img.onerror = function() {
             that.setData({ colorPicking: false });
             wx.hideNavigationBarLoading();
-            wx.showToast({ title: '图片加载失败', icon: 'none' });
+            wx.showToast({ title: 'ͼƬ����ʧ��', icon: 'none' });
           };
           img.src = imgPath;
         });
@@ -1266,13 +1268,13 @@ Page({
       fail() {
         that.setData({ colorPicking: false });
         wx.hideNavigationBarLoading();
-        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
+        wx.showToast({ title: '��ȡͼƬ��Ϣʧ��', icon: 'none' });
       },
     });
   },
 
   _clusterColors(pixels, count) {
-    // 简单量化：将颜色空间划分为 count 个桶，取最常见�?    let buckets = {};
+    // ������������ɫ�ռ仮��Ϊ count ��Ͱ��ȡ�����?    let buckets = {};
     let total = pixels.length / 4;
     for (let i = 0; i < pixels.length; i += 4) {
       let r = Math.round(pixels[i] / 32) * 32;
@@ -1298,17 +1300,17 @@ Page({
 
   copyColorHex(e) {
     let hex = e.currentTarget.dataset.hex;
-    wx.setClipboardData({ data: hex, success: () => wx.showToast({ title: '已复�?' + hex, icon: 'success' }) });
+    wx.setClipboardData({ data: hex, success: () => wx.showToast({ title: '�Ѹ���?' + hex, icon: 'success' }) });
   },
 
   previewColorImg() { this._previewImage(this.data.colorImg); },
 
-  // ========== 图片马赛�?==========
+  // ========== ͼƬ������?==========
   chooseMosaicImg() {
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
-      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      if (!p) { wx.showToast({ title: '��ȡͼƬʧ��', icon: 'none' }); return; }
       that.setData({ mosaicImg: p, mosaicResult: '', mosaicSize: '' });
     });
   },
@@ -1327,7 +1329,7 @@ Page({
       src: mosaicImg,
       success(info) {
         let iw = info.width, ih = info.height;
-        // 缩小�?1/level 大小再放大，实现马赛克效�?        let sw = Math.max(1, Math.floor(iw / mosaicLevel));
+        // ��С��?1/level ��С�ٷŴ�ʵ��������Ч��?        let sw = Math.max(1, Math.floor(iw / mosaicLevel));
         let sh = Math.max(1, Math.floor(ih / mosaicLevel));
 
         const query = wx.createSelectorQuery();
@@ -1335,7 +1337,7 @@ Page({
           if (!res[0] || !res[0].node) {
             that.setData({ mosaicing: false });
             wx.hideNavigationBarLoading();
-            wx.showToast({ title: 'Canvas 初始化失�?, icon: 'none' });
+            wx.showToast({ title: 'Canvas ��ʼ��ʧ��?, icon: 'none' });
             return;
           }
           const canvas = res[0].node;
@@ -1345,10 +1347,10 @@ Page({
 
           const img = canvas.createImage();
           img.onload = function() {
-            // 先画小图
+            // �Ȼ�Сͼ
             ctx.imageSmoothingEnabled = false;
             ctx.drawImage(img, 0, 0, sw, sh);
-            // 再放大到原尺�?            ctx.drawImage(canvas, 0, 0, sw, sh, 0, 0, iw, ih);
+            // �ٷŴ�ԭ�ߴ�?            ctx.drawImage(canvas, 0, 0, sw, sh, 0, 0, iw, ih);
 
             wx.canvasToTempFilePath({
               canvas: canvas,
@@ -1365,7 +1367,7 @@ Page({
                         let kb = (fi.size / 1024).toFixed(1);
                         that.setData({ mosaicResult: dest, mosaicSize: kb + ' KB', mosaicing: false });
                         wx.hideNavigationBarLoading();
-                        wx.showToast({ title: '马赛克完�?, icon: 'success' });
+                        wx.showToast({ title: '���������?, icon: 'success' });
                       },
                       fail() {
                         that.setData({ mosaicResult: dest, mosaicSize: '', mosaicing: false });
@@ -1382,14 +1384,14 @@ Page({
               fail() {
                 that.setData({ mosaicing: false });
                 wx.hideNavigationBarLoading();
-                wx.showToast({ title: '导出失败', icon: 'none' });
+                wx.showToast({ title: '����ʧ��', icon: 'none' });
               },
             });
           };
           img.onerror = function() {
             that.setData({ mosaicing: false });
             wx.hideNavigationBarLoading();
-            wx.showToast({ title: '图片加载失败', icon: 'none' });
+            wx.showToast({ title: 'ͼƬ����ʧ��', icon: 'none' });
           };
           img.src = mosaicImg;
         });
@@ -1397,7 +1399,7 @@ Page({
       fail() {
         that.setData({ mosaicing: false });
         wx.hideNavigationBarLoading();
-        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
+        wx.showToast({ title: '��ȡͼƬ��Ϣʧ��', icon: 'none' });
       },
     });
   },
@@ -1411,11 +1413,11 @@ Page({
   quickAction(e) {
     let mode = e.currentTarget.dataset.mode;
     if (!this.data.curId) {
-      // 使用缓存，避免频繁读取存�?      let ps = this._getPs();
-      let p = { id: 'p_' + Date.now(), name: '快速项�?, date: new Date().toLocaleString(), items: [] };
+      // ʹ�û��棬����Ƶ����ȡ���?      let ps = this._getPs();
+      let p = { id: 'p_' + Date.now(), name: '�������?, date: new Date().toLocaleString(), items: [] };
       ps.unshift(p);
-      this._projectsCache = ps; // 更新缓存
-      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
+      this._projectsCache = ps; // ���»���
+      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '�洢�ռ䲻��', icon: 'none' }); return; }
       this.setData({ view: 'work', curId: p.id, curName: p.name, images: [] });
     }
     this.reset(mode);
@@ -1427,7 +1429,7 @@ Page({
   },
 
   _saveToTempFile(tempPath, prefix, callback) {
-    if (!tempPath) { wx.showToast({ title: '图片路径无效', icon: 'none' }); return; }
+    if (!tempPath) { wx.showToast({ title: 'ͼƬ·����Ч', icon: 'none' }); return; }
     let fs = this._getFs();
     let dest = wx.env.USER_DATA_PATH + '/' + prefix + '_' + Date.now() + '.jpg';
     fs.copyFile({
@@ -1437,7 +1439,7 @@ Page({
         fs.saveFile({
           tempFilePath: tempPath,
           success: (res) => callback(res.savedFilePath),
-          fail: () => wx.showToast({ title: '图片保存失败', icon: 'none' }),
+          fail: () => wx.showToast({ title: 'ͼƬ����ʧ��', icon: 'none' }),
         });
       },
     });
@@ -1445,7 +1447,7 @@ Page({
 
   _saveTempImage(tempPath) {
     if (!tempPath) {
-      wx.showToast({ title: '图片路径无效', icon: 'none' });
+      wx.showToast({ title: 'ͼƬ·����Ч', icon: 'none' });
       return;
     }
     let fs = this._getFs();
@@ -1457,7 +1459,7 @@ Page({
         fs.saveFile({
           tempFilePath: tempPath,
           success: (res) => this._onImagePicked(res.savedFilePath),
-          fail: () => wx.showToast({ title: '图片保存失败', icon: 'none' }),
+          fail: () => wx.showToast({ title: 'ͼƬ����ʧ��', icon: 'none' }),
         });
       },
     });
@@ -1467,7 +1469,7 @@ Page({
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
-      if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
+      if (!p) { wx.showToast({ title: '��ȡͼƬʧ��', icon: 'none' }); return; }
       that._saveTempImage(p);
     });
   },
@@ -1481,24 +1483,24 @@ Page({
     let src = this.data.imagePath;
     if (!src) return;
 
-    // 合并初始状态更新，减少setData调用
-    this.setData({ converting: true, convertProgress: 5, convertStage: '准备�?..', compressedSize: '' });
+    // �ϲ���ʼ״̬���£�����setData����
+    this.setData({ converting: true, convertProgress: 5, convertStage: '׼����?..', compressedSize: '' });
     wx.showNavigationBarLoading();
 
-    // Step 1: 检查原始文件大�?    wx.getFileInfo({
+    // Step 1: ���ԭʼ�ļ����?    wx.getFileInfo({
       filePath: src,
       success(info) {
         let origKB = (info.size / 1024).toFixed(1);
 
-        // 小于 200KB 跳过压缩
+        // С�� 200KB ����ѹ��
         if (info.size < 200 * 1024) {
-          that.setData({ convertProgress: 30, convertStage: '文件较小，跳过压�? });
+          that.setData({ convertProgress: 30, convertStage: '�ļ���С������ѹ��? });
           that._doReadBase64(src, origKB);
           return;
         }
 
-        // Step 2: 压缩图片
-        that.setData({ convertProgress: 20, convertStage: '压缩�?..' });
+        // Step 2: ѹ��ͼƬ
+        that.setData({ convertProgress: 20, convertStage: 'ѹ����?..' });
         wx.compressImage({
           src: src,
           quality: that.data.compressQuality,
@@ -1509,21 +1511,21 @@ Page({
               success(cInfo) {
                 let compKB = (cInfo.size / 1024).toFixed(1);
                 let ratio = ((1 - cInfo.size / info.size) * 100).toFixed(0);
-                that.setData({ convertProgress: 40, convertStage: '压缩完成，减�?' + ratio + '%', compressedSize: compKB + ' KB' });
+                that.setData({ convertProgress: 40, convertStage: 'ѹ����ɣ�����?' + ratio + '%', compressedSize: compKB + ' KB' });
                 that._doReadBase64(compressedPath, compKB);
               },
               fail() { that._doReadBase64(src, origKB); },
             });
           },
           fail() {
-            // 压缩失败，回退原图
-            that.setData({ convertProgress: 30, convertStage: '压缩不支持，使用原图' });
+            // ѹ��ʧ�ܣ�����ԭͼ
+            that.setData({ convertProgress: 30, convertStage: 'ѹ����֧�֣�ʹ��ԭͼ' });
             that._doReadBase64(src, origKB);
           },
         });
       },
       fail() {
-        // 无法获取文件信息，直接读�?        that.setData({ convertProgress: 30, convertStage: '读取�?..' });
+        // �޷���ȡ�ļ���Ϣ��ֱ�Ӷ���?        that.setData({ convertProgress: 30, convertStage: '��ȡ��?..' });
         that._doReadBase64(src, '');
       },
     });
@@ -1531,7 +1533,7 @@ Page({
 
   _doReadBase64(filePath, fileSizeKB) {
     let that = this;
-    this.setData({ convertProgress: 55, convertStage: '读取数据�?..' });
+    this.setData({ convertProgress: 55, convertStage: '��ȡ���ݴ�?..' });
 
     this._getFs().readFile({
       filePath: filePath, encoding: 'base64',
@@ -1545,10 +1547,10 @@ Page({
         that._imageCache = [{ base64: b64 }].concat(that._imageCache).slice(0, 10);
         let list = [itemMeta].concat(that.data.images).slice(0, 20);
 
-        // 合并所有更新到一次setData
+        // �ϲ����и��µ�һ��setData
         that.setData({
           convertProgress: 100,
-          convertStage: '完成�? + kb + ' KB',
+          convertStage: '��ɴ�? + kb + ' KB',
           codeShow: b64.slice(0, 200) + '...',
           size: kb + ' KB',
           images: list,
@@ -1556,14 +1558,14 @@ Page({
         that.saveImages(list);
 
         wx.hideNavigationBarLoading();
-        // 延迟清除进度�?        setTimeout(() => {
+        // �ӳ�������ȴ�?        setTimeout(() => {
           that.setData({ converting: false, convertProgress: 0, convertStage: '' });
         }, 800);
       },
       fail() {
         wx.hideNavigationBarLoading();
         that.setData({ converting: false, convertProgress: 0, convertStage: '' });
-        wx.showToast({ title: '读取失败', icon: 'none' });
+        wx.showToast({ title: '��ȡʧ��', icon: 'none' });
       },
     });
   },
@@ -1576,7 +1578,7 @@ Page({
     this._getFs().writeFile({
       filePath: fname, data: code, encoding: 'utf8',
       success: () => that._shareFile(fname, 'base64.txt'),
-      fail: () => wx.showToast({ title: '写入失败', icon: 'none' }),
+      fail: () => wx.showToast({ title: 'д��ʧ��', icon: 'none' }),
     });
   },
 
@@ -1584,8 +1586,8 @@ Page({
     if (!this._fullCode) return;
     wx.setClipboardData({
       data: this._fullCode.slice(0, 80000),
-      success: () => wx.showToast({ title: '已复�?, icon: 'success' }),
-      fail: () => wx.showToast({ title: '太长�?, icon: 'none' }),
+      success: () => wx.showToast({ title: '�Ѹ���?, icon: 'success' }),
+      fail: () => wx.showToast({ title: '̫����?, icon: 'none' }),
     });
   },
 
@@ -1596,9 +1598,9 @@ Page({
     if (!code) return;
     let that = this;
     wx.showModal({
-      title: '保存代码文件',
+      title: '��������ļ�',
       editable: true,
-      placeholderText: '输入文件�?,
+      placeholderText: '�����ļ���?,
       success: (res) => {
         if (!res.confirm) return;
         let name = (res.content || 'base64_text').replace(/[:"<>|?*\n\r\\/]/g, '-').slice(0, 50);
@@ -1609,9 +1611,9 @@ Page({
           data: code,
           encoding: 'utf8',
           success: () => {
-            wx.showToast({ title: '已保�?, icon: 'success' });
+            wx.showToast({ title: '�ѱ���, icon: 'success' });
             wx.showActionSheet({
-              itemList: ['用其他应用打开', '转发给朋�?, '浏览保存目录'],
+              itemList: ['������Ӧ�ô�', 'ת�������?, '�������Ŀ¼'],
               success: (r) => {
                 if (r.tapIndex === 0) {
                   wx.openDocument({ filePath: fname, showMenu: true, fail: () => that.browseFiles() });
@@ -1623,7 +1625,7 @@ Page({
               },
             });
           },
-          fail: (err) => wx.showToast({ title: '写入失败: ' + (err.errMsg || ''), icon: 'none' }),
+          fail: (err) => wx.showToast({ title: 'д��ʧ��: ' + (err.errMsg || ''), icon: 'none' }),
         });
       },
     });
@@ -1638,12 +1640,12 @@ Page({
       let str = '';
       for (let i = 0; i < bytes.length; i += 8192) str += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
       b64 = btoa(str);
-    } catch (e) { b64 = '编码失败'; }
+    } catch (e) { b64 = '����ʧ��'; }
     this._fullText = b64;
-    let itemMeta = { id: Date.now(), type: 'text', path: '', size: raw.length + ' �?, preview: raw.slice(0, 30) };
+    let itemMeta = { id: Date.now(), type: 'text', path: '', size: raw.length + ' ��?, preview: raw.slice(0, 30) };
     this._imageCache = [{ base64: b64, textContent: raw }].concat(this._imageCache).slice(0, 10);
     let list = [itemMeta].concat(this.data.images).slice(0, 20);
-    // 合并更新
+    // �ϲ�����
     this.setData({ textResult: b64.length > 300 ? b64.slice(0, 300) + '...' : b64, images: list });
     this.saveImages(list);
   },
@@ -1651,8 +1653,8 @@ Page({
     if (!this._fullText) return;
     wx.setClipboardData({
       data: this._fullText.slice(0, 80000),
-      success: () => wx.showToast({ title: '已复�?, icon: 'success' }),
-      fail: () => wx.showToast({ title: '太长�?, icon: 'none' }),
+      success: () => wx.showToast({ title: '�Ѹ���?, icon: 'success' }),
+      fail: () => wx.showToast({ title: '̫����?, icon: 'none' }),
     });
   },
 
@@ -1663,15 +1665,15 @@ Page({
     try {
       let bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
       let r = typeof TextDecoder !== 'undefined' ? new TextDecoder().decode(bytes) : String.fromCharCode.apply(null, bytes);
-      let itemMeta = { id: Date.now(), type: 'text', path: '', size: r.length + ' �?, preview: r.slice(0, 30) };
+      let itemMeta = { id: Date.now(), type: 'text', path: '', size: r.length + ' ��?, preview: r.slice(0, 30) };
       this._imageCache = [{ base64: this.data.decodeInput, textContent: r }].concat(this._imageCache).slice(0, 10);
       let list = [itemMeta].concat(this.data.images).slice(0, 20);
-      // 合并更新
+      // �ϲ�����
       this.setData({ decodeResult: r.length > 500 ? r.slice(0, 500) + '...' : r, images: list });
       this.saveImages(list);
-    } catch (e) { wx.showToast({ title: '格式错误，请检查输�?, icon: 'none' }); }
+    } catch (e) { wx.showToast({ title: '��ʽ�����������?, icon: 'none' }); }
   },
-  copyDecode() { wx.setClipboardData({ data: this.data.decodeResult, success: () => wx.showToast({ title: '已复�?, icon: 'success' }) }); },
+  copyDecode() { wx.setClipboardData({ data: this.data.decodeResult, success: () => wx.showToast({ title: '�Ѹ���?, icon: 'success' }) }); },
 
   decodeToImage() {
     let b64 = this.data.decodeInput.trim();
@@ -1679,7 +1681,7 @@ Page({
     let idx = b64.indexOf('base64,');
     let raw = (idx >= 0 ? b64.slice(idx + 7) : b64).replace(/\s/g, '');
     if (!/^[A-Za-z0-9+/=]+$/.test(raw)) {
-      wx.showToast({ title: '不是有效�?Base64', icon: 'none' });
+      wx.showToast({ title: '������Ч��?Base64', icon: 'none' });
       return;
     }
     if (!b64.startsWith('data:image')) b64 = 'data:image/png;base64,' + raw;
@@ -1687,7 +1689,7 @@ Page({
     let ext = mimeMatch ? (mimeMatch[1].split('/')[1] === 'jpeg' ? 'jpg' : mimeMatch[1].split('/')[1]) : 'png';
     let fname = wx.env.USER_DATA_PATH + '/dc' + Date.now() + '.' + ext;
     let that = this;
-    wx.getFileSystemManager().writeFile({
+    this._getFs().writeFile({
       filePath: fname, data: raw, encoding: 'base64',
       success: () => {
         let itemMeta = { id: Date.now(), type: 'image', path: fname, size: '', preview: '' };
@@ -1695,22 +1697,22 @@ Page({
         let list = [itemMeta].concat(that.data.images).slice(0, 20);
         that.setData({ decodeImagePath: fname, images: list });
         that.saveImages(list);
-        wx.showToast({ title: '已显�?, icon: 'success' });
+        wx.showToast({ title: '���Դ�?, icon: 'success' });
       },
-      fail: () => wx.showToast({ title: '写入失败', icon: 'none' }),
+      fail: () => wx.showToast({ title: 'д��ʧ��', icon: 'none' }),
     });
   },
   previewDecodeImg() { this._previewImage(this.data.decodeImagePath); },
 
   _readUserFiles(callback) {
-    wx.getFileSystemManager().readdir({
+    this._getFs().readdir({
       dirPath: wx.env.USER_DATA_PATH,
       success: (res) => {
         let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png'));
-        if (files.length === 0) { wx.showToast({ title: '暂无文件', icon: 'none' }); return; }
+        if (files.length === 0) { wx.showToast({ title: '�����ļ�', icon: 'none' }); return; }
         callback(files.map(f => ({ name: f, path: wx.env.USER_DATA_PATH + '/' + f })));
       },
-      fail: () => wx.showToast({ title: '无法读取目录', icon: 'none' }),
+      fail: () => wx.showToast({ title: '�޷���ȡĿ¼', icon: 'none' }),
     });
   },
   browseFiles() {
@@ -1725,10 +1727,10 @@ Page({
     let f = this.data.filesList[idx];
     if (!f) return;
     let that = this;
-    // 选择文件模式：读取内容填入输入框
+    // ѡ���ļ�ģʽ����ȡ�������������
     if (this.data.fileMode) {
       let mode = this.data.fileMode;
-      wx.getFileSystemManager().readFile({
+      this._getFs().readFile({
         filePath: f.path, encoding: 'utf8',
         success: (res) => {
           if (mode === 'text2code') {
@@ -1736,15 +1738,15 @@ Page({
           } else if (mode === 'code2text' || mode === 'code2img') {
             that.setData({ decodeInput: res.data, filesShow: false });
           }
-          wx.showToast({ title: '已读�?, icon: 'success' });
+          wx.showToast({ title: '�Ѷ���?, icon: 'success' });
         },
-        fail: () => wx.showToast({ title: '读取失败', icon: 'none' }),
+        fail: () => wx.showToast({ title: '��ȡʧ��', icon: 'none' }),
       });
       return;
     }
-    // 普通模式：操作文件
+    // ��ͨģʽ�������ļ�
     wx.showActionSheet({
-      itemList: ['用其他应用打开', '转发给朋�?, '取消'],
+      itemList: ['������Ӧ�ô�', 'ת�������?, 'ȡ��'],
       success: (r) => {
         if (r.tapIndex === 0) {
           wx.openDocument({ filePath: f.path, showMenu: true });
@@ -1759,7 +1761,7 @@ Page({
   loadHistory(e) {
     let idx = e.currentTarget.dataset.index, item = this.data.images[idx];
     if (!item) return;
-    // 使用缓存，避免频繁读取存�?    let ps = this._getPs();
+    // ʹ�û��棬����Ƶ����ȡ���?    let ps = this._getPs();
     let p = ps.find(x => x.id === this.data.curId);
     if (item.type === 'image') {
       let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
