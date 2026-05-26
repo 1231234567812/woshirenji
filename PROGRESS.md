@@ -15,6 +15,13 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复二维码历史保存失败无提示+空目录回调缺失（d9d879a）
+  - generateQR: fs.copyFile fail 回调从空函数改为显示"历史保存失败"提示
+  - _readUserFiles: 目录为空时先调用 callback([]) 再提示，确保调用方能正确设置 filesShow 状态
+- 功能开发者修复裁剪重构+删除提示+卡片按压反馈（39c5813）
+  - doCrop 使用 _canvasProcess 公共方法，减少42行重复代码
+  - project.js wx.showToast 移到 if (i>=0) 内部，避免未找到项目时也显示已删除
+  - project.wxml 添加 hover-class=card-press 恢复卡片按压反馈（CLAUDE.md 交互反馈必须有）
 - 功能开发者 _saveTempImage 使用 _saveToTempFile 减少重复代码（26032f2）
   - _saveTempImage 与 _saveToTempFile 逻辑完全相同，改为调用公共方法
   - 净减少 14 行重复代码

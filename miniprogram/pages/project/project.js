@@ -78,6 +78,7 @@ Page({
       success: (res) => {
         let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png'));
         if (files.length === 0) {
+          that.setData({ filesList: [], filesShow: true });
           wx.showToast({ title: '暂无文件', icon: 'none' });
           return;
         }

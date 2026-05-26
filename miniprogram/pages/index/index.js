@@ -353,7 +353,7 @@ Page({
           ['batchItems[' + slot + ']']: item,
           ['images[' + imgIdx + ']']: itemMeta
         });
-        that._imageCache = [{ base64: b64 }].concat(that._imageCache).slice(0, 20);
+        that._imageCache[imgIdx] = { base64: b64 };
         onDone();
       },
       fail() {
