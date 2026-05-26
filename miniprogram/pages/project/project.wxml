@@ -1,15 +1,14 @@
 <view class="box {{darkMode ? 'dark' : ''}}">
   <view wx:if="{{list.length === 0}}" class="tip">
-    <text class="tip-icon">📁</text>
+    <view class="tip-icon-wrap"><text class="tip-icon-txt">空</text></view>
     <text class="tip-text" bindtap="browseFiles">暂无记录，点此浏览保存的文件</text>
   </view>
 
   <view wx:if="{{list.length > 0}}" class="file-entry" bindtap="browseFiles">
-    <text>📁 浏览保存的文件</text>
+    <text>浏览保存的文件</text>
   </view>
 
   <view wx:for="{{list}}" wx:key="id" class="card" bindtap="openProject" data-id="{{item.id}}">
-    <view class="card-accent"></view>
     <view class="card-body">
     <view class="card-hd">
       <text class="card-name">{{item.name}}{{item.deleted ? '(已删)' : ''}}</text>

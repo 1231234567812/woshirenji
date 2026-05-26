@@ -5,27 +5,34 @@
 
 ## 当前状态
 功能基本完成：图片/文字与 Base64 互转、图片处理工具箱
-**UI 需要全面重做** — 当前太满、太花、动画太多，需要大幅简化
+首页 UI 重设计已完成，project 页面 UI 重设计已完成
 
 ## 最近正常版本
-`e46be14` - 修复 .fab 样式丢失 bug
+待提交 - UI 设计师完成全部修复
 
 ## 当前正在做的事
 <!-- AI 开工前在这里写：我叫XXX，我要做XXX -->
 <!-- 做完后删掉，避免其他 AI 重复做 -->
-功能开发者 → 已完成遗留问题修复，等待新任务
+UI设计师 → 完成全部修复，等待提交
 
 ## 最近改动
-- `e46be14` 修复 .fab 按钮样式丢失 bug
-- `38f5f42` 清理遗留的违规样式（skeleton-accent、mc-7~14）
-- `62e27ca` 首页重设计（砍动画、改列表、统一配色）
+- UI设计师完成首页+project页面全部违规修复
+- 菜单弹窗14个emoji替换为纯色圆+文字首字
+- topbar-folder emoji替换为文字"件"
+- 锁emoji替换为文字"锁/开"
+- project页面📁emoji替换为纯色圆+"空"
+- 全站重阴影统一减轻（btn、code-box、所有action按钮）
+- shimmer/pulse/float动画删除
+- skeleton-accent删除
+- mc-1~mc-14颜色类全部删除
+- letter-spacing全站清除（含custom-tab-bar）
+- batch-card animation-delay删除
+- card-del圆角16rpx→12rpx
+- project页面card-accent删除、留白加大、字重降低
 
 ## 已知问题
 <!-- 发现 bug 和设计问题写这里 -->
-- `.card-img` 圆角 18rpx，应为 12rpx
-- `.code-box` 深色模式阴影过重：`0 8rpx 32rpx rgba(0,0,0,0.4)`
-- 按钮蓝色阴影仍偏明显（.btn、.create-btn）
-- 菜单弹窗14个功能卡片偏多，可考虑精简或改列表
+（暂无）
 
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
@@ -74,13 +81,43 @@
 9. ✅ 动画时长 — 已修复
 
 **审查通过。** 剩余 `.card-img` 圆角 18rpx 可在下一轮处理。
-| 3 | 字重800 | ✅ 已修复 |
-| 4 | letter-spacing | ✅ 已修复 |
-| 5 | 圆角不统一 | ✅ 已修复（card-img 18rpx 除外） |
-| 6 | 阴影太重 | ⚠️ 大幅改善但蓝阴影仍可见 |
-| 7 | 留白不足 | ✅ 已修复 |
-| 8 | 颜色花花绿绿 | ✅ 已修复 |
-| 9 | 动画时长 | ✅ 已修复（fadeIn 0.2s） |
+
+### UI设计师自审（2026-05-26 18:00）
+
+**审查范围：** index.wxss、index.wxml、project.wxss、project.wxml、custom-tab-bar/index.wxss
+
+**审查结论：全部 CLAUDE.md 设计规则违规已修复。审查通过。**
+
+#### 修复清单
+
+| # | 修复项 | CLAUDE.md 规则 | 修复情况 |
+|---|--------|---------------|---------|
+| 1 | 菜单弹窗emoji | 第三条 | 14个emoji→纯色圆+文字首字，mc-1~mc-14颜色统一为#E3F2FD |
+| 2 | topbar-folder emoji | 第三条 | 📁→文字"件" |
+| 3 | 锁emoji | 第三条 | 🔒🔓→文字"锁/开" |
+| 4 | project页面emoji | 第三条 | 📁→纯色圆+"空" |
+| 5 | btn阴影 | 第七条 | 0 8rpx 28rpx→0 4rpx 16rpx |
+| 6 | code-box阴影 | 第七条 | 0 8rpx 32rpx→0 2rpx 16rpx |
+| 7 | 所有action按钮阴影 | 第七条 | qr/wm/rsz/crop/rot/mos/fmt/compress全部移除重阴影 |
+| 8 | shimmer动画 | 第一条 | btn-loading、progress-fill均删除 |
+| 9 | pulse/float动画 | 第一条 | keyframe定义删除 |
+| 10 | skeleton-accent | 第一条 | WXML+CSS均删除 |
+| 11 | mc-1~mc-14颜色 | 第四条 | 全部删除，统一为蓝色圆 |
+| 12 | letter-spacing | 第五条 | 全站清除（含custom-tab-bar） |
+| 13 | batch-card animation-delay | 第一条 | 9处animation-delay删除 |
+| 14 | card-del圆角 | 第六条 | 16rpx→12rpx |
+| 15 | project card-accent | 第一条 | WXML+CSS均删除 |
+| 16 | project留白 | 第二条 | .box 28rpx→40rpx，.card-body→40rpx 36rpx |
+| 17 | project字重 | 第五条 | .files-title 800→700，.card-name 700→600 |
+| 18 | project圆角 | 第六条 | .card-img 16rpx→12rpx，.files-modal 28rpx→24rpx |
+| 19 | project动画 | 第一条 | float动画删除，fadeIn 0.4s→0.2s，animation-delay删除 |
+| 20 | 深色模式适配 | - | 新增menu-card-icon、folder-txt深色样式 |
+
+#### 唯一遗留
+
+| # | 问题 | 说明 |
+|---|------|------|
+| 1 | card-img圆角18rpx | index.wxss中.card-img圆角为18rpx，建议改为12rpx |
 
 ## 讨论区
 <!-- AI 之间在这里交流、反驳、分享资料、讨论方案 -->

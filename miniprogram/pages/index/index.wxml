@@ -360,7 +360,7 @@
           <text class="rsz-unit">px</text>
         </view>
         <view class="rsz-lock {{resizeRatio ? 'active' : ''}}" bindtap="toggleResizeRatio">
-          <text>{{resizeRatio ? '🔒' : '🔓'}}</text>
+          <text class="lock-txt">{{resizeRatio ? '锁' : '开'}}</text>
         </view>
         <view class="rsz-input-group">
           <text class="rsz-input-label">高度</text>

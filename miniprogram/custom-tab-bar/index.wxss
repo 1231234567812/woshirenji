@@ -73,7 +73,6 @@
 .tab-text.on {
   color: #0071E3;
   font-weight: 700;
-  letter-spacing: 1rpx;
 }
 
 /* Dark */
