@@ -9,12 +9,7 @@ while true; do
     echo "⏰ $(date '+%H:%M:%S') 第 $count 轮"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-    if ! git pull origin main --no-edit 2>/dev/null; then
-        echo "⚠️ pull 有冲突，30秒后重试"
-        git merge --abort 2>/dev/null
-        sleep 30
-        continue
-    fi
+    git pull origin main --no-edit 2>/dev/null || git merge --abort 2>/dev/null
 
     claude --dangerously-skip-permissions -p "你是代码审查员，负责这个微信小程序的代码质量。
 

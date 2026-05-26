@@ -9,13 +9,8 @@ while true; do
     echo "⏰ $(date '+%H:%M:%S') 第 $count 轮"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-    # 拉最新代码，有冲突就跳过
-    if ! git pull origin main --no-edit 2>/dev/null; then
-        echo "⚠️ pull 有冲突，30秒后重试"
-        git merge --abort 2>/dev/null
-        sleep 30
-        continue
-    fi
+    # 拉最新代码，有冲突就放弃本次 pull 继续干
+    git pull origin main --no-edit 2>/dev/null || git merge --abort 2>/dev/null
 
     claude --dangerously-skip-permissions -p "你是 UI 设计师，负责这个微信小程序的界面和视觉。
 
@@ -46,7 +41,7 @@ while true; do
 
 写完代码必须自审，审查结果写到 PROGRESS.md 审查记录。
 提交用：git add -A && git commit -m \"类型: 标题\" -m \"详细说明\"
-提交后：git push origin main（如果推送失败就跳过，下轮再推）
+提交后：git push origin main（推送失败不管，继续干活）
 
 做完一个任务后，立即找下一个任务继续做，不要停。"
 
