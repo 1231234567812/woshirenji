@@ -436,7 +436,7 @@ Page({
           that.setData({ images: list });
           that.saveImages(list);
         },
-        fail: function() {}
+        fail: function() { wx.showToast({ title: '历史保存失败', icon: 'none' }); }
       });
       wx.showToast({ title: '已生成', icon: 'success' });
     });
@@ -750,7 +750,7 @@ Page({
 
   shareCompressedImage() { this._shareFile(this.data.compressResultPath, 'compressed.jpg'); },
 
-  previewCompressResult() { this._previewImage(this.data.compressResultPath); },
+  previewCompressResult() { this._previewImage(this.data.compressResultPath || this.data.compressImagePath); },
 
   // ========== 图片加水印 ==========
   chooseWmImage() {
@@ -973,7 +973,7 @@ Page({
 
   shareFmtImg() { this._shareFile(this.data.fmtResult, 'converted.' + this.data.fmtTo); },
 
-  previewFmtResult() { this._previewImage(this.data.fmtResult); },
+  previewFmtResult() { this._previewImage(this.data.fmtResult || this.data.fmtImg); },
   // ========== 图片尺寸调整 ==========
   chooseResizeImg() {
     let that = this;
@@ -1044,7 +1044,7 @@ Page({
 
   shareResizeImg() { this._shareFile(this.data.resizeResult, 'resized.jpg'); },
 
-  previewResizeResult() { this._previewImage(this.data.resizeResult); },
+  previewResizeResult() { this._previewImage(this.data.resizeResult || this.data.resizeImg); },
 
   // ========== 图片裁剪 ==========
   chooseCropImg() {
@@ -1127,7 +1127,7 @@ Page({
 
   shareCropImg() { this._shareFile(this.data.cropResult, 'cropped.jpg'); },
 
-  previewCropResult() { this._previewImage(this.data.cropResult); },
+  previewCropResult() { this._previewImage(this.data.cropResult || this.data.cropImg); },
 
   // ========== 图片旋转 ==========
   chooseRotImg() {
@@ -1240,7 +1240,7 @@ Page({
 
   shareRotImg() { this._shareFile(this.data.rotResult, 'rotated.jpg'); },
 
-  previewRotResult() { this._previewImage(this.data.rotResult); },
+  previewRotResult() { this._previewImage(this.data.rotResult || this.data.rotImg); },
 
   // ========== 颜色提取 ==========
   chooseColorImg() {
@@ -1381,7 +1381,7 @@ Page({
 
   shareMosaicImg() { this._shareFile(this.data.mosaicResult, 'mosaic.jpg'); },
 
-  previewMosaicResult() { this._previewImage(this.data.mosaicResult); },
+  previewMosaicResult() { this._previewImage(this.data.mosaicResult || this.data.mosaicImg); },
 
   quickAction(e) {
     let mode = e.currentTarget.dataset.mode;
@@ -1672,7 +1672,7 @@ Page({
       dirPath: wx.env.USER_DATA_PATH,
       success: (res) => {
         let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png'));
-        if (files.length === 0) { wx.showToast({ title: '暂无文件', icon: 'none' }); return; }
+        if (files.length === 0) { callback([]); wx.showToast({ title: '暂无文件', icon: 'none' }); return; }
         callback(files.map(f => ({ name: f, path: wx.env.USER_DATA_PATH + '/' + f })));
       },
       fail: () => wx.showToast({ title: '无法读取目录', icon: 'none' }),
