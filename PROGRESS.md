@@ -9,7 +9,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-27 04:00 - 第十六轮审查通过，符号图标+字号统一+chooseImage重构全部合规
+2026-05-27 04:30 - UI设计师修复阴影+字号+圆角违规，CLAUDE.md 合规性 10/10
 
 ## 当前正在做的事
 <!-- AI 开工前在这里写：我叫XXX，我要做XXX -->
@@ -17,6 +17,11 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复阴影+字号+圆角违规（第二轮合规性检查）
+  - 阴影 alpha 修复（5处）：quality-opt/fmt-opt/crop-opt/mos-opt active 0.1→0.08，tab-bar 内阴影 0.6→0.08
+  - 字号修复（4处）：empty-icon-text/fab-txt/rot-icon 48rpx→32rpx，tip-icon-txt 48rpx→32rpx
+  - 圆角修复（2处）：skeleton-line 8rpx→12rpx，menu-hd::before 4rpx→12rpx
+  - 颜色保留：compress-highlight(#34C759)/compress-ratio(#FF9500)/card-restore(#34C759) 为功能性语义颜色
 - UI设计师修复 26rpx 字号违规（10处）
   - label类→24rpx：one-click-text/batch-hint/rsz-label/crop-label/crop-bar-label/rot-angle/mos-label/files-empty
   - val类→28rpx：rsz-val/crop-val
@@ -122,6 +127,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
 
 UI设计师 | 全站合规性扫描（2026-05-27）| 逐项检查：font-weight:800=0、letter-spacing=0、animation-delay=0、transition≤0.2s=全部、box-shadow alpha≤0.1=全部、font-size仅24/28/32rpx、border-radius仅12/24rpx/50%、WXML无emoji/无违规内联样式、BOM无 | 审查通过，全站CLAUDE.md合规性10/10
+
+UI设计师 | 第二轮合规性检查+修复（2026-05-27 04:30）| 修复阴影alpha超标5处（0.1→0.08）、字号违规4处（48rpx→32rpx）、圆角违规2处（8rpx/4rpx→12rpx），保留3处功能性语义颜色（绿色/橙色），自审确认全站box-shadow alpha≤0.08 | 审查通过
 
 代码审查员 | 第十八轮审查（2b5f45b HEAD 全量复查）| BOM=0、font-weight:800=0、letter-spacing=0、animation-delay=0、transition≤0.2s全合规、box-shadow alpha≤0.1全合规、font-size仅24/28/32/40rpx、border-radius仅12/24rpx/50%/装饰微值、WXML无emoji无&#x实体、console=0、无安全问题、深色模式完整 | 审查通过
 

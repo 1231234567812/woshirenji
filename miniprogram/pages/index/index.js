@@ -92,6 +92,16 @@ Page({
   _projectsCache: null,
   _lastLoadTime: 0,
   _dataDirty: false,
+  _fs: null,
+
+  _getFs() {
+    if (!this._fs) this._fs = wx.getFileSystemManager();
+    return this._fs;
+  },
+
+  _previewImage(path) {
+    if (path) wx.previewImage({ urls: [path] });
+  },
 
   // 统一获取项目数据，优先用缓存
   _getPs() {
@@ -326,8 +336,8 @@ Page({
           let fname = wx.env.USER_DATA_PATH + '/' + prefix + '_' + (i + 1) + '.txt';
           fs.writeFile({
             filePath: fname, data: code, encoding: 'utf8',
-            success() { ok++; if (ok + fail === total) wx.showToast({ title: '已保存 ' + ok + ' 个文件', icon: 'success' }); },
-            fail() { fail++; if (ok + fail === total) wx.showToast({ title: '已保存 ' + ok + ' 个文件', icon: 'success' }); },
+            success() { ok++; if (ok + fail === total) { wx.showToast({ title: fail > 0 ? '已保存 ' + ok + ' 个，失败 ' + fail + ' 个' : '已保存 ' + ok + ' 个文件', icon: fail > 0 ? 'none' : 'success' }); } },
+            fail() { fail++; if (ok + fail === total) { wx.showToast({ title: ok > 0 ? '已保存 ' + ok + ' 个，失败 ' + fail + ' 个' : '保存失败', icon: 'none' }); } },
           });
         });
       },
@@ -379,9 +389,7 @@ Page({
 
   shareQrImage() { this._shareFile(this.data.qrImagePath, 'qrcode.png'); },
 
-  previewQrImage() {
-    if (this.data.qrImagePath) wx.previewImage({ urls: [this.data.qrImagePath] });
-  },
+  previewQrImage() { this._previewImage(this.data.qrImagePath); },
 
   // ========== 一键复制（历史记录中的单条） ==========
   copyHistoryCode(e) {
@@ -685,9 +693,7 @@ Page({
 
   shareCompressedImage() { this._shareFile(this.data.compressResultPath, 'compressed.jpg'); },
 
-  previewCompressResult() {
-    if (this.data.compressResultPath) wx.previewImage({ urls: [this.data.compressResultPath] });
-  },
+  previewCompressResult() { this._previewImage(this.data.compressResultPath); },
 
   // ========== 图片加水印 ==========
   chooseWmImage() {
@@ -866,10 +872,7 @@ Page({
 
   shareWmImage() { this._shareFile(this.data.wmResultPath, 'watermark.jpg'); },
 
-  previewWmResult() {
-    let path = this.data.wmResultPath || this.data.wmImagePath;
-    if (path) wx.previewImage({ urls: [path] });
-  },
+  previewWmResult() { this._previewImage(this.data.wmResultPath || this.data.wmImagePath); },
 
   // ========== 图片格式转换 ==========
   chooseFmtImg() {
@@ -926,9 +929,7 @@ Page({
 
   shareFmtImg() { this._shareFile(this.data.fmtResult, 'converted.' + this.data.fmtTo); },
 
-  previewFmtResult() {
-    if (this.data.fmtResult) wx.previewImage({ urls: [this.data.fmtResult] });
-  },
+  previewFmtResult() { this._previewImage(this.data.fmtResult); },
   // ========== 图片尺寸调整 ==========
   chooseResizeImg() {
     let that = this;
