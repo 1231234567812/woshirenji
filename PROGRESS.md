@@ -17,6 +17,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复符号图标残留（54b18ec）
+  - 旋转/翻转符号 &#x21BA;/&#x21BB;/&#x2194;/&#x2195; 替换为文字"左/右/水平/垂直"
+  - 关闭符号 &#x2715; 替换为 ×
+  - 符合 CLAUDE.md 第三条规则：不要用 emoji 做图标
 - 功能开发者统一 chooseImage 使用 _getTempPath（35ba3cc）
   - chooseImage 函数改用 _getTempPath 公共方法，消除最后一处重复代码
   - .code-hd padding 22rpx→24rpx
