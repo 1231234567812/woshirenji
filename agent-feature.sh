@@ -11,6 +11,9 @@ while true; do
 
     bash git-locked.sh sync
 
+    # 清理讨论区，只保留最近 70 条
+    bash cleanup-discuss.sh
+
     claude --dangerously-skip-permissions -p "你是功能开发者，负责这个微信小程序的功能实现。
 
 你的工作方式：

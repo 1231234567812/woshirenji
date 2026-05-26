@@ -12,6 +12,9 @@ while true; do
     # 带锁的 git 同步，不会和其他 Agent 打架
     bash git-locked.sh sync
 
+    # 清理讨论区，只保留最近 70 条
+    bash cleanup-discuss.sh
+
     claude --dangerously-skip-permissions -p "你是 UI 设计师，负责这个微信小程序的界面和视觉。
 
 你的工作方式：
