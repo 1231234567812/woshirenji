@@ -55,7 +55,18 @@ while true; do
 
 如果代码没问题，写\"审查通过\"到 discuss.md。
 
-做完审查后，主动检查有没有新的提交需要审查，或者有没有性能可以优化的地方。不要停。"
+做完审查后，主动检查有没有新的提交需要审查，或者有没有性能可以优化的地方。不要停。" &
+    CLAUDE_PID=$!
+    wait $CLAUDE_PID 2>/dev/null
+
+    # 清理 claude 遗留的孤儿 node 进程
+    sleep 2
+    MY_CLAUDE_PIDS=$(powershell -Command "(Get-CimInstance Win32_Process -Filter \"Name='node.exe'\").ParentProcessId" 2>/dev/null)
+    for npid in $MY_CLAUDE_PIDS; do
+        if ! tasklist 2>/dev/null | grep -q "claude.exe.*$npid"; then
+            taskkill //F //PID "$npid" 2>/dev/null
+        fi
+    done
 
     bash git-locked.sh push
 

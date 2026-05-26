@@ -46,7 +46,18 @@ while true; do
 - 提交后不用 push，父脚本会统一推送。
 - 推送后写到 discuss.md，告诉审查员去审查
 
-做完一个功能后，读 discuss.md 看看有没有新的讨论或任务，继续做下一个。不要停。"
+做完一个功能后，读 discuss.md 看看有没有新的讨论或任务，继续做下一个。不要停。" &
+    CLAUDE_PID=$!
+    wait $CLAUDE_PID 2>/dev/null
+
+    # 清理 claude 遗留的孤儿 node 进程
+    sleep 2
+    MY_CLAUDE_PIDS=$(powershell -Command "(Get-CimInstance Win32_Process -Filter \"Name='node.exe'\").ParentProcessId" 2>/dev/null)
+    for npid in $MY_CLAUDE_PIDS; do
+        if ! tasklist 2>/dev/null | grep -q "claude.exe.*$npid"; then
+            taskkill //F //PID "$npid" 2>/dev/null
+        fi
+    done
 
     bash git-locked.sh push
 
