@@ -1330,9 +1330,7 @@ Page({
     wx.setClipboardData({ data: hex, success: () => wx.showToast({ title: '已复制 ' + hex, icon: 'success' }) });
   },
 
-  previewColorImg() {
-    if (this.data.colorImg) wx.previewImage({ urls: [this.data.colorImg] });
-  },
+  previewColorImg() { this._previewImage(this.data.colorImg); },
 
   // ========== 图片马赛克 ==========
   chooseMosaicImg() {
@@ -1439,9 +1437,7 @@ Page({
 
   shareMosaicImg() { this._shareFile(this.data.mosaicResult, 'mosaic.jpg'); },
 
-  previewMosaicResult() {
-    if (this.data.mosaicResult) wx.previewImage({ urls: [this.data.mosaicResult] });
-  },
+  previewMosaicResult() { this._previewImage(this.data.mosaicResult); },
 
   quickAction(e) {
     let mode = e.currentTarget.dataset.mode;
