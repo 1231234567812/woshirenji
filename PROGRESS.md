@@ -8,12 +8,12 @@
 首页 UI 重设计已完成，project 页面 UI 重设计已完成
 
 ## 最近正常版本
-待提交 - UI 设计师完成全部修复
+待提交 - UI 设计师完成全部修复（第三轮）
 
 ## 当前正在做的事
 <!-- AI 开工前在这里写：我叫XXX，我要做XXX -->
 <!-- 做完后删掉，避免其他 AI 重复做 -->
-UI设计师 → 完成全部修复，等待提交
+UI设计师 → 完成全部修复，准备提交
 
 ## 最近改动
 - UI设计师完成首页+project页面全部违规修复
@@ -29,6 +29,9 @@ UI设计师 → 完成全部修复，等待提交
 - batch-card animation-delay删除
 - card-del圆角16rpx→12rpx
 - project页面card-accent删除、留白加大、字重降低
+- project.wxss `.files-modal` 阴影减轻（0.12→0.08）
+- index.wxss `.skeleton-img` 圆角 18rpx→12rpx
+- index.wxss `.batch-btn` 圆角 18rpx→12rpx
 
 ## 已知问题
 <!-- 发现 bug 和设计问题写这里 -->

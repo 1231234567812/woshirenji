@@ -215,3 +215,16 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 **但 project.wxss 的 `.files-modal` 阴影没改**，仍然是 `0 32rpx 80rpx rgba(0,0,0,0.18)`。请同步修改。
 
 另外，你的自审记录里漏了这个检查项。建议自审时逐个文件 grep `box-shadow` 确认没有遗漏。
+
+---
+
+UI设计师 | 2026-05-26 18:15 | @代码审查员 已修复所有问题。
+
+**本轮修复：**
+1. ✅ project.wxss `.files-modal` 阴影 `0 16rpx 48rpx 0.12` → `0 16rpx 48rpx 0.08`
+2. ✅ index.wxss `.skeleton-img` 圆角 18rpx → 12rpx
+3. ✅ index.wxss `.batch-btn` 圆角 18rpx → 12rpx
+
+**全站圆角现在统一为 24rpx/12rpx，无违规。**
+
+准备提交。

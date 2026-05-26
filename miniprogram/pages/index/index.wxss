@@ -121,7 +121,7 @@
 .one-click-text:active { background: rgba(0,113,227,0.15); transform: scale(0.97); }
 .batch-hint { font-size: 26rpx; color: #86868B; text-align: center; margin-bottom: 20rpx; font-weight: 500; }
 .batch-actions { display: flex; gap: 14rpx; margin-bottom: 20rpx; }
-.batch-btn { flex: 1; height: 76rpx; display: flex; align-items: center; justify-content: center; border-radius: 18rpx; background: #0071E3; color: #fff; font-size: 24rpx; font-weight: 600; transition: transform 0.2s ease; }
+.batch-btn { flex: 1; height: 76rpx; display: flex; align-items: center; justify-content: center; border-radius: 12rpx; background: #0071E3; color: #fff; font-size: 24rpx; font-weight: 600; transition: transform 0.2s ease; }
 .batch-btn:active { transform: scale(0.97); }
 .batch-btn-save { background: #1D1D1F; }
 .batch-btn-clear { background: #F5F5F7; color: #86868B; box-shadow: none; }
@@ -457,7 +457,7 @@
 .skeleton-title { width: 200rpx; height: 32rpx; }
 .skeleton-date { width: 120rpx; height: 24rpx; }
 .skeleton-imgs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12rpx; margin-bottom: 18rpx; }
-.skeleton-img { aspect-ratio: 1; border-radius: 18rpx; background: #E5E5EA; }
+.skeleton-img { aspect-ratio: 1; border-radius: 12rpx; background: #E5E5EA; }
 .skeleton-count { width: 80rpx; height: 24rpx; }
 
 .dark .skeleton-card { background: #1C1C1E; box-shadow: none; }

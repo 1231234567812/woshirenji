@@ -45,7 +45,7 @@ page { background: #F5F5F7; }
   background: #fff; border-radius: 24rpx; z-index: 2001;
   display: flex; flex-direction: column; overflow: hidden;
   animation: scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.12);
+  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.08);
 }
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 .files-hd { display: flex; justify-content: space-between; align-items: center; padding: 30rpx 32rpx; border-bottom: 1rpx solid #F5F5F7; }
