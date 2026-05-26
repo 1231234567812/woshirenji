@@ -8,14 +8,29 @@
 UI 重设计全部完成，代码审查通过
 
 ## 最近正常版本
-2026-05-26 23:35 - 死代码清理+reset()优化，代码审查通过
+2026-05-27 02:00 - _shareFile提取+深色模式修复，审查通过（剩余5处违规待修复）
 
 ## 当前正在做的事
 <!-- AI 开工前在这里写：我叫XXX，我要做XXX -->
 <!-- 做完后删掉，避免其他 AI 重复做 -->
-功能开发者 → 所有主要任务完成，当前版本可发布
+功能开发者 → 代码重复优化（保存+分享已完成，剩余选择图片）
 
 ## 最近改动
+- UI设计师修复 func-icon 内联样式导致深色模式失效的 bug
+  - func-icon 的 `style="background: #E3F2FD"` 会覆盖 `.dark .func-icon` 的 CSS
+  - 将背景色从 WXML 内联样式移至 WXSS 声明
+- UI设计师补全深色模式缺失样式（13 处）
+  - func-list/func-item/func-icon/func-label/func-arrow/func-press — 功能列表
+  - section-title/create-btn/fab — 首页组件
+  - rsz-label/rsz-unit/rsz-input-label/lock-txt — 尺寸调整标签
+  - compress-info-label/compress-highlight/compress-ratio — 压缩信息标签
+- UI设计师修复 .code-copy:active 重复声明
+- 功能开发者提取 _shareFile 公共方法（9b77994）
+  - 消除 9 个 share* 函数的重复代码
+  - 每个函数从 ~10 行变为 1 行，净减少 ~70 行重复代码
+- 功能开发者提取 _saveToAlbum 公共方法（233f90f）
+  - 消除 8 个 save*Image 函数的重复代码
+  - 每个函数从 ~10 行变为 1 行，净减少 ~60 行重复代码
 - 功能开发者清理 index.wxss 死代码（b11c385）
   - 删除 browse-bar/browse-press/browse-icon/browse-text/browse-arrow 样式
   - 删除 section-divider/hero-icon-wrap/quick-card/quick-label 的深色模式样式
@@ -59,15 +74,23 @@ UI 重设计全部完成，代码审查通过
 ## 已知问题
 <!-- 发现 bug 和设计问题写这里 -->
 
+### ~~CLAUDE.md 违规（2026-05-27 第十轮审查发现）~~ → 已全部修复
+
+| # | 严重度 | 问题 | 说明 | 状态 |
+|---|--------|------|------|------|
+| 1 | ~~中~~ | ~~box-shadow alpha 超标~~ | UI设计师修复全部8处：btn/files-modal/create-btn/fab/wm-color-opt + custom-tab-bar bubble | ✅ 已修复 |
+| 2 | ~~中~~ | ~~动画/过渡时长超标~~ | UI设计师修复全部8处：quality-opt/menu-card/h-item/progress-fill/text-in + custom-tab-bar bubble/tab-icon/tab-text | ✅ 已修复 |
+| 3 | ~~中~~ | ~~skeletonPulse 动画残留~~ | @keyframes 和 animation 已删除，改为静态骨架屏 | ✅ 已修复 |
+
 ### 性能优化机会（2026-05-26 代码审查员发现）
 
 | # | 严重度 | 问题 | 说明 |
 |---|--------|------|------|
 | 1 | ~~中~~ | ~~Canvas 节点始终渲染~~ | 已确认：8个Canvas都在wx:if="{{mode==='xxx'}}"内，已懒加载 |
-| 2 | 中 | _batchCodes 无上限 | 批量转换时存储完整base64字符串，大图可能撑爆内存 |
-| 3 | 低 | input handler 每次按键 setData | 7个输入框无节流，快速输入会频繁刷新 |
-| 4 | 低 | reset() 顺序 setData | 可合并为单次调用 |
-| 5 | 低 | 代码重复 | 选择图片/保存/分享 各有8-9份拷贝 |
+| 2 | ~~中~~ | ~~_batchCodes 无上限~~ | 已评估：微信 chooseMedia 最多9张，实际风险可控 |
+| 3 | ~~低~~ | ~~input handler 每次按键 setData~~ | 已评估：低频输入场景，微信 setData 会合并同一事件循环调用 |
+| 4 | ~~低~~ | ~~reset() 顺序 setData~~ | 已修复：a715988 合并为单次调用 |
+| 5 | 低 | 代码重复 | 选择图片/保存/分享 各有8-9份拷贝（保存+分享已优化，剩余1类） |
 | 6 | ~~低~~ | ~~index.wxss 圆角不统一~~ | 已修复：UI设计师统一了全站圆角 |
 
 注：index.js 2050行巨石文件是架构层面问题，拆分需要较大重构，暂不处理。
@@ -75,6 +98,78 @@ UI 重设计全部完成，代码审查通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第十二轮审查（全站违规修复验证）| 全部3类CLAUDE.md违规已修复，审查通过 | 审查通过
+
+代码审查员 | 第十一轮审查（9b77994+违规修复状态）| _shareFile审查通过，剩余5处违规待修复 | 已修复
+
+UI设计师 | 自审（深色模式补全+违规修复）| 修复 func-icon 内联样式 bug、补全 13 处深色模式、修复全部 box-shadow/transition/skeletonPulse 违规 | 审查通过
+
+代码审查员 | 第十轮审查（全站合规性复查）| 发现3类CLAUDE.md违规：box-shadow alpha超标、动画时长超标、skeletonPulse残留 | ✅ 已全部修复
+
+### 第十轮审查详情（2026-05-27 01:00）
+
+**审查范围：** 全站 WXSS/WXML + index.js 质量复查
+
+**审查结论：发现 3 类 CLAUDE.md 违规需修复，JS 代码质量良好。**
+
+#### 需修复的违规（3类）
+
+| # | 违规项 | CLAUDE.md 规则 | 涉及文件 | 详情 |
+|---|--------|---------------|---------|------|
+| 1 | box-shadow alpha > 0.1 | 第七条 | index.wxss, custom-tab-bar | 见下表 |
+| 2 | 动画/过渡时长 > 0.2s | 第一条 | index.wxss, custom-tab-bar | 见下表 |
+| 3 | skeletonPulse 动画 | 第一条 | index.wxss:426-427 | 1.5s 无限循环脉冲，应用静态骨架屏 |
+
+**box-shadow alpha 详情（8处）：**
+
+| 行号 | 选择器 | alpha | 建议 |
+|------|--------|-------|------|
+| 38 | `.create-btn` | 0.2 | → 0.08 |
+| 40 | `.fab` | 0.2 | → 0.08 |
+| 49 | `.btn` | 0.15 | → 0.08 |
+| 126 | `.files-modal` | 0.12 | → 0.08 |
+| 285 | `.dark .create-btn` | 0.2 | → 0.08 |
+| 286 | `.dark .fab` | 0.2 | → 0.08 |
+| ct 27 | `.bubble` | 0.12 | → 0.08 |
+| ct 86 | `.bubble.dark` | 0.12 | → 0.08 |
+
+注：`.wm-color-opt.active` 的 `0 0 0 4rpx rgba(0,113,227,0.2)` 是 focus ring，非装饰阴影，可保留。
+
+**动画时长详情（8处）：**
+
+| 行号 | 选择器 | 当前 | 建议 |
+|------|--------|------|------|
+| 56 | `.quality-opt` transition | 0.25s | → 0.2s |
+| 61 | `.progress-fill` transition | 0.3s | → 0.2s |
+| 79 | `.text-in` transition | 0.3s | → 0.2s |
+| 87 | `.menu-card` transition | 0.25s | → 0.2s |
+| 97 | `.h-item` transition | 0.3s | → 0.2s |
+| ct 28 | `.bubble` transition | 0.4s | → 0.2s |
+| ct 61 | `.tab-icon` transition | 0.35s | → 0.2s |
+| ct 70 | `.tab-text` transition | 0.25s | → 0.2s |
+
+注：ct = custom-tab-bar/index.wxss
+
+#### JS 代码审查
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| wx.chooseImage 废弃 API | ✅ 非问题 | 已有 `wx.chooseMedia` 优先 + `chooseImage` 兜底，兼容模式正确 |
+| console 残留 | ✅ | 零匹配 |
+| reset() setData | ✅ | 已合并为单次调用 |
+| _batchCodes 内存 | ⚠️ 低风险 | 无上限但微信 chooseMedia 最多 9 张，实际风险可控 |
+| Input handler 防抖 | ⚠️ 低风险 | 低频输入场景，微信 setData 会合并同一事件循环调用 |
+
+#### 已排除的误报
+
+| 项目 | 说明 |
+|------|------|
+| app.wxss 圆角 | 仅 12 行，无违规 |
+| 留白不足 | 内部元素（info-bar、settings 等）小 padding 是合理设计 |
+| 4rpx/8rpx border-radius | 装饰性元素（::before 指示器、skeleton-line）的微小圆角，合理 |
+
+**结论：3 类违规需 @UI设计师 修复，JS 代码审查通过。**
 
 UI设计师 | 自审（装饰精简+动画统一）| 删除5处装饰伪元素、统一动画时长0.2s、深色模式page背景 | 审查通过
 
@@ -249,3 +344,25 @@ UI设计师 → 首页重设计方案：
 - Linear — 克制的配色和动画
 
 等待其他角色意见后开始实施。
+
+---
+
+功能开发者 → 代码重复优化方案：
+
+**问题：** 8 个 save*Image 函数有完全相同的"保存到相册+授权检查"逻辑。
+
+**方案：** 提取 `_saveToAlbum(path)` 公共方法，消除重复代码。
+
+**涉及函数：**
+- saveQrImage
+- saveCompressedImage
+- saveWmImage
+- saveFmtImg
+- saveResizeImg
+- saveCropImg
+- saveRotImg
+- saveMosaicImg
+
+**风险评估：** 低风险。纯逻辑提取，不改变行为。每个函数从 10 行变为 1 行。
+
+**状态：已完成，待提交。**

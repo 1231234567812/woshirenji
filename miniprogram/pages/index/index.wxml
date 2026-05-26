@@ -11,22 +11,22 @@
     <!-- 功能入口 -->
     <view class="func-list">
       <view class="func-item" hover-class="func-press" bindtap="quickAction" data-mode="img2code">
-        <view class="func-icon" style="background: #E3F2FD"><text>图</text></view>
+        <view class="func-icon"><text>图</text></view>
         <text class="func-label">图片转代码</text>
         <text class="func-arrow">›</text>
       </view>
       <view class="func-item" hover-class="func-press" bindtap="quickAction" data-mode="code2img">
-        <view class="func-icon" style="background: #E3F2FD"><text>码</text></view>
+        <view class="func-icon"><text>码</text></view>
         <text class="func-label">代码转图片</text>
         <text class="func-arrow">›</text>
       </view>
       <view class="func-item" hover-class="func-press" bindtap="quickAction" data-mode="text2code">
-        <view class="func-icon" style="background: #E3F2FD"><text>文</text></view>
+        <view class="func-icon"><text>文</text></view>
         <text class="func-label">文字转代码</text>
         <text class="func-arrow">›</text>
       </view>
       <view class="func-item" hover-class="func-press" bindtap="quickAction" data-mode="qrcode">
-        <view class="func-icon" style="background: #E3F2FD"><text>码</text></view>
+        <view class="func-icon"><text>码</text></view>
         <text class="func-label">生成二维码</text>
         <text class="func-arrow">›</text>
       </view>

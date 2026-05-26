@@ -180,10 +180,19 @@ Page({
     });
   },
 
+  // 选择图片（公共方法）
+  _chooseImage(count, sizeType, onSuccess) {
+    if (wx.chooseMedia) {
+      wx.chooseMedia({ count: count, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: sizeType, success: onSuccess, fail: () => {} });
+    } else {
+      wx.chooseImage({ count: count, sourceType: ['album', 'camera'], sizeType: sizeType, success: onSuccess, fail: () => {} });
+    }
+  },
+
   // ========== 批量转换 ==========
   chooseBatchImage() {
     let that = this;
-    let onSuccess = (res) => {
+    this._chooseImage(9, 'compressed', (res) => {
       let paths = [];
       if (res.tempFiles) {
         paths = res.tempFiles.map(f => f.tempFilePath || f.path).filter(Boolean);
@@ -193,12 +202,7 @@ Page({
       }
       if (paths.length === 0) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that._saveTempImages(paths);
-    };
-    if (wx.chooseMedia) {
-      wx.chooseMedia({ count: 9, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
-    } else {
-      wx.chooseImage({ count: 9, sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
-    }
+    });
   },
 
   _saveTempImages(tempPaths) {
@@ -580,7 +584,7 @@ Page({
   // ========== 图片压缩 ==========
   chooseCompressImage() {
     let that = this;
-    let onSuccess = (res) => {
+    this._chooseImage(1, 'original', (res) => {
       let tempPath = '';
       if (res.tempFiles && res.tempFiles[0]) {
         tempPath = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
@@ -603,12 +607,7 @@ Page({
           });
         },
       });
-    };
-    if (wx.chooseMedia) {
-      wx.chooseMedia({ count: 1, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: ['original'], success: onSuccess, fail: () => {} });
-    } else {
-      wx.chooseImage({ count: 1, sourceType: ['album', 'camera'], sizeType: ['original'], success: onSuccess, fail: () => {} });
-    }
+    });
   },
 
   _onCompressImagePicked(path) {
@@ -1554,7 +1553,8 @@ Page({
   },
 
   chooseImage() {
-    let onSuccess = (res) => {
+    let that = this;
+    this._chooseImage(1, 'compressed', (res) => {
       let tempPath = '';
       if (res.tempFiles && res.tempFiles[0]) {
         tempPath = res.tempFiles[0].tempFilePath || res.tempFiles[0].path;
@@ -1563,13 +1563,8 @@ Page({
         tempPath = res.tempFilePaths[0];
       }
       if (!tempPath) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      this._saveTempImage(tempPath);
-    };
-    if (wx.chooseMedia) {
-      wx.chooseMedia({ count: 1, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
-    } else {
-      wx.chooseImage({ count: 1, sourceType: ['album', 'camera'], sizeType: ['compressed'], success: onSuccess, fail: () => {} });
-    }
+      that._saveTempImage(tempPath);
+    });
   },
 
   setQuality(e) {
