@@ -286,7 +286,6 @@
 .dark .card-name { color: #F5F5F7; }
 .dark .card-date { color: #98989D; background: #2C2C2E; }
 .dark .card-num { color: #0A84FF; }
-.dark .card-num::before { background: #0A84FF; }
 .dark .card-del { background: rgba(255,59,48,0.15); color: #FF453A; border: 1rpx solid rgba(255,59,48,0.2); }
 .dark .card-del:active { background: rgba(255,59,48,0.25); }
 .dark .card-img { border-color: rgba(255,255,255,0.08); }
@@ -374,7 +373,6 @@
 .dark .fmt-opt.active { background: #0A84FF; box-shadow: 0 4rpx 16rpx rgba(10,132,255,0.1); }
 .dark .fmt-btn { background: #0A84FF; box-shadow: none; }
 .dark .fmt-btn-share { background: #F5F5F7; color: #000; }
-.dark .qr-preview::before { display: none; }
 .dark .qr-ec-opt { border: none; }
 .dark .fmt-opt { border: none; }
 .dark .file-pick text { border: none; }
