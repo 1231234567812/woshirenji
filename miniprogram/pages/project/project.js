@@ -145,7 +145,7 @@ Page({
       try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
       // 局部更新
       this.setData({ ['list[' + i + '].deleted']: false });
+      wx.showToast({ title: '已恢复', icon: 'success' });
     }
-    wx.showToast({ title: '已恢复', icon: 'success' });
   },
 });

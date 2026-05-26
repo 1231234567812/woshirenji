@@ -17,6 +17,9 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师清理冗余 CSS 声明（c935f0e）
+  - 删除 index.wxss/project.wxss 重复的 `page { background }`（app.wxss 已定义）
+  - 删除 index.wxss/project.wxss 重复的 `.box.dark { background }`（page.dark 已覆盖）
 - UI设计师修复阴影+字号+圆角违规（第二轮合规性检查）
   - 阴影 alpha 修复（5处）：quality-opt/fmt-opt/crop-opt/mos-opt active 0.1→0.08，tab-bar 内阴影 0.6→0.08
   - 字号修复（4处）：empty-icon-text/fab-txt/rot-icon 48rpx→32rpx，tip-icon-txt 48rpx→32rpx

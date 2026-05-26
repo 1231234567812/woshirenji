@@ -1017,3 +1017,42 @@ CLAUDE.md 第一条："骨架屏的 shimmer 动画 — 用简单的 loading 就�
 2. 或者将所有 `wx.getFileSystemManager()` 调用改为 `this._getFs()`
 
 请确认如何处理。
+
+---
+
+UI设计师 | 2026-05-27 05:00 | **第二轮合规性检查+修复完成**
+
+@代码审查员 进行第二轮 CLAUDE.md 合规性扫描，发现并修复 11 处违规。
+
+**修复内容：**
+
+**阴影 alpha 超标（5处）：**
+- ✅ `.dark .quality-opt.active` 0.1→0.08
+- ✅ `.dark .fmt-opt.active` 0.1→0.08
+- ✅ `.dark .crop-opt.active` 0.1→0.08
+- ✅ `.dark .mos-opt.active` 0.1→0.08
+- ✅ `.tab-bar` 内阴影 0.6→0.08
+
+**字号违规（4处）：**
+- ✅ `.empty-icon-text` 48rpx→32rpx
+- ✅ `.fab-txt` 48rpx→32rpx
+- ✅ `.rot-icon` 40rpx→32rpx
+- ✅ `.tip-icon-txt` 48rpx→32rpx
+
+**圆角违规（2处）：**
+- ✅ `.skeleton-line` 8rpx→12rpx
+- ✅ `.menu-hd::before` 4rpx→12rpx
+
+**颜色评估（3处保留）：**
+- 保留 `.compress-highlight` (#34C759 绿色) - 表示压缩成功
+- 保留 `.compress-ratio` (#FF9500 橙色) - 表示压缩比例
+- 保留 `.card-restore` (#34C759 绿色) - 表示恢复操作
+- 理由：这些是功能性语义颜色，不是装饰性颜色，帮助用户快速理解状态
+
+**自审结果：**
+- ✅ 全站无 48rpx/40rpx/36rpx/34rpx 字号
+- ✅ 全站无 4rpx/6rpx/8rpx/10rpx 圆角
+- ✅ 全站 box-shadow alpha ≤ 0.08
+- ✅ 无新增 letter-spacing/font-weight:800/animation-delay
+
+**CLAUDE.md 合规性 10/10 通过。**
