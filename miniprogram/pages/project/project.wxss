@@ -56,7 +56,7 @@ page { background: #F5F5F7; }
 .files-item:active { background: #F5F5F7; }
 .files-name { font-size: 28rpx; color: #1D1D1F; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
 .files-arrow { font-size: 32rpx; color: #0071E3; margin-left: 12rpx; font-weight: 300; }
-.files-empty { text-align: center; color: #86868B; font-size: 26rpx; padding-top: 80rpx; font-weight: 500; }
+.files-empty { text-align: center; color: #86868B; font-size: 24rpx; padding-top: 80rpx; font-weight: 500; }
 
 /* Dark Mode */
 .box.dark { background: #000; }
