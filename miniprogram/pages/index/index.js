@@ -1000,9 +1000,7 @@ Page({
 
   shareResizeImg() { this._shareFile(this.data.resizeResult, 'resized.jpg'); },
 
-  previewResizeResult() {
-    if (this.data.resizeResult) wx.previewImage({ urls: [this.data.resizeResult] });
-  },
+  previewResizeResult() { this._previewImage(this.data.resizeResult); },
 
   // ========== 图片裁剪 ==========
   chooseCropImg() {
@@ -1127,9 +1125,7 @@ Page({
 
   shareCropImg() { this._shareFile(this.data.cropResult, 'cropped.jpg'); },
 
-  previewCropResult() {
-    if (this.data.cropResult) wx.previewImage({ urls: [this.data.cropResult] });
-  },
+  previewCropResult() { this._previewImage(this.data.cropResult); },
 
   // ========== 图片旋转 ==========
   chooseRotImg() {
@@ -1242,9 +1238,7 @@ Page({
 
   shareRotImg() { this._shareFile(this.data.rotResult, 'rotated.jpg'); },
 
-  previewRotResult() {
-    if (this.data.rotResult) wx.previewImage({ urls: [this.data.rotResult] });
-  },
+  previewRotResult() { this._previewImage(this.data.rotResult); },
 
   // ========== 颜色提取 ==========
   chooseColorImg() {
