@@ -1,4 +1,4 @@
-const app = getApp();
+﻿const app = getApp();
 var qrRenderer = require('../../utils/qr-renderer');
 
 Page({
@@ -134,7 +134,7 @@ Page({
           fileType: fileType,
           quality: quality,
           success: function(r) {
-            let fs = wx.getFileSystemManager();
+            let fs = this._getFs();
             let dest = wx.env.USER_DATA_PATH + '/' + (opts.destPrefix || 'img') + '_' + Date.now() + '.' + fileType;
             fs.copyFile({
               srcPath: r.tempFilePath, destPath: dest,
@@ -225,7 +225,7 @@ Page({
 
   _saveTempImages(tempPaths) {
     let that = this;
-    let fs = wx.getFileSystemManager();
+    let fs = this._getFs();
     let saved = [];
     let pending = tempPaths.length;
     tempPaths.forEach((p, idx) => {
@@ -279,7 +279,7 @@ Page({
 
   _batchConvertOne(paths, idx, onDone) {
     let that = this;
-    wx.getFileSystemManager().readFile({
+    this._getFs().readFile({
       filePath: paths[idx],
       encoding: 'base64',
       success(res) {
@@ -330,7 +330,7 @@ Page({
       success(res) {
         if (!res.confirm) return;
         let prefix = (res.content || 'batch').replace(/[:"<>|?*\n\r\\/]/g, '-').slice(0, 30);
-        let fs = wx.getFileSystemManager();
+        let fs = that._getFs();
         let ok = 0, fail = 0, total = that._batchCodes.length;
         that._batchCodes.forEach((code, i) => {
           let fname = wx.env.USER_DATA_PATH + '/' + prefix + '_' + (i + 1) + '.txt';
@@ -368,7 +368,7 @@ Page({
       }
       that.setData({ qrImagePath: path });
       // 保存到历史
-      var fs = wx.getFileSystemManager();
+      var fs = this._getFs();
       var dest = wx.env.USER_DATA_PATH + '/qr_' + Date.now() + '.png';
       fs.copyFile({
         srcPath: path, destPath: dest,
@@ -661,7 +661,7 @@ Page({
           let newSizeStr = newKB > 1024 * 1024 ? (newKB / 1024 / 1024).toFixed(2) + ' MB' : (newKB / 1024).toFixed(1) + ' KB';
 
           // 保存压缩结果
-          let fs = wx.getFileSystemManager();
+          let fs = this._getFs();
           let dest = wx.env.USER_DATA_PATH + '/compressed_' + Date.now() + '.jpg';
           fs.copyFile({
             srcPath: compressedPath, destPath: dest,
@@ -701,20 +701,7 @@ Page({
     this._chooseImage(1, 'compressed', (res) => {
       let tempPath = this._getTempPath(res);
       if (!tempPath) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      // 保存到本地
-      let fs = wx.getFileSystemManager();
-      let dest = wx.env.USER_DATA_PATH + '/wm_' + Date.now() + '.jpg';
-      fs.copyFile({
-        srcPath: tempPath, destPath: dest,
-        success() { that.setData({ wmImagePath: dest, wmResultPath: '' }); },
-        fail() {
-          fs.saveFile({
-            tempFilePath: tempPath,
-            success(r) { that.setData({ wmImagePath: r.savedFilePath, wmResultPath: '' }); },
-            fail() { wx.showToast({ title: '图片保存失败', icon: 'none' }); },
-          });
-        },
-      });
+      that._saveToTempFile(tempPath, 'wm', (p) => that.setData({ wmImagePath: p, wmResultPath: '' }));
     });
   },
 
@@ -827,7 +814,7 @@ Page({
               quality: 0.9,
               success(res) {
                 // 保存结果
-                let fs = wx.getFileSystemManager();
+                let fs = this._getFs();
                 let dest = wx.env.USER_DATA_PATH + '/wm_result_' + Date.now() + '.jpg';
                 fs.copyFile({
                   srcPath: res.tempFilePath, destPath: dest,
@@ -1080,7 +1067,7 @@ Page({
           canvas: canvas,
           quality: 0.9,
           success(r) {
-            let fs = wx.getFileSystemManager();
+            let fs = this._getFs();
             let dest = wx.env.USER_DATA_PATH + '/crop_' + Date.now() + '.jpg';
             fs.copyFile({
               srcPath: r.tempFilePath, destPath: dest,
@@ -1186,7 +1173,7 @@ Page({
               canvas: canvas,
               quality: 0.9,
               success(r) {
-                let fs = wx.getFileSystemManager();
+                let fs = this._getFs();
                 let dest = wx.env.USER_DATA_PATH + '/rot_' + Date.now() + '.jpg';
                 fs.copyFile({
                   srcPath: r.tempFilePath, destPath: dest,
@@ -1385,7 +1372,7 @@ Page({
               canvas: canvas,
               quality: 0.9,
               success(r) {
-                let fs = wx.getFileSystemManager();
+                let fs = this._getFs();
                 let dest = wx.env.USER_DATA_PATH + '/mosaic_' + Date.now() + '.jpg';
                 fs.copyFile({
                   srcPath: r.tempFilePath, destPath: dest,
@@ -1460,7 +1447,7 @@ Page({
 
   _saveToTempFile(tempPath, prefix, callback) {
     if (!tempPath) { wx.showToast({ title: '图片路径无效', icon: 'none' }); return; }
-    let fs = wx.getFileSystemManager();
+    let fs = this._getFs();
     let dest = wx.env.USER_DATA_PATH + '/' + prefix + '_' + Date.now() + '.jpg';
     fs.copyFile({
       srcPath: tempPath, destPath: dest,
@@ -1480,7 +1467,7 @@ Page({
       wx.showToast({ title: '图片路径无效', icon: 'none' });
       return;
     }
-    let fs = wx.getFileSystemManager();
+    let fs = this._getFs();
     let dest = wx.env.USER_DATA_PATH + '/img_' + Date.now() + '.jpg';
     fs.copyFile({
       srcPath: tempPath, destPath: dest,
@@ -1567,7 +1554,7 @@ Page({
     let that = this;
     this.setData({ convertProgress: 55, convertStage: '读取数据中...' });
 
-    wx.getFileSystemManager().readFile({
+    this._getFs().readFile({
       filePath: filePath, encoding: 'base64',
       success(res) {
         let ext = filePath.split('.').pop().toLowerCase();
@@ -1608,7 +1595,7 @@ Page({
     if (!code) return;
     let fname = wx.env.USER_DATA_PATH + '/share_' + Date.now() + '.txt';
     let that = this;
-    wx.getFileSystemManager().writeFile({
+    this._getFs().writeFile({
       filePath: fname, data: code, encoding: 'utf8',
       success: () => that._shareFile(fname, 'base64.txt'),
       fail: () => wx.showToast({ title: '写入失败', icon: 'none' }),
@@ -1624,7 +1611,7 @@ Page({
     });
   },
 
-  previewImg() { wx.previewImage({ urls: [this.data.imagePath] }); },
+  previewImg() { this._previewImage(this.data.imagePath); },
 
   saveCodeFile() {
     let code = this._fullCode;
@@ -1639,7 +1626,7 @@ Page({
         let name = (res.content || 'base64_text').replace(/[:"<>|?*\n\r\\/]/g, '-').slice(0, 50);
         let fname = wx.env.USER_DATA_PATH + '/' + name + '.txt';
 
-        wx.getFileSystemManager().writeFile({
+        this._getFs().writeFile({
           filePath: fname,
           data: code,
           encoding: 'utf8',
@@ -1722,7 +1709,7 @@ Page({
     let ext = mimeMatch ? (mimeMatch[1].split('/')[1] === 'jpeg' ? 'jpg' : mimeMatch[1].split('/')[1]) : 'png';
     let fname = wx.env.USER_DATA_PATH + '/dc' + Date.now() + '.' + ext;
     let that = this;
-    wx.getFileSystemManager().writeFile({
+    this._getFs().writeFile({
       filePath: fname, data: raw, encoding: 'base64',
       success: () => {
         let itemMeta = { id: Date.now(), type: 'image', path: fname, size: '', preview: '' };
@@ -1735,10 +1722,10 @@ Page({
       fail: () => wx.showToast({ title: '写入失败', icon: 'none' }),
     });
   },
-  previewDecodeImg() { wx.previewImage({ urls: [this.data.decodeImagePath] }); },
+  previewDecodeImg() { this._previewImage(this.data.decodeImagePath); },
 
   _readUserFiles(callback) {
-    wx.getFileSystemManager().readdir({
+    this._getFs().readdir({
       dirPath: wx.env.USER_DATA_PATH,
       success: (res) => {
         let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png'));
@@ -1763,7 +1750,7 @@ Page({
     // 选择文件模式：读取内容填入输入框
     if (this.data.fileMode) {
       let mode = this.data.fileMode;
-      wx.getFileSystemManager().readFile({
+      this._getFs().readFile({
         filePath: f.path, encoding: 'utf8',
         success: (res) => {
           if (mode === 'text2code') {
