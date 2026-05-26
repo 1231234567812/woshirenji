@@ -5,3 +5,7 @@ page {
 }
 
 /* 深色模式 - 通过 globalData 动态切换 */
+page.dark {
+  background: #000;
+  color: #F5F5F7;
+}
