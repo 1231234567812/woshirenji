@@ -1533,7 +1533,7 @@ Page({
     let that = this;
     this.setData({ convertProgress: 55, convertStage: '读取数据�?..' });
 
-    wx.getFileSystemManager().readFile({
+    this._getFs().readFile({
       filePath: filePath, encoding: 'base64',
       success(res) {
         let ext = filePath.split('.').pop().toLowerCase();
@@ -1573,7 +1573,7 @@ Page({
     if (!code) return;
     let fname = wx.env.USER_DATA_PATH + '/share_' + Date.now() + '.txt';
     let that = this;
-    wx.getFileSystemManager().writeFile({
+    this._getFs().writeFile({
       filePath: fname, data: code, encoding: 'utf8',
       success: () => that._shareFile(fname, 'base64.txt'),
       fail: () => wx.showToast({ title: '写入失败', icon: 'none' }),
@@ -1604,7 +1604,7 @@ Page({
         let name = (res.content || 'base64_text').replace(/[:"<>|?*\n\r\\/]/g, '-').slice(0, 50);
         let fname = wx.env.USER_DATA_PATH + '/' + name + '.txt';
 
-        wx.getFileSystemManager().writeFile({
+        this._getFs().writeFile({
           filePath: fname,
           data: code,
           encoding: 'utf8',

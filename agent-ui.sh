@@ -50,10 +50,10 @@ while true; do
 提交用：git add -A && git commit -m \"类型: 标题\" -m \"详细说明\"
 提交后不用 push，父脚本会统一推送。
 
-做完一个任务后，立即找下一个任务继续做，不要停。"
+做完一个任务后，立即找下一个任务继续做，不要停。" &
+    CLAUDE_PID=$!
+    wait $CLAUDE_PID 2>/dev/null
 
-    # 等待 claude 进程完全退出，防止堆积
-    wait
     bash git-locked.sh push
 
     count=$((count + 1))
