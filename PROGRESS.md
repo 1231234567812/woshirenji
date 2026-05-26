@@ -13,61 +13,77 @@
 ## 当前正在做的事
 <!-- AI 开工前在这里写：我叫XXX，我要做XXX -->
 <!-- 做完后删掉，避免其他 AI 重复做 -->
-功能开发者 → 首页重设计实施：砍动画、改列表、统一配色、加大留白
-代码审查员 → 已完成全面审查，等功能开发者改完后复审
+功能开发者 → 首页重设计已提交(62e27ca)，正在进行第二轮修改（未提交）
+代码审查员 → 第二轮审查完成，发现1个严重bug
 
 ## 最近改动
 （等 UI 重做完再记录）
 
 ## 已知问题
 <!-- 发现 bug 和设计问题写这里 -->
-- 首页太满了：hero 区域 + 6 个快捷卡片 + 文件浏览 + 项目列表，信息过载
-- 动画太多：floatOrb1/2、float 4s、pulse、emptyPulse、shimmer、animation-delay 全在
-- emoji 做图标：全部快捷卡片、菜单、浏览栏仍在用 emoji
-- 快捷卡片 `.qi-1` 到 `.qi-6` 六色不同，`.mc-1` 到 `.mc-14` 十四色不同
-- 圆角不统一：quick-card 28rpx、card 28rpx、hero-icon-wrap 36rpx、menu 36rpx
-- 字重太重：5 处 font-weight: 800（hero-title、section-title、card-name、menu-title、files-title）
-- letter-spacing 禁用但仍在：hero-title 3rpx、card-name 2rpx 等
-- 阴影太重：code-box 双层阴影、FAB 双层阴影
-- 留白不足：.box padding 28rpx（应 40rpx）、.card-body 32rpx（应 40rpx 36rpx）
+- **[严重Bug] `.fab` 样式丢失** — WXSS 已删除 .fab 类，但工作台 WXML 第572行仍引用 `class="fab"`，导致"+"按钮无样式不可用。需恢复 .fab 样式或将 WXML 改为其他类名
+- `.card-img` 圆角 18rpx，应为 12rpx
+- `.code-box` 深色模式阴影过重：`0 8rpx 32rpx rgba(0,0,0,0.4)`
+- 按钮蓝色阴影仍偏明显（.btn、.create-btn）
+- 菜单弹窗14个功能卡片偏多，可考虑精简或改列表
 
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
 
-代码审查员 | 审查最近5次提交（005bd62~8a6411b）| 多项设计规则违规，详见下方 | 未修复，需对应角色处理
+代码审查员 | 第二轮审查（62e27ca + 未提交改动）| 1个严重bug + 4个小问题 | 严重bug需立即修复
 
-### 审查详情（2026-05-26）
+### 第二轮审查详情（2026-05-26 16:00）
 
-**审查范围：** commit 005bd62 ~ 8a6411b，涉及 index.wxss 光晕/阴影/动画改动
+**审查范围：** commit 62e27ca（首页重设计）+ 当前未提交改动
 
-**审查结论：代码无功能性 bug，但大量违反 CLAUDE.md 设计规则。UI 重设计尚未开始。**
+**审查结论：首页重设计大幅改善，9项违规中7项已修复。但发现1个严重bug（.fab样式丢失）需要立即修复。**
 
-#### 违规项清单
+#### 已修复项（7/9）
+
+| # | 原违规项 | 修复情况 |
+|---|---------|---------|
+| 1 | 动画过多 | ✅ floatOrb/float/pulse/emptyPulse/shimmer/animation-delay 全删 |
+| 2 | emoji做图标 | ✅ 首页+菜单全部改为纯色圆+文字首字 |
+| 3 | 字重800 | ✅ 全部改为700/600 |
+| 4 | letter-spacing | ✅ 全删 |
+| 5 | 圆角不统一 | ✅ 大元素24rpx、小元素12rpx |
+| 7 | 留白不足 | ✅ box 40rpx、card 40rpx 36rpx、间距32rpx |
+| 8 | 颜色花花绿绿 | ✅ qi-1~6、mc-1~14 全部统一为 #E3F2FD |
+
+#### 严重Bug
+
+| # | 问题 | 位置 | 影响 |
+|---|------|------|------|
+| 1 | **`.fab` 样式被删除但 WXML 仍引用** | WXSS 已无 .fab 类，WXML 第572行 `<view class="fab">` | 工作台"+"按钮完全无样式（无位置、无大小、无背景），功能不可用 |
+
+#### 设计规则违规（小问题）
 
 | # | 违规项 | CLAUDE.md 规则 | 当前状态 |
 |---|--------|---------------|---------|
-| 1 | 动画过多 | 第一条：砍掉不必要动画 | floatOrb1/2、float 4s、pulse、emptyPulse、shimmer 全部仍在 |
-| 2 | emoji 做图标 | 第三条：不用 emoji | 全部快捷卡片、菜单、浏览栏仍在用 emoji |
-| 3 | 字重过重 | 第五条：不要 800 | hero-title、section-title、card-name、menu-title、files-title 五处 800 |
-| 4 | letter-spacing | 第五条：不要用 | hero-title 3rpx、card-name 2rpx、多处 1rpx |
-| 5 | 圆角不统一 | 第六条：只用 24rpx/12rpx | quick-card 28rpx、card 28rpx、hero-icon-wrap 36rpx、menu 36rpx |
-| 6 | 阴影太重 | 第七条：极淡阴影 | code-box 0 8rpx 32rpx、fab 双层阴影 |
-| 7 | 留白不足 | 第二条：40rpx 左右 padding | .box 28rpx、.card-body 32rpx、卡片间距 24rpx |
-| 8 | 颜色花花绿绿 | 第四条：统一色调 | qi-1~qi-6 六色不同、mc-1~mc-14 十四色不同 |
-| 9 | 动画时长过长 | 保留动画 0.2s | fadeIn 0.4s、cardIn 0.4s |
+| 1 | card-img 圆角 | 第六条：只用24rpx/12rpx | 18rpx |
+| 2 | code-box 深色阴影 | 第七条：极淡阴影 | 0 8rpx 32rpx rgba(0,0,0,0.4) 太重 |
+| 3 | 阴影仍偏重 | 第七条 | .btn 0 4rpx 16rpx rgba(0,113,227,0.15)、.create-btn 0 4rpx 16rpx rgba(0,113,227,0.2) — 蓝色阴影仍可见 |
 
-#### 最近提交问题
+#### 死代码（建议清理）
 
-- `005bd62` 光晕增强：opacity 0.3→0.4，blur 6→8rpx，与"克制"矛盾
-- `e31382c` FAB 阴影加重：改为双层阴影，违反第七条；提交混入马赛克 CSS，信息与改动不符
+- `.skeleton-accent` 样式（WXSS 第469、480行）WXML 不再引用
+- `.mc-7`~`.mc-14` 样式（分散在WXSS）WXML 不再引用
+- `.folder-txt` 类在 WXML 使用但 WXSS 未定义（不影响显示）
 
-#### 无 bug 确认
-- JS 逻辑正常，WXML/WXSS/JS 一致性良好
-- 深色模式适配完整（531行 WXSS 深色规则）
-- Canvas 2D API 用法正确
-- 错误处理（fail 回调）齐全
-- setData 优化（局部更新、缓存）到位
+#### 第一轮审查9项违规全部状态
+
+| # | 原违规项 | 状态 |
+|---|---------|------|
+| 1 | 动画过多 | ✅ 已修复 |
+| 2 | emoji做图标 | ✅ 已修复 |
+| 3 | 字重800 | ✅ 已修复 |
+| 4 | letter-spacing | ✅ 已修复 |
+| 5 | 圆角不统一 | ✅ 已修复（card-img 18rpx 除外） |
+| 6 | 阴影太重 | ⚠️ 大幅改善但蓝阴影仍可见 |
+| 7 | 留白不足 | ✅ 已修复 |
+| 8 | 颜色花花绿绿 | ✅ 已修复 |
+| 9 | 动画时长 | ✅ 已修复（fadeIn 0.2s） |
 
 ## 讨论区
 <!-- AI 之间在这里交流、反驳、分享资料、讨论方案 -->

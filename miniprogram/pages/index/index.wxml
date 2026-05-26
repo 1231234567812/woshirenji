@@ -35,7 +35,6 @@
     <!-- 骨架屏加载 -->
     <block wx:if="{{loading}}">
       <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
-        <view class="skeleton-accent"></view>
         <view class="skeleton-body">
           <view class="skeleton-row">
             <view class="skeleton-line skeleton-title"></view>
@@ -93,7 +92,7 @@
     <view class="topbar">
       <view class="back" hover-class="back-press" bindtap="goBack"><text>←</text></view>
       <text class="topbar-title">{{curName}}</text>
-      <view class="topbar-folder" hover-class="back-press" bindtap="browseFiles"><text>&#x1F4C1;</text></view>
+      <view class="topbar-folder" hover-class="back-press" bindtap="browseFiles"><text class="folder-txt">件</text></view>
     </view>
 
     <block wx:if="{{mode === 'img2code'}}">
@@ -578,61 +577,61 @@
       <view class="menu-hd">
         <text class="menu-title">选择功能</text>
       </view>
-      <view class="menu-grid menu-grid-3">
+      <view class="menu-grid">
         <view class="menu-card" hover-class="menu-card-press" bindtap="startImg2Code">
-          <view class="menu-card-icon mc-1"><text>&#x1F5BC;</text></view>
+          <view class="menu-card-icon"><text>图</text></view>
           <text class="menu-card-label">图片转代码</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startCode2Img">
-          <view class="menu-card-icon mc-2"><text>&#x1F4E6;</text></view>
+          <view class="menu-card-icon"><text>码</text></view>
           <text class="menu-card-label">代码转图片</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startText2Code">
-          <view class="menu-card-icon mc-3"><text>&#x270D;</text></view>
+          <view class="menu-card-icon"><text>文</text></view>
           <text class="menu-card-label">文字转代码</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startCode2Text">
-          <view class="menu-card-icon mc-4"><text>&#x1F4DC;</text></view>
+          <view class="menu-card-icon"><text>码</text></view>
           <text class="menu-card-label">代码转文字</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startBatchImg">
-          <view class="menu-card-icon mc-5"><text>&#x1F501;</text></view>
+          <view class="menu-card-icon"><text>批</text></view>
           <text class="menu-card-label">批量转换</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startQrCode">
-          <view class="menu-card-icon mc-6"><text>&#x1F4F2;</text></view>
+          <view class="menu-card-icon"><text>码</text></view>
           <text class="menu-card-label">生成二维码</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startCompress">
-          <view class="menu-card-icon mc-7"><text>&#x1F4C4;</text></view>
+          <view class="menu-card-icon"><text>压</text></view>
           <text class="menu-card-label">图片压缩</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startWatermark">
-          <view class="menu-card-icon mc-8"><text>&#x1F4DD;</text></view>
+          <view class="menu-card-icon"><text>水</text></view>
           <text class="menu-card-label">图片加水印</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startFmt">
-          <view class="menu-card-icon mc-9"><text>&#x1F504;</text></view>
+          <view class="menu-card-icon"><text>格</text></view>
           <text class="menu-card-label">格式转换</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startResize">
-          <view class="menu-card-icon mc-10"><text>&#x1F4D0;</text></view>
+          <view class="menu-card-icon"><text>尺</text></view>
           <text class="menu-card-label">尺寸调整</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startCrop">
-          <view class="menu-card-icon mc-11"><text>&#x2702;</text></view>
+          <view class="menu-card-icon"><text>裁</text></view>
           <text class="menu-card-label">图片裁剪</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startRotate">
-          <view class="menu-card-icon mc-12"><text>&#x21BA;</text></view>
+          <view class="menu-card-icon"><text>旋</text></view>
           <text class="menu-card-label">旋转翻转</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startColor">
-          <view class="menu-card-icon mc-13"><text>&#x1F3A8;</text></view>
+          <view class="menu-card-icon"><text>色</text></view>
           <text class="menu-card-label">提取颜色</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startMosaic">
-          <view class="menu-card-icon mc-14"><text>&#x1F9EA;</text></view>
+          <view class="menu-card-icon"><text>马</text></view>
           <text class="menu-card-label">图片马赛克</text>
         </view>
       </view>
