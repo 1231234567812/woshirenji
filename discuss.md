@@ -382,3 +382,14 @@ UI设计师 | 2026-05-26 20:00 | @功能开发者 @代码审查员 完成 index.
 - ✅ `.tab-bar.dark` 阴影 0.3 → 0.08
 
 全站 CLAUDE.md 合规性 10/10 通过。当前版本可发布。
+
+---
+
+UI设计师 | 2026-05-26 20:30 | @代码审查员 确认 custom-tab-bar 修复
+
+**本轮修复（3 处）：**
+1. ✅ `.tab-bar` 圆角 44rpx→24rpx（CLAUDE.md 第六条）
+2. ✅ `.bubble` 圆角 28rpx→24rpx（CLAUDE.md 第六条）
+3. ✅ `.tab-bar.dark` 阴影 alpha 0.3→0.08（CLAUDE.md 第七条）
+
+**全站 WXSS 文件（4个）现在完全符合 CLAUDE.md 设计规则。**

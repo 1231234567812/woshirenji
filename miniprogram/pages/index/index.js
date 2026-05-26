@@ -532,30 +532,31 @@ Page({
   hideMenu() { this.setData({ menuShow: false }); },
   reset(m) {
     this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
-    this.setData({ menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '' });
+    let d = { menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '' };
     if (m === 'text2code' || m === 'code2text' || m === 'code2img') {
-      this.setData({ textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '' });
+      d.textContent = ''; d.textResult = ''; d.decodeInput = ''; d.decodeResult = ''; d.decodeImagePath = '';
     } else if (m === 'batch') {
-      this.setData({ batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0 });
+      d.batchItems = []; d.batchConverting = false; d.batchProgress = ''; d.batchTotal = 0;
     } else if (m === 'qrcode') {
-      this.setData({ qrInput: '', qrImagePath: '', qrGenerating: false, qrEcLevel: 'M' });
+      d.qrInput = ''; d.qrImagePath = ''; d.qrGenerating = false; d.qrEcLevel = 'M';
     } else if (m === 'compress') {
-      this.setData({ compressImagePath: '', compressOrigSize: '', compressNewSize: '', compressRatio: '', compressResultPath: '', compressing: false, compressQualityLevel: 60 });
+      d.compressImagePath = ''; d.compressOrigSize = ''; d.compressNewSize = ''; d.compressRatio = ''; d.compressResultPath = ''; d.compressing = false; d.compressQualityLevel = 60;
     } else if (m === 'watermark') {
-      this.setData({ wmImagePath: '', wmText: '', wmPosition: 'bottom-right', wmColor: '#ffffff', wmOpacity: 60, wmFontSize: 32, wmResultPath: '', wmProcessing: false });
+      d.wmImagePath = ''; d.wmText = ''; d.wmPosition = 'bottom-right'; d.wmColor = '#ffffff'; d.wmOpacity = 60; d.wmFontSize = 32; d.wmResultPath = ''; d.wmProcessing = false;
     } else if (m === 'fmt') {
-      this.setData({ fmtImg: '', fmtFrom: '', fmtTo: 'png', fmtResult: '', fmtSize: '', fmtConverting: false });
+      d.fmtImg = ''; d.fmtFrom = ''; d.fmtTo = 'png'; d.fmtResult = ''; d.fmtSize = ''; d.fmtConverting = false;
     } else if (m === 'resize') {
-      this.setData({ resizeImg: '', resizeW: 0, resizeH: 0, resizeNewW: 0, resizeNewH: 0, resizeRatio: true, resizeResult: '', resizeSize: '', resizing: false });
+      d.resizeImg = ''; d.resizeW = 0; d.resizeH = 0; d.resizeNewW = 0; d.resizeNewH = 0; d.resizeRatio = true; d.resizeResult = ''; d.resizeSize = ''; d.resizing = false;
     } else if (m === 'crop') {
-      this.setData({ cropImg: '', cropW: 0, cropH: 0, cropRatio: 'free', cropResult: '', cropSize: '', cropping: false });
+      d.cropImg = ''; d.cropW = 0; d.cropH = 0; d.cropRatio = 'free'; d.cropResult = ''; d.cropSize = ''; d.cropping = false;
     } else if (m === 'rotate') {
-      this.setData({ rotImg: '', rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '', rotating: false });
+      d.rotImg = ''; d.rotDeg = 0; d.rotFlipH = false; d.rotFlipV = false; d.rotResult = ''; d.rotSize = ''; d.rotating = false;
     } else if (m === 'color') {
-      this.setData({ colorImg: '', colorList: [], colorPicking: false });
+      d.colorImg = ''; d.colorList = []; d.colorPicking = false;
     } else if (m === 'mosaic') {
-      this.setData({ mosaicImg: '', mosaicLevel: 8, mosaicResult: '', mosaicSize: '', mosaicing: false });
+      d.mosaicImg = ''; d.mosaicLevel = 8; d.mosaicResult = ''; d.mosaicSize = ''; d.mosaicing = false;
     }
+    this.setData(d);
   },
   startImg2Code() { this.reset('img2code'); },
   startText2Code() { this.reset('text2code'); },
