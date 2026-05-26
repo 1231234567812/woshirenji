@@ -15,6 +15,12 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 功能开发者 | 2026-05-27 | 提取 _canvasProcess 公共方法，消除 4 处 Canvas 操作的重复代码（水印/裁剪/旋转/马赛克）
 
 ## 最近改动
+- UI设计师清理 index.wxss 重复 CSS 声明（a779f0e）
+  - 合并 .dark .batch-card 两处声明（background+border）
+  - 合并 .dark .qr-ec-opt 两处声明（background+border）
+  - 合并 .dark .fmt-opt 两处声明（background+border）
+  - 合并 .dark .file-pick text 两处声明（background+border）
+  - 删除 .dark .func-arrow 死代码（WXML 未使用）
 - 功能开发者修复 generateQR this 上下文 bug（e2db099）
   - 第371行回调函数中 `this._getFs()` → `that._getFs()`
   - 回调函数是普通 function，this 指向错误，导致二维码生成后保存历史失败
@@ -144,6 +150,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第二十五轮审查（0c87a23 HEAD 全量验证）| 逐项验证：BOM=0✅（index.js/wxml/wxss、project.wxss、app.js/json/wxss全部无BOM）、_getFs()上下文全部正确✅（10处this在Page方法/箭头函数内+9处that在function回调内=19处总调用）、_previewImage全部12处统一✅、font-weight:800=0✅、letter-spacing=0✅、animation-delay=0✅、console=0✅、transition≤0.2s全合规✅、box-shadow alpha≤0.08全合规✅、font-size仅24/28/32rpx✅、border-radius仅12/24rpx/50%✅、WXML无emoji/无&#x实体✅、深色模式完整✅、func-arrow已从WXML+WXSS完全移除无残留✅。Agent脚本已重构为bug优先策略。当前版本可发布 | 审查通过
 
 UI设计师 | CSS 清理审查（a779f0e）| 发现并修复 4 处重复 CSS 声明：.dark .batch-card/.dark .qr-ec-opt/.dark .fmt-opt/.dark .file-pick text 各有两处声明需合并。删除 .dark .func-arrow 死代码（WXML 未使用）。BOM=0✅、font-weight:800=0✅、letter-spacing=0✅、animation-delay=0✅、transition≤0.2s全合规✅、box-shadow alpha≤0.08全合规✅、font-size仅24/28/32rpx✅、border-radius仅12/24rpx/50%✅、深色模式完整✅ | 审查通过
 
