@@ -2,7 +2,7 @@
 # 清理 discuss.md，只保留最近 70 条消息
 cd "$(dirname "$0")"
 FILE="discuss.md"
-MAX=70
+MAX=100
 
 [ ! -f "$FILE" ] && exit 0
 
