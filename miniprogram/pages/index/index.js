@@ -156,6 +156,58 @@ Page({
     });
   },
 
+  // Canvas 处理+导出（公共方法）
+  // opts: { canvasId, imgSrc, drawW, drawH, fileType, quality, destPrefix }
+  // drawFn: (ctx, canvas, img, info) => void
+  // callback: (err, { path, size }) => void
+  _canvasProcess(opts, drawFn, callback) {
+    let that = this;
+    wx.getImageInfo({
+      src: opts.imgSrc,
+      success(info) {
+        const query = wx.createSelectorQuery();
+        query.select('#' + opts.canvasId).fields({ node: true, size: true }).exec((res) => {
+          if (!res[0] || !res[0].node) { callback('Canvas 初始化失败'); return; }
+          const canvas = res[0].node;
+          const ctx = canvas.getContext('2d');
+          canvas.width = opts.drawW || info.width;
+          canvas.height = opts.drawH || info.height;
+
+          const img = canvas.createImage();
+          img.onload = function() {
+            drawFn(ctx, canvas, img, info);
+            let fileType = opts.fileType || 'jpg';
+            let quality = opts.quality || 0.9;
+            wx.canvasToTempFilePath({
+              canvas: canvas,
+              fileType: fileType,
+              quality: quality,
+              success(r) {
+                let fs = that._getFs();
+                let dest = wx.env.USER_DATA_PATH + '/' + (opts.destPrefix || 'img') + '_' + Date.now() + '.' + fileType;
+                fs.copyFile({
+                  srcPath: r.tempFilePath, destPath: dest,
+                  success() {
+                    wx.getFileInfo({
+                      filePath: dest,
+                      success(fi) { callback(null, { path: dest, size: (fi.size / 1024).toFixed(1) + ' KB' }); },
+                      fail() { callback(null, { path: dest, size: '' }); },
+                    });
+                  },
+                  fail() { callback(null, { path: r.tempFilePath, size: '' }); },
+                });
+              },
+              fail() { callback('导出失败'); },
+            });
+          };
+          img.onerror = function() { callback('图片加载失败'); };
+          img.src = opts.imgSrc;
+        });
+      },
+      fail() { callback('获取图片信息失败'); },
+    });
+  },
+
   // 保存图片到相册（公共方法）
   _saveToAlbum(path) {
     if (!path) return;
@@ -527,7 +579,7 @@ Page({
   },
 
   goBack() {
-    wx.setNavigationBarTitle({ title: '图片转代码' });
+    wx.setNavigationBarTitle({ title: 'Base64 工具箱' });
     this.setData({ view: 'list' });
     // 只在数据有变更时才重载
     if (this._dataDirty) {
@@ -1463,23 +1515,7 @@ Page({
   },
 
   _saveTempImage(tempPath) {
-    if (!tempPath) {
-      wx.showToast({ title: '图片路径无效', icon: 'none' });
-      return;
-    }
-    let fs = this._getFs();
-    let dest = wx.env.USER_DATA_PATH + '/img_' + Date.now() + '.jpg';
-    fs.copyFile({
-      srcPath: tempPath, destPath: dest,
-      success: () => this._onImagePicked(dest),
-      fail: () => {
-        fs.saveFile({
-          tempFilePath: tempPath,
-          success: (res) => this._onImagePicked(res.savedFilePath),
-          fail: () => wx.showToast({ title: '图片保存失败', icon: 'none' }),
-        });
-      },
-    });
+    this._saveToTempFile(tempPath, 'img', (dest) => this._onImagePicked(dest));
   },
 
   chooseImage() {

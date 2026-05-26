@@ -308,7 +308,7 @@
 .dark .code-hd { border-bottom-color: rgba(255,255,255,0.06); }
 .dark .code-label { color: #98989D; }
 .dark .code-copy { background: rgba(255,255,255,0.1); border: 1rpx solid rgba(255,255,255,0.06); }
-.dark .file-pick text { background: #1C1C1E; color: #0A84FF; box-shadow: none; }
+.dark .file-pick text { background: #1C1C1E; color: #0A84FF; box-shadow: none; border: none; }
 .dark .history { background: #1C1C1E; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.08); }
 .dark .h-title { color: #F5F5F7; }
 .dark .h-text-card { background: #2C2C2E; box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.08); }
@@ -345,7 +345,7 @@
 .dark .batch-btn { background: #0A84FF; box-shadow: none; }
 .dark .batch-btn-save { background: #F5F5F7; color: #000; }
 .dark .batch-btn-clear { background: #2C2C2E; color: #98989D; }
-.dark .batch-card { background: #1C1C1E; box-shadow: none; }
+.dark .batch-card { background: #1C1C1E; box-shadow: none; border: none; }
 .dark .batch-num { background: #0A84FF; }
 .dark .batch-thumb { border-color: rgba(255,255,255,0.05); }
 .dark .batch-size { color: #98989D; }
@@ -357,7 +357,7 @@
 .dark .qr-hint { color: #98989D; }
 .dark .qr-ec-bar { background: #1C1C1E; box-shadow: none; }
 .dark .qr-ec-label { color: #98989D; }
-.dark .qr-ec-opt { background: #2C2C2E; color: #98989D; }
+.dark .qr-ec-opt { background: #2C2C2E; color: #98989D; border: none; }
 .dark .qr-ec-opt.active { background: #0A84FF; }
 .dark .qr-preview { background: #1C1C1E; box-shadow: none; }
 .dark .qr-action-btn { background: #0A84FF; box-shadow: none; }
@@ -368,14 +368,10 @@
 .dark .fmt-label { color: #98989D; }
 .dark .fmt-bar { background: #1C1C1E; box-shadow: none; }
 .dark .fmt-bar-label { color: #98989D; }
-.dark .fmt-opt { background: #2C2C2E; color: #98989D; }
+.dark .fmt-opt { background: #2C2C2E; color: #98989D; border: none; }
 .dark .fmt-opt.active { background: #0A84FF; box-shadow: 0 4rpx 16rpx rgba(10,132,255,0.08); }
 .dark .fmt-btn { background: #0A84FF; box-shadow: none; }
 .dark .fmt-btn-share { background: #F5F5F7; color: #000; }
-.dark .qr-ec-opt { border: none; }
-.dark .fmt-opt { border: none; }
-.dark .file-pick text { border: none; }
-.dark .batch-card { border: none; }
 .dark .compress-hint { color: #98989D; }
 .dark .compress-info { background: #1C1C1E; box-shadow: none; }
 .dark .compress-info-value { color: #F5F5F7; }
@@ -461,4 +457,3 @@
 .dark .func-icon { background: rgba(10,132,255,0.15); }
 .dark .func-icon text { color: #0A84FF; }
 .dark .func-label { color: #F5F5F7; }
-.dark .func-arrow { color: #636366; }
