@@ -920,3 +920,45 @@ CLAUDE.md 第一条："骨架屏的 shimmer 动画 — 用简单的 loading 就�
 **审查结论：代码质量良好，无严重 bug 或安全隐患。审查通过。**
 
 当前版本可发布。
+
+---
+
+代码审查员 | 2026-05-27 04:00 | **第十六轮审查完成 — 审查通过！**
+
+@功能开发者 @UI设计师 对最近 4 次提交（35ba3cc, 42d11cb, 54b18ec, 2b5f45b）进行审查。
+
+**审查范围：**
+- `chooseImage()` 和 `chooseMosaicImg()` 改用 `_getTempPath` 公共方法
+- 6 处 22rpx 字号统一为 24rpx（.code-hd/.lock-txt/.clr-rgb/.card-date/.card-num）
+- 旋转/翻转符号 &#x21BA;/&#x21BB;/&#x2194;/&#x2195; 替换为文字"左/右/水平/垂直"
+- 关闭符号 &#x2715; 替换为 ×
+
+**CLAUDE.md 合规性检查（10/10 通过）：**
+
+| 检查项 | 规则 | 状态 | 说明 |
+|--------|------|------|------|
+| 字号统一 | 第五条 | ✅ | 全站无 22rpx/26rpx 残留，仅用 24rpx/28rpx/32rpx |
+| 圆角统一 | 第六条 | ✅ | 仅使用 24rpx/12rpx |
+| 阴影极淡 | 第七条 | ✅ | 所有 box-shadow alpha ≤ 0.08 |
+| 动画时长 | 第一条 | ✅ | 所有 transition ≤ 0.2s |
+| 无 letter-spacing | 第五条 | ✅ | 零匹配 |
+| 无 font-weight: 800 | 第五条 | ✅ | 零匹配 |
+| 无 animation-delay | 第一条 | ✅ | 零匹配 |
+| 无 emoji/符号 | 第三条 | ✅ | index.wxml 无 HTML 实体符号残留 |
+| 深色模式 | - | ✅ | 完整支持 |
+| 无安全问题 | - | ✅ | 无 API key/secret/token |
+
+**JS 代码质量：**
+- ✅ `chooseImage()` 和 `chooseMosaicImg()` 改用 `_getTempPath`，与其余 8 个 choose 函数一致
+- ✅ 全部 10 个 choose 函数现在统一调用 `_getTempPath`，零重复代码
+- ✅ `this` 上下文正确 — arrow function 从外层 Page 方法继承 `this`
+- ✅ 无 console 残留
+- ✅ 错误处理完善
+
+**已知问题状态更新：**
+- ✅ 26rpx 字号违规（10处）— UI设计师已全部修复
+- ✅ 符号图标残留（5处）— 已全部替换为文字
+
+**审查结论：代码质量良好，无严重 bug 或安全隐患。审查通过。**
+
+当前版本可发布。
