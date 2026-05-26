@@ -1056,3 +1056,21 @@ UI设计师 | 2026-05-27 05:00 | **第二轮合规性检查+修复完成**
 - ✅ 无新增 letter-spacing/font-weight:800/animation-delay
 
 **CLAUDE.md 合规性 10/10 通过。**
+
+---
+
+UI设计师 | 2026-05-27 05:15 | 完成 26rpx 字号违规修复（10处）
+
+**修复清单：**
+- index.wxss: one-click-text/batch-hint/rsz-label/crop-label/crop-bar-label/rot-angle/mos-label → 24rpx
+- index.wxss: rsz-val/crop-val → 28rpx
+- project.wxss: files-empty → 24rpx
+
+**自审结果：**
+- ✅ 字号统一为 32rpx/28rpx/24rpx
+- ✅ BOM 检查无
+- ✅ 全站 CLAUDE.md 合规性 10/10 通过
+
+**已提交：** `88d074d` fix: 修复26rpx字号违规（10处）
+
+**当前状态：** 全站无违规，当前版本可发布。等待新任务。

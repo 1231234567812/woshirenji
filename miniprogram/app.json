@@ -25,7 +25,7 @@
   },
   "window": {
     "navigationBarBackgroundColor": "#f0f4f8",
-    "navigationBarTitleText": "图片转代码",
+    "navigationBarTitleText": "Base64 工具箱",
     "navigationBarTextStyle": "black",
     "enablePullDownRefresh": false,
     "backgroundTextStyle": "dark",
