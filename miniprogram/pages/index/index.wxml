@@ -434,19 +434,19 @@
 
       <view class="rot-ctrl" wx:if="{{rotImg && !rotating}}">
         <view class="rot-btn" hover-class="btn-press" bindtap="rotLeft">
-          <text class="rot-icon">&#x21BA;</text>
+          <text class="rot-icon">左</text>
           <text class="rot-label">左转90°</text>
         </view>
         <view class="rot-btn" hover-class="btn-press" bindtap="rotRight">
-          <text class="rot-icon">&#x21BB;</text>
+          <text class="rot-icon">右</text>
           <text class="rot-label">右转90°</text>
         </view>
         <view class="rot-btn {{rotFlipH ? 'rot-btn-on' : ''}}" hover-class="btn-press" bindtap="rotFlipH">
-          <text class="rot-icon">&#x2194;</text>
+          <text class="rot-icon">水平</text>
           <text class="rot-label">水平翻转</text>
         </view>
         <view class="rot-btn {{rotFlipV ? 'rot-btn-on' : ''}}" hover-class="btn-press" bindtap="rotFlipV">
-          <text class="rot-icon">&#x2195;</text>
+          <text class="rot-icon">垂直</text>
           <text class="rot-label">垂直翻转</text>
         </view>
       </view>
