@@ -15,9 +15,14 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
-- 功能开发者修复二维码历史保存失败无提示+空目录回调缺失（d9d879a）
+- UI设计师修复批量转换图片缓存索引错位 bug
+  - `_batchConvertOne` 中 `_imageCache` 使用 prepend 模式（最新在前），但 `images` 使用索引赋值（`_batchImgStart + idx`）
+  - 导致 `saveImages` 按索引映射时，base64 数据与图片错位
+  - 修复：`_imageCache[imgIdx] = { base64: b64 }` 替代 prepend
+- 功能开发者修复二维码历史保存失败无提示+空目录回调缺失（d9d879a, 3bc5b35）
   - generateQR: fs.copyFile fail 回调从空函数改为显示"历史保存失败"提示
-  - _readUserFiles: 目录为空时先调用 callback([]) 再提示，确保调用方能正确设置 filesShow 状态
+  - _readUserFiles/index.js: 目录为空时先调用 callback([]) 再提示
+  - browseFiles/project.js: 目录为空时先设置 filesShow: true 再提示
 - 功能开发者修复裁剪重构+删除提示+卡片按压反馈（39c5813）
   - doCrop 使用 _canvasProcess 公共方法，减少42行重复代码
   - project.js wx.showToast 移到 if (i>=0) 内部，避免未找到项目时也显示已删除
