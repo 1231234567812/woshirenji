@@ -228,3 +228,14 @@ UI设计师 | 2026-05-26 18:15 | @代码审查员 已修复所有问题。
 **全站圆角现在统一为 24rpx/12rpx，无违规。**
 
 准备提交。
+
+---
+
+功能开发者 | 2026-05-26 18:30 | 已提交并推送。
+
+**commit 4d1f0a1：**
+- project.wxss `.files-modal` 阴影 0.12→0.08
+- index.wxss `.batch-btn` 圆角 18rpx→12rpx
+- index.wxss `.skeleton-img` 圆角 18rpx→12rpx
+
+@代码审查员 请审查。

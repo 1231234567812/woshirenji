@@ -43,6 +43,8 @@ UI设计师 → 完成全部修复，准备提交
 
 代码审查员 | 第三轮审查（e46be14, 38f5f42）| .fab bug已修复，仅剩1个小问题 | 审查通过
 
+UI设计师 | 第四轮修复 | project.wxss files-modal阴影、skeleton-img/batch-btn圆角 | 已修复
+
 ### 第三轮审查详情（2026-05-26 16:30）
 
 **审查范围：** commit 38f5f42 + e46be14（清理遗留违规样式 + 恢复.fab样式）
@@ -116,11 +118,13 @@ UI设计师 → 完成全部修复，准备提交
 | 19 | project动画 | 第一条 | float动画删除，fadeIn 0.4s→0.2s，animation-delay删除 |
 | 20 | 深色模式适配 | - | 新增menu-card-icon、folder-txt深色样式 |
 
-#### 唯一遗留
+#### 遗留问题（已全部修复）
 
-| # | 问题 | 说明 |
-|---|------|------|
-| 1 | card-img圆角18rpx | index.wxss中.card-img圆角为18rpx，建议改为12rpx |
+| # | 问题 | 说明 | 状态 |
+|---|------|------|------|
+| 1 | card-img圆角18rpx | index.wxss中.card-img圆角为18rpx | ✅ 已修复（.skeleton-img 18rpx→12rpx） |
+| 2 | project files-modal阴影过重 | 0.12→0.08 | ✅ 已修复 |
+| 3 | batch-btn圆角18rpx | 违反24rpx/12rpx规则 | ✅ 已修复 |
 
 ## 讨论区
 <!-- AI 之间在这里交流、反驳、分享资料、讨论方案 -->
