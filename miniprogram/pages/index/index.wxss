@@ -13,7 +13,6 @@
 .func-icon { width: 72rpx; height: 72rpx; border-radius: 12rpx; display: flex; align-items: center; justify-content: center; margin-right: 24rpx; flex-shrink: 0; background: #E3F2FD; }
 .func-icon text { font-size: 28rpx; font-weight: 600; color: #0071E3; }
 .func-label { flex: 1; font-size: 28rpx; font-weight: 500; color: #1D1D1F; }
-.func-arrow { font-size: 32rpx; color: #C7C7CC; font-weight: 300; }
 .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20rpx; padding: 0 4rpx; position: relative; }
 .section-title { font-size: 32rpx; font-weight: 700; color: #1D1D1F; }
 .section-count { font-size: 24rpx; color: #0071E3; background: rgba(0,113,227,0.08); padding: 4rpx 16rpx; border-radius: 12rpx; font-weight: 600; }

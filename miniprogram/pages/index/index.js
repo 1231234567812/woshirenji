@@ -1,4 +1,4 @@
-﻿const app = getApp();
+const app = getApp();
 var qrRenderer = require('../../utils/qr-renderer');
 
 Page({
@@ -134,7 +134,7 @@ Page({
           fileType: fileType,
           quality: quality,
           success: function(r) {
-            let fs = this._getFs();
+            let fs = that._getFs();
             let dest = wx.env.USER_DATA_PATH + '/' + (opts.destPrefix || 'img') + '_' + Date.now() + '.' + fileType;
             fs.copyFile({
               srcPath: r.tempFilePath, destPath: dest,
@@ -661,7 +661,7 @@ Page({
           let newSizeStr = newKB > 1024 * 1024 ? (newKB / 1024 / 1024).toFixed(2) + ' MB' : (newKB / 1024).toFixed(1) + ' KB';
 
           // 保存压缩结果
-          let fs = this._getFs();
+          let fs = that._getFs();
           let dest = wx.env.USER_DATA_PATH + '/compressed_' + Date.now() + '.jpg';
           fs.copyFile({
             srcPath: compressedPath, destPath: dest,
@@ -814,7 +814,7 @@ Page({
               quality: 0.9,
               success(res) {
                 // 保存结果
-                let fs = this._getFs();
+                let fs = that._getFs();
                 let dest = wx.env.USER_DATA_PATH + '/wm_result_' + Date.now() + '.jpg';
                 fs.copyFile({
                   srcPath: res.tempFilePath, destPath: dest,

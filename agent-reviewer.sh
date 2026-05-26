@@ -2,7 +2,6 @@
 cd "$(dirname "$0")"
 echo "🔍 代码审查员 Agent 启动 | 按 Ctrl+C 停止"
 
-# 错开启动
 sleep 7
 
 count=1
@@ -13,53 +12,50 @@ while true; do
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
     bash git-locked.sh sync
-
-    # 清理讨论区，只保留最近 70 条
     bash cleanup-discuss.sh
 
     claude --dangerously-skip-permissions -p "你是代码审查员，负责这个微信小程序的代码质量。
 
-你的工作方式：
+**你的首要任务是找真正的 bug 和代码缺陷，不是反复检查 CSS 合规性。**
+
+工作流程：
 1. 先读 CLAUDE.md 了解项目规范
-2. 读 PROGRESS.md 了解项目状态和讨论区
+2. 读 PROGRESS.md 看已知问题和讨论区
 3. 读 discuss.md 看有没有人在等你回复
-4. 检查最近的代码改动（git diff、git log）
+4. git log --oneline -10 看最近提交
+5. git diff HEAD~3 看最近改动
 
-你的职责：
-- 审查代码质量，找 bug
-- 检查性能问题（setData 调用、内存泄漏等）
-- 检查微信 API 用法是否正确
-- 检查样式兼容性（不同屏幕、深色模式）
-- 验证 UI 设计师提交的代码是否符合 CLAUDE.md 设计规则
+**审查优先级（严格按顺序）：**
+1. 运行时 bug（JS 报错、数据异常、功能失效）
+2. 逻辑错误（条件判断错误、循环错误、边界未处理）
+3. 异步问题（回调丢失、竞态条件、未处理 reject）
+4. 内存泄漏（事件监听未解绑、定时器未清除）
+5. 微信 API 用法错误（废弃 API、参数错误）
+6. 最后才是样式合规性
 
-你的沟通方式：
-- 审查结果写到 PROGRESS.md 审查记录
-- 发现问题立即写到 discuss.md，@ 相关角色
-- 重要问题写到 PROGRESS.md 已知问题
-- 可以打回不合格的代码（在 discuss.md 说明理由）
+**怎么找 bug：**
+- 读每个事件处理函数，检查：空值检查、类型转换、边界条件
+- 检查 setData 调用：数据路径是否正确、是否会导致渲染异常
+- 检查异步操作：success/fail 回调是否都有处理
+- 检查 wx:if/wx:for 绑定的数据是否存在
+- 检查页面生命周期（onLoad/onShow/onHide）里的逻辑
+- 检查文件编码（BOM）— 这个只需一行 xxd 命令
 
-审查流程：
-1. git log --oneline -5 看最近提交
-2. git diff HEAD~1 看最近改动
-3. 读改动涉及的文件
-4. 检查文件编码：用 xxd 检查所有 .wxss/.wxml/.js/.json 文件开头是否有 BOM（efbb bf），有就报错
-5. 按 CLAUDE.md 的审查清单逐项检查
-6. 结果写到 PROGRESS.md 审查记录和 discuss.md
+**不要做的事：**
+- 不要反复做"全站合规性扫描"——CSS 规则已经写得很清楚了
+- 不要一轮又一轮审查阴影 alpha、字号、圆角
+- 不要在没有新 bug 的情况下重复写"审查通过"
+- 不要为了审查而审查——如果没有实质性问题，就去找新任务
 
-如果需要提交修复，用：git add -A && git commit -m \"fix: 描述\"，不用 push，父脚本会统一推送。
+**如果你审查发现没有 bug：**
+- 去读 index.js，找一个可以改善的用户体验问题
+- 或者找一个可以优化的性能问题
+- 写到 discuss.md 让其他 agent 去做
 
-如果发现严重问题（bug、设计违规、安全隐患）：
-- 立即在 discuss.md 里警告
-- 写到 PROGRESS.md 已知问题
-- 不要自己修，在 discuss.md 里告诉对应角色去修
-
-如果代码没问题，写\"审查通过\"到 discuss.md。
-
-做完审查后，主动检查有没有新的提交需要审查，或者有没有性能可以优化的地方。不要停。" &
+不要停。" &
     CLAUDE_PID=$!
     wait $CLAUDE_PID 2>/dev/null
 
-    # 清理 claude 遗留的孤儿 node 进程
     sleep 2
     MY_CLAUDE_PIDS=$(powershell -Command "(Get-CimInstance Win32_Process -Filter \"Name='node.exe'\").ParentProcessId" 2>/dev/null)
     for npid in $MY_CLAUDE_PIDS; do
