@@ -165,6 +165,21 @@ Page({
     });
   },
 
+  // 分享文件（公共方法）
+  _shareFile(path, fileName) {
+    if (!path) return;
+    wx.showActionSheet({
+      itemList: ['转发给朋友', '用其他应用打开'],
+      success(r) {
+        if (r.tapIndex === 0) {
+          wx.shareFileMessage({ filePath: path, fileName: fileName });
+        } else if (r.tapIndex === 1) {
+          wx.openDocument({ filePath: path, showMenu: true });
+        }
+      },
+    });
+  },
+
   // ========== 批量转换 ==========
   chooseBatchImage() {
     let that = this;
@@ -351,20 +366,7 @@ Page({
 
   saveQrImage() { this._saveToAlbum(this.data.qrImagePath); },
 
-  shareQrImage() {
-    var path = this.data.qrImagePath;
-    if (!path) return;
-    wx.showActionSheet({
-      itemList: ['转发给朋友', '用其他应用打开'],
-      success: function(r) {
-        if (r.tapIndex === 0) {
-          wx.shareFileMessage({ filePath: path, fileName: 'qrcode.png' });
-        } else if (r.tapIndex === 1) {
-          wx.openDocument({ filePath: path, showMenu: true });
-        }
-      }
-    });
-  },
+  shareQrImage() { this._shareFile(this.data.qrImagePath, 'qrcode.png'); },
 
   previewQrImage() {
     if (this.data.qrImagePath) wx.previewImage({ urls: [this.data.qrImagePath] });
@@ -694,20 +696,7 @@ Page({
 
   saveCompressedImage() { this._saveToAlbum(this.data.compressResultPath); },
 
-  shareCompressedImage() {
-    let path = this.data.compressResultPath;
-    if (!path) return;
-    wx.showActionSheet({
-      itemList: ['转发给朋友', '用其他应用打开'],
-      success(r) {
-        if (r.tapIndex === 0) {
-          wx.shareFileMessage({ filePath: path, fileName: 'compressed.jpg' });
-        } else if (r.tapIndex === 1) {
-          wx.openDocument({ filePath: path, showMenu: true });
-        }
-      },
-    });
-  },
+  shareCompressedImage() { this._shareFile(this.data.compressResultPath, 'compressed.jpg'); },
 
   previewCompressResult() {
     if (this.data.compressResultPath) wx.previewImage({ urls: [this.data.compressResultPath] });
@@ -899,20 +888,7 @@ Page({
 
   saveWmImage() { this._saveToAlbum(this.data.wmResultPath); },
 
-  shareWmImage() {
-    let path = this.data.wmResultPath;
-    if (!path) return;
-    wx.showActionSheet({
-      itemList: ['转发给朋友', '用其他应用打开'],
-      success(r) {
-        if (r.tapIndex === 0) {
-          wx.shareFileMessage({ filePath: path, fileName: 'watermark.jpg' });
-        } else if (r.tapIndex === 1) {
-          wx.openDocument({ filePath: path, showMenu: true });
-        }
-      },
-    });
-  },
+  shareWmImage() { this._shareFile(this.data.wmResultPath, 'watermark.jpg'); },
 
   previewWmResult() {
     let path = this.data.wmResultPath || this.data.wmImagePath;
@@ -979,18 +955,7 @@ Page({
 
   saveFmtImg() { this._saveToAlbum(this.data.fmtResult); },
 
-  shareFmtImg() {
-    let p = this.data.fmtResult;
-    let fmt = this.data.fmtTo;
-    if (!p) return;
-    wx.showActionSheet({
-      itemList: ['转发给朋友', '用其他应用打开'],
-      success(r) {
-        if (r.tapIndex === 0) wx.shareFileMessage({ filePath: p, fileName: 'converted.' + fmt });
-        else if (r.tapIndex === 1) wx.openDocument({ filePath: p, showMenu: true });
-      },
-    });
-  },
+  shareFmtImg() { this._shareFile(this.data.fmtResult, 'converted.' + this.data.fmtTo); },
 
   previewFmtResult() {
     if (this.data.fmtResult) wx.previewImage({ urls: [this.data.fmtResult] });
@@ -1070,17 +1035,7 @@ Page({
 
   saveResizeImg() { this._saveToAlbum(this.data.resizeResult); },
 
-  shareResizeImg() {
-    let p = this.data.resizeResult;
-    if (!p) return;
-    wx.showActionSheet({
-      itemList: ['转发给朋友', '用其他应用打开'],
-      success(r) {
-        if (r.tapIndex === 0) wx.shareFileMessage({ filePath: p, fileName: 'resized.jpg' });
-        else if (r.tapIndex === 1) wx.openDocument({ filePath: p, showMenu: true });
-      },
-    });
-  },
+  shareResizeImg() { this._shareFile(this.data.resizeResult, 'resized.jpg'); },
 
   previewResizeResult() {
     if (this.data.resizeResult) wx.previewImage({ urls: [this.data.resizeResult] });
@@ -1214,17 +1169,7 @@ Page({
 
   saveCropImg() { this._saveToAlbum(this.data.cropResult); },
 
-  shareCropImg() {
-    let p = this.data.cropResult;
-    if (!p) return;
-    wx.showActionSheet({
-      itemList: ['转发给朋友', '用其他应用打开'],
-      success(r) {
-        if (r.tapIndex === 0) wx.shareFileMessage({ filePath: p, fileName: 'cropped.jpg' });
-        else if (r.tapIndex === 1) wx.openDocument({ filePath: p, showMenu: true });
-      },
-    });
-  },
+  shareCropImg() { this._shareFile(this.data.cropResult, 'cropped.jpg'); },
 
   previewCropResult() {
     if (this.data.cropResult) wx.previewImage({ urls: [this.data.cropResult] });
@@ -1346,17 +1291,7 @@ Page({
 
   saveRotImg() { this._saveToAlbum(this.data.rotResult); },
 
-  shareRotImg() {
-    let p = this.data.rotResult;
-    if (!p) return;
-    wx.showActionSheet({
-      itemList: ['转发给朋友', '用其他应用打开'],
-      success(r) {
-        if (r.tapIndex === 0) wx.shareFileMessage({ filePath: p, fileName: 'rotated.jpg' });
-        else if (r.tapIndex === 1) wx.openDocument({ filePath: p, showMenu: true });
-      },
-    });
-  },
+  shareRotImg() { this._shareFile(this.data.rotResult, 'rotated.jpg'); },
 
   previewRotResult() {
     if (this.data.rotResult) wx.previewImage({ urls: [this.data.rotResult] });
@@ -1573,17 +1508,7 @@ Page({
 
   saveMosaicImg() { this._saveToAlbum(this.data.mosaicResult); },
 
-  shareMosaicImg() {
-    let p = this.data.mosaicResult;
-    if (!p) return;
-    wx.showActionSheet({
-      itemList: ['转发给朋友', '用其他应用打开'],
-      success(r) {
-        if (r.tapIndex === 0) wx.shareFileMessage({ filePath: p, fileName: 'mosaic.jpg' });
-        else if (r.tapIndex === 1) wx.openDocument({ filePath: p, showMenu: true });
-      },
-    });
-  },
+  shareMosaicImg() { this._shareFile(this.data.mosaicResult, 'mosaic.jpg'); },
 
   previewMosaicResult() {
     if (this.data.mosaicResult) wx.previewImage({ urls: [this.data.mosaicResult] });
@@ -1748,9 +1673,10 @@ Page({
     let code = this._fullCode;
     if (!code) return;
     let fname = wx.env.USER_DATA_PATH + '/share_' + Date.now() + '.txt';
+    let that = this;
     wx.getFileSystemManager().writeFile({
       filePath: fname, data: code, encoding: 'utf8',
-      success: () => wx.shareFileMessage({ filePath: fname, fileName: 'base64.txt' }),
+      success: () => that._shareFile(fname, 'base64.txt'),
       fail: () => wx.showToast({ title: '写入失败', icon: 'none' }),
     });
   },
