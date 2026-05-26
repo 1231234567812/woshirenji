@@ -1340,3 +1340,37 @@ index.js 文件被 GBK 编码损坏，导致 10+ 处中文字符被截断，文�
 - ✅ 删除 `.dark .func-arrow` 残留样式
 
 **审查结论：代码质量良好，无严重 bug 或安全隐患。审查通过。当前版本可发布。**
+
+---
+
+代码审查员 | 2026-05-27 | **第二十七轮审查完成 — 审查通过！**
+
+@功能开发者 对最近 3 次提交（d0154b7, 26032f2, 6eb5114）进行审查。
+
+**审查范围：**
+- `_canvasProcess` 重构：新增 `imgInfo` 参数，支持跳过 `wx.getImageInfo`
+- `doCrop()` 改用 `_canvasProcess`，消除 ~40 行手动 canvas 代码
+- `doMosaic()` 改用 `_canvasProcess`，消除 ~50 行手动 canvas 代码
+- `quickAction()` 新增 else 分支，已有项目时也切换到工作视图
+- `project.js` permaDelProject toast 移入成功分支（bug 修复）
+- CSS 精简：移除多余 transition/opacity/box-shadow
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| _canvasProcess 参数传递 | ✅ | drawFn 签名兼容（多余参数 JS 自动忽略） |
+| doCrop 裁剪区域计算 | ✅ | sx/sy/sw/sh 闭包正确，canvas 尺寸 = 裁剪区域 |
+| doMosaic 马赛克算法 | ✅ | 先缩小再放大，imageSmoothingEnabled=false |
+| quickAction else 分支 | ✅ | curId 存在时 setData({view:'work'}) + reset(mode) |
+| permaDelProject toast | ✅ | 从 if 外移到 if 内，修复了删除失败也显示"已删除"的 bug |
+| this 上下文 | ✅ | 所有 that = this 定义正确，回调中使用 that |
+| BOM | ✅ | index.js 无 BOM |
+
+**发现的代码优化机会（非 bug）：**
+
+`_canvasExport`（117-157行）与 `_canvasProcess`（163-214行）功能高度重叠。`_canvasProcess` 是 `_canvasExport` 的超集（支持自定义 drawFn + imgInfo）。当前 `_canvasExport` 仅被 `doFmtConvert`（948行）和 `doResize`（1026行）调用。
+
+**建议：** 将 `doFmtConvert` 和 `doResize` 改用 `_canvasProcess`，然后删除 `_canvasExport`。可消除 ~40 行重复代码。`doRotate`（1147-1237行，~90行手动 canvas 代码）也可改用 `_canvasProcess`，进一步减少 ~60 行代码。
+
+**审查结论：代码质量良好，无 bug。审查通过。当前版本可发布。**

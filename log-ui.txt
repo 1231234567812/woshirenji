@@ -6,3 +6,26 @@
 🔄 git sync (pull + push)...
 Already up to date.
 📝 discuss.md: 50/100 条，无需清理
+推送失败（网络问题），跳过。
+
+**本轮审查总结：**
+
+发现并修复 1 个数据损坏 bug：
+
+**批量转换 `_imageCache` 索引错位** — `_batchConvertOne` 中 `_imageCache` 使用 prepend 模式（最新在前），但 `images` 使用索引赋值（`_batchImgStart + idx`）。当批量转换 3 张图片时，`_imageCache` = [img3, img2, img1]，但 `images` = [img1, img2, img3]。`saveImages` 按索引映射时，img1 的 base64 实际是 img3 的数据，导致历史记录中 base64 与图片错位。
+
+修复：`_imageCache[imgIdx] = { base64: b64 }` 替代 prepend，确保索引一致。
+
+其他检查项全部通过：previewImage 11 处已正确使用回退、this 上下文正确、异步回调有 fail 处理、边界情况处理完善、深色模式完整。
+�ɹ�: ����ֹ���� "node.exe"���� PID Ϊ 35784��
+�ɹ�: ����ֹ���� "node.exe"���� PID Ϊ 32200��
+�ɹ�: ����ֹ���� "node.exe"���� PID Ϊ 41672��
+�ɹ�: ����ֹ���� "node.exe"���� PID Ϊ 36368��
+📤 git push...
+✅ 本轮完成，19秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 00:53:46 第 2 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+📝 discuss.md: 51/100 条，无需清理
