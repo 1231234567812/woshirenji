@@ -26,6 +26,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
   - 触发场景：在已有项目中点击菜单切换功能模式（如"图片转代码"），旧项 base64 数据丢失
   - 修复：移除 `reset()` 中的 `this._imageCache = []`，缓存仅在 `openProject`/`onShow` 打开项目时初始化
   - 影响：切换功能模式时不再丢失已有项目的历史数据
+- UI设计师修复 _imageCache 上限(10)与 images 上限(20)不一致导致历史数据丢失的 bug
+  - 问题：5 处 `_imageCache` 使用 `.slice(0, 10)` 限制缓存大小，但 `images` 使用 `.slice(0, 20)` 限制列表大小，导致第 11-20 项图片的 base64 数据在 `saveImages()` 时被覆盖为空字符串
+  - 修复：5 处 `_imageCache` 的 `.slice(0, 10)` 全部改为 `.slice(0, 20)`，与 `images` 保持一致
+  - 影响：历史记录中超过 10 项时，旧图片的 base64 数据不再丢失
 - 功能开发者修复 8 个函数未处理 _saveToTempFile 失败时 callback(null) 的 bug（0226cb7, 66050da）
   - 问题：`_saveToTempFile` 在 `copyFile` 和 `saveFile` 都失败时调用 `callback(null)`，但 8 个函数未检查 null，导致后续操作使用 null 路径失败
   - 受影响函数：`chooseCompressImage`/`chooseWmImage`/`chooseResizeImg`/`chooseCropImg`/`chooseRotImg`/`chooseColorImg`/`chooseMosaicImg`/`_saveTempImage`
@@ -239,7 +243,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 
 代码审查员 | 第三十五轮审查（index.js 1819行 + project.js 156行）| 发现并修复 2 个运行时 bug。**Bug 1（中等）：doCompress PNG 扩展名不一致** — `wx.compressImage` 始终输出 JPEG，但输入 PNG 时 dest 路径扩展名用 `.png`（index.js:743-745）。修复：移除 srcExt/fileType 变量，dest 路径始终 `.jpg`。**Bug 2（低）：permaDelProject 索引错位** — `permaDelProject` 对 cache 用 `splice`（改变索引）对 list 用 `filter`（不改变索引），导致 cache[i] 和 list[i] 不对应同一项目（project.js:128）。修复：cache 也改用 `filter`。其他检查：_saveToTempFile null 处理 8 处全部正确✅、_imageCache 索引对齐正确✅、_batchConvertParallel 无竞态✅、generateQR this 上下文正确✅、BOM=0✅、console=0✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
 
-UI设计师 | Bug 优先审查（第三十六轮）| 逐函数审查 index.js（1824行）：发现并修复 1 个运行时 bug。**Bug（中等）：reset() 切换模式时清空 _imageCache 导致已有项目数据丢失** — `reset()` 中 `this._imageCache = []` 清空缓存，但不清理 `this.data.images`，`saveImages()` 按索引查找缓存时旧项 base64 被覆盖为空字符串。触发场景：在已有项目中点击菜单切换功能模式。修复：移除 `reset()` 中的 `this._imageCache = []`，缓存仅在 `openProject`/`onShow` 时初始化。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、WXML 绑定正确✅、深色模式完整✅。当前版本可发布 | 审查通过（已修复 1 个 bug）
+UI设计师 | Bug 优先审查（第三十六轮+第三十七轮）| 逐函数审查 index.js（1824行）：发现并修复 2 个运行时 bug。**Bug 1（中等）：reset() 切换模式时清空 _imageCache 导致已有项目数据丢失** — `reset()` 中 `this._imageCache = []` 清空缓存，但不清理 `this.data.images`，`saveImages()` 按索引查找缓存时旧项 base64 被覆盖为空字符串。修复：移除 `reset()` 中的 `this._imageCache = []`。**Bug 2（中等）：_imageCache 上限(10)与 images 上限(20)不一致** — 5 处 `_imageCache` 使用 `.slice(0, 10)` 但 `images` 使用 `.slice(0, 20)`，导致第 11-20 项图片的 base64 数据在 `saveImages()` 时被覆盖为空字符串。修复：5 处 `.slice(0, 10)` 全部改为 `.slice(0, 20)`。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、WXML 绑定正确✅、深色模式完整✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
 
 功能开发者 | 第三十四轮审查+修复（0226cb7, 66050da）| 逐函数审查 index.js（1819行）：发现并修复 8 个函数未处理 _saveToTempFile 失败时 callback(null) 的 bug。问题：bad9af4 修复了 _saveToTempFile 的 callback(null) 和 chooseFmtImg 的 null 检查，但遗漏了其他 7 个 chooseXxxImg 函数和 _saveTempImage。修复：8 个函数统一添加 null 检查。BOM=0✅（首字节 63=con）、this 上下文全部正确✅、异步回调全部有 fail 处理✅、边界情况处理完善✅。当前版本可发布 | 审查通过（已修复 8 个 bug）
 

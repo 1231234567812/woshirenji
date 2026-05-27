@@ -446,7 +446,7 @@ Page({
         srcPath: path, destPath: dest,
         success: function() {
           var itemMeta = { id: Date.now(), type: 'image', path: dest, size: '二维码', preview: text.slice(0, 30) };
-          that._imageCache = [{ base64: '', textContent: 'QR:' + text }].concat(that._imageCache).slice(0, 10);
+          that._imageCache = [{ base64: '', textContent: 'QR:' + text }].concat(that._imageCache).slice(0, 20);
           var list = [itemMeta].concat(that.data.images).slice(0, 20);
           that.setData({ images: list });
           that.saveImages(list);
@@ -1586,7 +1586,7 @@ Page({
         let kb = fileSizeKB || (res.data.length * 0.75 / 1024).toFixed(1);
         that._fullCode = b64;
         let itemMeta = { id: Date.now(), type: 'image', path: that.data.imagePath, size: kb + ' KB', preview: '' };
-        that._imageCache = [{ base64: b64 }].concat(that._imageCache).slice(0, 10);
+        that._imageCache = [{ base64: b64 }].concat(that._imageCache).slice(0, 20);
         let list = [itemMeta].concat(that.data.images).slice(0, 20);
 
         // 合并所有更新到一次setData
@@ -1686,7 +1686,7 @@ Page({
     } catch (e) { b64 = '编码失败'; }
     this._fullText = b64;
     let itemMeta = { id: Date.now(), type: 'text', path: '', size: raw.length + ' 字', preview: raw.slice(0, 30) };
-    this._imageCache = [{ base64: b64, textContent: raw }].concat(this._imageCache).slice(0, 10);
+    this._imageCache = [{ base64: b64, textContent: raw }].concat(this._imageCache).slice(0, 20);
     let list = [itemMeta].concat(this.data.images).slice(0, 20);
     // 合并更新
     this.setData({ textResult: b64.length > 300 ? b64.slice(0, 300) + '...' : b64, images: list });
@@ -1709,7 +1709,7 @@ Page({
       let bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
       let r = typeof TextDecoder !== 'undefined' ? new TextDecoder().decode(bytes) : String.fromCharCode.apply(null, bytes);
       let itemMeta = { id: Date.now(), type: 'text', path: '', size: r.length + ' 字', preview: r.slice(0, 30) };
-      this._imageCache = [{ base64: this.data.decodeInput, textContent: r }].concat(this._imageCache).slice(0, 10);
+      this._imageCache = [{ base64: this.data.decodeInput, textContent: r }].concat(this._imageCache).slice(0, 20);
       let list = [itemMeta].concat(this.data.images).slice(0, 20);
       // 合并更新
       this.setData({ decodeResult: r.length > 500 ? r.slice(0, 500) + '...' : r, images: list });
@@ -1736,7 +1736,7 @@ Page({
       filePath: fname, data: raw, encoding: 'base64',
       success: () => {
         let itemMeta = { id: Date.now(), type: 'image', path: fname, size: '', preview: '' };
-        that._imageCache = [{ base64: b64, path: fname }].concat(that._imageCache).slice(0, 10);
+        that._imageCache = [{ base64: b64, path: fname }].concat(that._imageCache).slice(0, 20);
         let list = [itemMeta].concat(that.data.images).slice(0, 20);
         that.setData({ decodeImagePath: fname, images: list });
         that.saveImages(list);
