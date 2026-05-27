@@ -31,6 +31,8 @@ Page({
     compressRatio: '',
     compressResultPath: '',
     compressing: false,
+    compressProgress: 0,
+    compressStage: '',
     compressQualityLevel: 60,
     // 图片加水印功能
     wmImagePath: '',
@@ -633,7 +635,7 @@ Page({
     } else if (m === 'qrcode') {
       d.qrInput = ''; d.qrImagePath = ''; d.qrGenerating = false; d.qrEcLevel = 'M';
     } else if (m === 'compress') {
-      d.compressImagePath = ''; d.compressOrigSize = ''; d.compressNewSize = ''; d.compressRatio = ''; d.compressResultPath = ''; d.compressing = false; d.compressQualityLevel = 60;
+      d.compressImagePath = ''; d.compressOrigSize = ''; d.compressNewSize = ''; d.compressRatio = ''; d.compressResultPath = ''; d.compressing = false; d.compressProgress = 0; d.compressStage = ''; d.compressQualityLevel = 60;
     } else if (m === 'watermark') {
       d.wmImagePath = ''; d.wmText = ''; d.wmPosition = 'bottom-right'; d.wmColor = '#ffffff'; d.wmOpacity = 60; d.wmFontSize = 32; d.wmResultPath = ''; d.wmProcessing = false;
     } else if (m === 'fmt') {
@@ -712,13 +714,14 @@ Page({
     let that = this;
     let src = this.data.compressImagePath;
     if (!src) return;
-    this.setData({ compressing: true });
+    this.setData({ compressing: true, compressProgress: 10, compressStage: '准备中...' });
     wx.showNavigationBarLoading();
 
     wx.compressImage({
       src: src,
       quality: this.data.compressQualityLevel,
       success(res) {
+        that.setData({ compressProgress: 40, compressStage: '压缩完成，获取信息...' });
         let compressedPath = res.tempFilePath;
         // 同时获取压缩后和原始文件信息，减少嵌套
         let getInfo = (path) => new Promise((resolve) => {
@@ -730,29 +733,33 @@ Page({
           let ratio = origKB > 0 ? ((1 - newKB / origKB) * 100).toFixed(0) : '0';
           let newSizeStr = newKB > 1024 * 1024 ? (newKB / 1024 / 1024).toFixed(2) + ' MB' : (newKB / 1024).toFixed(1) + ' KB';
 
+          that.setData({ compressProgress: 70, compressStage: '保存中...' });
           // 保存压缩结果
           let fs = that._getFs();
           let dest = wx.env.USER_DATA_PATH + '/compressed_' + Date.now() + '.jpg';
+          let doneData = { compressing: false, compressProgress: 100, compressStage: '完成！减小 ' + ratio + '%', compressNewSize: newSizeStr, compressRatio: ratio };
           fs.copyFile({
             srcPath: compressedPath, destPath: dest,
             success() {
-              that.setData({ compressing: false, compressNewSize: newSizeStr, compressRatio: ratio, compressResultPath: dest });
+              that.setData({ ...doneData, compressResultPath: dest });
               wx.hideNavigationBarLoading();
               wx.showToast({ title: '压缩完成', icon: 'success' });
+              setTimeout(() => { that.setData({ compressProgress: 0, compressStage: '' }); }, 800);
             },
             fail() {
-              that.setData({ compressing: false, compressNewSize: newSizeStr, compressRatio: ratio, compressResultPath: compressedPath });
+              that.setData({ ...doneData, compressResultPath: compressedPath });
               wx.hideNavigationBarLoading();
+              setTimeout(() => { that.setData({ compressProgress: 0, compressStage: '' }); }, 800);
             },
           });
         }).catch(() => {
-          that.setData({ compressing: false });
+          that.setData({ compressing: false, compressProgress: 0, compressStage: '' });
           wx.hideNavigationBarLoading();
           wx.showToast({ title: '获取压缩结果失败', icon: 'none' });
         });
       },
       fail() {
-        that.setData({ compressing: false });
+        that.setData({ compressing: false, compressProgress: 0, compressStage: '' });
         wx.hideNavigationBarLoading();
         wx.showToast({ title: '压缩失败', icon: 'none' });
       },

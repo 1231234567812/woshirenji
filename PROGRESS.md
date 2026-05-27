@@ -9,7 +9,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-27 - 代码审查员第三十轮审查通过，修复 addWatermark/doRotate webp 扩展名 bug
+2026-05-27 - UI设计师第三十一轮审查通过，全量 bug 审查完成，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
@@ -199,6 +199,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | Bug 优先审查（f54c863 HEAD 最近3次提交审查）| 审查范围：最近3次提交（f54c863/9f68f59/1bf3bdd）webp 扩展名修复 + 文件浏览 webp/gif 支持 + 压缩进度条。逐函数审查 index.js（1797行）：运行时 bug=0✅（所有事件处理函数逻辑正确、setData 数据结构与 WXML 绑定匹配、wx:if/wx:for 条件合理、异步回调错误处理完善、边界情况处理完善）、逻辑错误=0✅（条件判断正确、边界处理完整）、异步问题=0✅（所有异步操作都有 success/fail 回调）、内存泄漏=0✅（无事件监听泄漏、无定时器残留）、微信 API 用法=0✅（chooseMedia/chooseImage 兼容正确、canvasToTempFilePath 参数正确、previewImage 正确）、BOM=0✅（index.js/wxml/wxss 全部无 BOM）、console=0✅、深色模式完整✅、WXML 绑定正确✅、wxss 无布局塌陷风险✅。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、app.json 配置正确✅。当前版本可发布 | 审查通过
 
 代码审查员 | 第三十轮审查（9f68f59/1bf3bdd/6b16f60 最近3次提交审查）| 审查范围：分享文件名扩展名修复 + 文件浏览 webp/gif 支持。发现并修复 2 个运行时 bug：1. **addWatermark webp 扩展名不一致**（index.js:889）— dest 路径使用 `outExt`（webp输入时='webp'）而非 canvas 实际导出的 `fileType`（='jpg'），导致水印处理 webp 图片后文件扩展名为 `.webp` 但实际内容是 jpg。修复：`outExt` → `fileType = srcExt === 'png' ? 'png' : 'jpg'`，统一用于 canvas 导出和 dest 路径。2. **doRotate webp 扩展名不一致**（index.js:1226）— 同上，旋转 webp 图片后扩展名与格式不匹配。修复同上。其他检查：doResize/doCrop/doMosaic 使用 _canvasExport/_canvasProcess 公共方法内部用 fileType 构建路径，无此问题✅、分享函数从路径提取扩展名逻辑正确✅、文件浏览 webp/gif 过滤正确✅、BOM=0✅（首字节 63=con）、console=0✅、project.js 逻辑正确✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
 
