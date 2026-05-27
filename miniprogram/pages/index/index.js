@@ -928,7 +928,11 @@ Page({
 
   saveWmImage() { this._saveToAlbum(this.data.wmResultPath); },
 
-  shareWmImage() { this._shareFile(this.data.wmResultPath, 'watermark.jpg'); },
+  shareWmImage() {
+    let p = this.data.wmResultPath;
+    let ext = p ? p.split('.').pop() : 'jpg';
+    this._shareFile(p, 'watermark.' + ext);
+  },
 
   previewWmResult() { this._previewImage(this.data.wmResultPath || this.data.wmImagePath); },
 
@@ -1058,7 +1062,11 @@ Page({
 
   saveResizeImg() { this._saveToAlbum(this.data.resizeResult); },
 
-  shareResizeImg() { this._shareFile(this.data.resizeResult, 'resized.jpg'); },
+  shareResizeImg() {
+    let p = this.data.resizeResult;
+    let ext = p ? p.split('.').pop() : 'jpg';
+    this._shareFile(p, 'resized.' + ext);
+  },
 
   previewResizeResult() { this._previewImage(this.data.resizeResult || this.data.resizeImg); },
 
@@ -1144,7 +1152,11 @@ Page({
 
   saveCropImg() { this._saveToAlbum(this.data.cropResult); },
 
-  shareCropImg() { this._shareFile(this.data.cropResult, 'cropped.jpg'); },
+  shareCropImg() {
+    let p = this.data.cropResult;
+    let ext = p ? p.split('.').pop() : 'jpg';
+    this._shareFile(p, 'cropped.' + ext);
+  },
 
   previewCropResult() { this._previewImage(this.data.cropResult || this.data.cropImg); },
 
@@ -1260,7 +1272,11 @@ Page({
 
   saveRotImg() { this._saveToAlbum(this.data.rotResult); },
 
-  shareRotImg() { this._shareFile(this.data.rotResult, 'rotated.jpg'); },
+  shareRotImg() {
+    let p = this.data.rotResult;
+    let ext = p ? p.split('.').pop() : 'jpg';
+    this._shareFile(p, 'rotated.' + ext);
+  },
 
   previewRotResult() { this._previewImage(this.data.rotResult || this.data.rotImg); },
 
@@ -1404,7 +1420,11 @@ Page({
 
   saveMosaicImg() { this._saveToAlbum(this.data.mosaicResult); },
 
-  shareMosaicImg() { this._shareFile(this.data.mosaicResult, 'mosaic.jpg'); },
+  shareMosaicImg() {
+    let p = this.data.mosaicResult;
+    let ext = p ? p.split('.').pop() : 'jpg';
+    this._shareFile(p, 'mosaic.' + ext);
+  },
 
   previewMosaicResult() { this._previewImage(this.data.mosaicResult || this.data.mosaicImg); },
 
