@@ -676,7 +676,7 @@ Page({
     this._chooseImage(1, 'original', (res) => {
       let tempPath = this._getTempPath(res);
       if (!tempPath) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      that._saveToTempFile(tempPath, 'compress', (p) => that._onCompressImagePicked(p));
+      that._saveToTempFile(tempPath, 'compress', (p) => { if (p) that._onCompressImagePicked(p); });
     });
   },
 
@@ -788,7 +788,7 @@ Page({
     this._chooseImage(1, 'compressed', (res) => {
       let tempPath = this._getTempPath(res);
       if (!tempPath) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      that._saveToTempFile(tempPath, 'wm', (p) => that.setData({ wmImagePath: p, wmResultPath: '' }));
+      that._saveToTempFile(tempPath, 'wm', (p) => { if (p) that.setData({ wmImagePath: p, wmResultPath: '' }); });
     });
   },
 
@@ -1019,6 +1019,7 @@ Page({
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that._saveToTempFile(p, 'resize', (dest) => {
+        if (!dest) return;
         wx.getImageInfo({
           src: dest,
           success(info) {
@@ -1099,6 +1100,7 @@ Page({
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that._saveToTempFile(p, 'crop', (dest) => {
+        if (!dest) return;
         wx.getImageInfo({
           src: dest,
           success(info) {
@@ -1191,6 +1193,7 @@ Page({
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that._saveToTempFile(p, 'rot', (dest) => {
+        if (!dest) return;
         that.setData({ rotImg: dest, rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '' });
       });
     });
@@ -1313,6 +1316,7 @@ Page({
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that._saveToTempFile(p, 'color', (dest) => {
+        if (!dest) return;
         that.setData({ colorImg: dest, colorList: [] });
         that._extractColors(dest);
       });
@@ -1407,6 +1411,7 @@ Page({
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that._saveToTempFile(p, 'mosaic', (dest) => {
+        if (!dest) return;
         that.setData({ mosaicImg: dest, mosaicResult: '', mosaicSize: '' });
       });
     });
