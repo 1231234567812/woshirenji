@@ -734,12 +734,14 @@ Page({
           let origKB = origInfo.size;
           let ratio = origKB > 0 ? ((1 - newKB / origKB) * 100).toFixed(0) : '0';
           let newSizeStr = newKB > 1024 * 1024 ? (newKB / 1024 / 1024).toFixed(2) + ' MB' : (newKB / 1024).toFixed(1) + ' KB';
+          let ratioNum = Number(ratio);
+          let stageText = ratioNum >= 0 ? '完成！减小 ' + ratio + '%' : '完成！增大 ' + (-ratioNum) + '%';
 
           that.setData({ compressProgress: 70, compressStage: '保存中...' });
           // 保存压缩结果
           let fs = that._getFs();
           let dest = wx.env.USER_DATA_PATH + '/compressed_' + Date.now() + '.jpg';
-          let doneData = { compressing: false, compressProgress: 100, compressStage: '完成！减小 ' + ratio + '%', compressNewSize: newSizeStr, compressRatio: ratio };
+          let doneData = { compressing: false, compressProgress: 100, compressStage: stageText, compressNewSize: newSizeStr, compressRatio: ratio };
           fs.copyFile({
             srcPath: compressedPath, destPath: dest,
             success() {
@@ -952,12 +954,13 @@ Page({
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      // 检测格式
-      let ext = p.split('.').pop().toLowerCase();
-      let from = 'jpg';
-      if (ext === 'png') from = 'png';
-      else if (ext === 'webp') from = 'webp';
-      that.setData({ fmtImg: p, fmtFrom: from, fmtTo: from === 'png' ? 'jpg' : 'png', fmtResult: '', fmtSize: '' });
+      that._saveToTempFile(p, 'fmt', (dest) => {
+        let ext = dest.split('.').pop().toLowerCase();
+        let from = 'jpg';
+        if (ext === 'png') from = 'png';
+        else if (ext === 'webp') from = 'webp';
+        that.setData({ fmtImg: dest, fmtFrom: from, fmtTo: from === 'png' ? 'jpg' : 'png', fmtResult: '', fmtSize: '' });
+      });
     });
   },
 
@@ -1008,18 +1011,20 @@ Page({
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      wx.getImageInfo({
-        src: p,
-        success(info) {
-          that.setData({
-            resizeImg: p, resizeW: info.width, resizeH: info.height,
-            resizeNewW: info.width, resizeNewH: info.height,
-            resizeResult: '', resizeSize: '',
-          });
-        },
-        fail() {
-          that.setData({ resizeImg: p, resizeW: 0, resizeH: 0, resizeNewW: 0, resizeNewH: 0, resizeResult: '', resizeSize: '' });
-        },
+      that._saveToTempFile(p, 'resize', (dest) => {
+        wx.getImageInfo({
+          src: dest,
+          success(info) {
+            that.setData({
+              resizeImg: dest, resizeW: info.width, resizeH: info.height,
+              resizeNewW: info.width, resizeNewH: info.height,
+              resizeResult: '', resizeSize: '',
+            });
+          },
+          fail() {
+            that.setData({ resizeImg: dest, resizeW: 0, resizeH: 0, resizeNewW: 0, resizeNewH: 0, resizeResult: '', resizeSize: '' });
+          },
+        });
       });
     });
   },
@@ -1086,14 +1091,16 @@ Page({
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      wx.getImageInfo({
-        src: p,
-        success(info) {
-          that.setData({ cropImg: p, cropW: info.width, cropH: info.height, cropResult: '', cropSize: '' });
-        },
-        fail() {
-          that.setData({ cropImg: p, cropW: 0, cropH: 0, cropResult: '', cropSize: '' });
-        },
+      that._saveToTempFile(p, 'crop', (dest) => {
+        wx.getImageInfo({
+          src: dest,
+          success(info) {
+            that.setData({ cropImg: dest, cropW: info.width, cropH: info.height, cropResult: '', cropSize: '' });
+          },
+          fail() {
+            that.setData({ cropImg: dest, cropW: 0, cropH: 0, cropResult: '', cropSize: '' });
+          },
+        });
       });
     });
   },
@@ -1176,7 +1183,9 @@ Page({
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      that.setData({ rotImg: p, rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '' });
+      that._saveToTempFile(p, 'rot', (dest) => {
+        that.setData({ rotImg: dest, rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '' });
+      });
     });
   },
 
@@ -1296,8 +1305,10 @@ Page({
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      that.setData({ colorImg: p, colorList: [] });
-      that._extractColors(p);
+      that._saveToTempFile(p, 'color', (dest) => {
+        that.setData({ colorImg: dest, colorList: [] });
+        that._extractColors(dest);
+      });
     });
   },
 
@@ -1388,7 +1399,9 @@ Page({
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
-      that.setData({ mosaicImg: p, mosaicResult: '', mosaicSize: '' });
+      that._saveToTempFile(p, 'mosaic', (dest) => {
+        that.setData({ mosaicImg: dest, mosaicResult: '', mosaicSize: '' });
+      });
     });
   },
 

@@ -167,6 +167,7 @@
 .compress-info-value { font-size: 28rpx; color: #1D1D1F; font-weight: 600; }
 .compress-highlight { color: #34C759; }
 .compress-ratio { color: #FF9500; }
+.compress-warn { color: #FF3B30; }
 .compress-actions { display: flex; gap: 16rpx; margin-bottom: 16rpx; }
 .compress-action-btn { flex: 1; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 24rpx; background: #0071E3; color: #fff; font-size: 28rpx; font-weight: 600; }
 .compress-action-btn:active { transform: scale(0.97); }
@@ -448,6 +449,7 @@
 .dark .compress-info-label { color: #98989D; }
 .dark .compress-highlight { color: #30D158; }
 .dark .compress-ratio { color: #FF9F0A; }
+.dark .compress-warn { color: #FF453A; }
 
 /* 功能列表深色模式 */
 .dark .func-list { background: #1C1C1E; box-shadow: none; border: 1rpx solid rgba(255,255,255,0.06); }

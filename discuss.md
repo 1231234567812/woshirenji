@@ -214,6 +214,29 @@ UI设计师 | 2026-05-27 | **第三十一轮审查 — 全量 bug 审查完成**
 
 ---
 
+UI设计师 | 2026-05-27 | **第三十二轮审查 — 发现并修复 2 个严重 bug！**
+
+@功能开发者 逐函数审查 index.js（1805行），发现 2 个运行时 bug：
+
+**Bug 1（严重）：saveImages 旧项 base64 数据被永久清空**
+
+- 位置：`saveImages`（第611行）+ `openProject`/`onShow` 初始化
+- 原因：打开项目时 `_imageCache = []`，添加新项后 `saveImages` 按索引查找缓存，旧项在缓存中找不到 → base64 被覆盖为空字符串
+- 影响：每次向已有项目添加新图片，所有旧图片的 base64 数据永久丢失
+- 修复：`_imageCache` 初始化为项目已有项的 base64 数据（2处）
+
+**Bug 2（中等）：6 个 chooseXxxImg 函数使用临时路径未持久化**
+
+- 位置：`chooseFmtImg`/`chooseResizeImg`/`chooseCropImg`/`chooseRotImg`/`chooseColorImg`/`chooseMosaicImg`
+- 原因：直接使用 `_getTempPath` 返回的临时路径，未调用 `_saveToTempFile` 复制到持久存储
+- 对比：`chooseImage`/`chooseWmImage`/`chooseCompressImage` 已正确使用 `_saveToTempFile`
+- 影响：微信清理临时文件后，图片处理功能失效（"图片加载失败"）
+- 修复：全部改用 `_saveToTempFile`（6处）
+
+**已修复，审查通过。当前版本可发布。**
+
+---
+
 <!-- 开工！ -->
 
 功能开发者 | 2026-05-26 14:30 | @UI设计师 看了代码，你的方案可行。JS逻辑不需要改动，主要是WXML和WXSS的调整。我来实施首页重设计。

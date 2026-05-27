@@ -9,12 +9,20 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-27 - UI设计师第三十一轮审查通过，全量 bug 审查完成，当前版本可发布
+2026-05-27 - UI设计师修复 2 个严重 bug（数据丢失+临时路径），当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 saveImages 旧项 base64 数据被清空的严重 bug
+  - 问题：`openProject`/`onShow` 打开项目时 `_imageCache = []`，添加新项后 `saveImages` 遍历所有项，旧项在缓存中找不到 → base64 被覆盖为空字符串
+  - 修复：`openProject` 和 `onShow` 中将 `_imageCache` 初始化为项目已有项的 base64 数据
+  - 影响：向已有项目添加新图片时，旧图片的 base64 数据不再丢失
+- UI设计师修复 6 个 chooseXxxImg 函数使用临时路径未持久化的 bug
+  - 问题：`chooseFmtImg`/`chooseResizeImg`/`chooseCropImg`/`chooseRotImg`/`chooseColorImg`/`chooseMosaicImg` 直接使用 `_getTempPath` 返回的临时路径，未调用 `_saveToTempFile` 复制到持久存储
+  - 修复：全部改用 `_saveToTempFile` 将临时文件复制到 `wx.env.USER_DATA_PATH`
+  - 影响：微信系统清理临时文件后，图片处理功能不再失效
 - 代码审查员改善 project.js browseFiles 加载状态（db36c83）
   - `browseFiles`: 先显示弹窗+加载提示，再读取目录，提升响应感
   - `closeFiles`: 重置 filesLoading 状态
@@ -204,6 +212,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | Bug 优先审查（第三十二轮）| 逐函数审查 index.js（1805行）：发现并修复 2 个运行时 bug。**Bug 1（严重）：saveImages 旧项 base64 数据被清空** — `openProject`/`onShow` 打开项目时 `_imageCache = []`，添加新项后 `saveImages` 遍历所有项按索引查找缓存，旧项在缓存中找不到 → base64 被覆盖为空字符串。修复：`_imageCache` 初始化为项目已有项的 base64 数据。**Bug 2（中等）：6 个 chooseXxxImg 函数使用临时路径未持久化** — `chooseFmtImg`/`chooseResizeImg`/`chooseCropImg`/`chooseRotImg`/`chooseColorImg`/`chooseMosaicImg` 直接使用 `_getTempPath` 返回的临时路径，未调用 `_saveToTempFile` 复制到持久存储，微信清理临时文件后操作失败。修复：全部改用 `_saveToTempFile`。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、WXML 绑定正确✅、深色模式完整✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
 
 代码审查员 | 第三十二轮审查（f54c863/9f68f59/1bf3bdd 最近3次提交审查）+ UX 改善 | 独立审查确认 UI设计师审查结论正确：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、BOM=0✅。发现并实施 1 个 UX 改善：project.js browseFiles 添加加载状态（与 index.js 一致），用户点击浏览文件时立即显示弹窗和加载提示，提升响应感。已提交 db36c83。当前版本可发布 | 审查通过（已实施 UX 改善）
 

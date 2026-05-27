@@ -541,9 +541,9 @@
           <text class="compress-info-label">压缩后</text>
           <text class="compress-info-value compress-highlight">{{compressNewSize}}</text>
         </view>
-        <view class="compress-info-row" wx:if="{{compressRatio}}">
-          <text class="compress-info-label">减小</text>
-          <text class="compress-info-value compress-ratio">-{{compressRatio}}%</text>
+        <view class="compress-info-row" wx:if="{{compressRatio !== '' && compressRatio !== '0'}}">
+          <text class="compress-info-label">{{compressRatio < 0 ? '增大' : '减小'}}</text>
+          <text class="compress-info-value {{compressRatio < 0 ? 'compress-warn' : 'compress-ratio'}}">{{compressRatio < 0 ? -compressRatio : compressRatio}}%</text>
         </view>
       </view>
 
