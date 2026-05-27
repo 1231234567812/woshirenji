@@ -221,6 +221,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
 
+代码审查员 | 第三十三轮审查（46a7482/bad9af4 最近提交审查）| 审查范围：doCompress PNG/WebP 扩展名修复 + _saveToTempFile 双失败 callback 修复。逐函数审查 index.js（1812行）：运行时 bug=0✅（bad9af4 已修复 _saveToTempFile callback(null) + chooseFmtImg null 检查 + doCompress/shareCompressedImage 扩展名硬编码）、逻辑错误=0✅（所有条件判断正确、边界处理完整）、异步问题=0✅（所有异步操作都有 success/fail 回调且 callback 不会丢失）、内存泄漏=0✅（无事件监听泄漏、无定时器残留）、微信 API 用法=0✅（chooseMedia/chooseImage 兼容正确、canvasToTempFilePath 参数正确）、BOM=0✅。project.js 逻辑正确✅、custom-tab-bar 正常✅、WXML 绑定与 data 定义一致✅。代码优化建议：doRotate（1197-1290行）~80行手动 canvas 代码可改用 _canvasProcess 公共方法减少重复。当前版本可发布 | 审查通过
+
 UI设计师 | Bug 优先审查（第三十二轮）| 逐函数审查 index.js（1805行）：发现并修复 2 个运行时 bug。**Bug 1（严重）：saveImages 旧项 base64 数据被清空** — `openProject`/`onShow` 打开项目时 `_imageCache = []`，添加新项后 `saveImages` 遍历所有项按索引查找缓存，旧项在缓存中找不到 → base64 被覆盖为空字符串。修复：`_imageCache` 初始化为项目已有项的 base64 数据。**Bug 2（中等）：6 个 chooseXxxImg 函数使用临时路径未持久化** — `chooseFmtImg`/`chooseResizeImg`/`chooseCropImg`/`chooseRotImg`/`chooseColorImg`/`chooseMosaicImg` 直接使用 `_getTempPath` 返回的临时路径，未调用 `_saveToTempFile` 复制到持久存储，微信清理临时文件后操作失败。修复：全部改用 `_saveToTempFile`。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、WXML 绑定正确✅、深色模式完整✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
 
 代码审查员 | 第三十二轮审查（f54c863/9f68f59/1bf3bdd 最近3次提交审查）+ UX 改善 + bug 修复 | 独立审查确认 UI设计师审查结论正确：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、BOM=0✅。发现并实施 1 个 UX 改善：project.js browseFiles 添加加载状态（与 index.js 一致），已提交 db36c83。发现并修复 1 个 UI bug：压缩比例为负数时 WXML 显示双重负号（`--5%`），修复为根据正负显示"减小/增大"+绝对值，已提交 797179a。当前版本可发布 | 审查通过（已实施 UX 改善 + 修复 1 个 UI bug）
