@@ -184,3 +184,53 @@ SUCCESS: The process "node.exe" with PID 24320 has been terminated.
 🔄 git sync (pull + push)...
 Already up to date.
 📝 discuss.md: 57/100 条，无需清理
+审查完成。以下是第三十五轮审查结果。
+
+---
+
+**第三十五轮审查 — 审查通过，无新 bug**
+
+**审查范围：** 最近 5 次提交（ff2b32a ~ bad9af4）+ index.js 全量审查（1824行）+ project.js（156行）
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | 0 | 所有事件处理函数逻辑正确，null 检查完善 |
+| 逻辑错误 | 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | 0 | 所有回调都有 success/fail 处理，callback 链完整 |
+| 内存泄漏 | 0 | 无事件监听泄漏，无定时器残留 |
+| 微信 API | 0 | chooseMedia/chooseImage 兼容正确，canvasToTempFilePath 参数正确 |
+| BOM | 0 | 无 BOM |
+| this 上下文 | 0 | 所有 that = this 定义正确，回调中使用 that |
+| WXML 绑定 | 0 | 所有数据绑定与 data 定义一致 |
+
+**重点验证项：**
+- `_saveTempImage` null 检查（第1507行）— 已修复 ✅
+- 7 个 `chooseXxxImg` 的 null 检查（0226cb7）— 全部正确 ✅
+- `_imageCache` 初始化（打开项目时）— 正确保留旧项 base64 ✅
+- 批量转换缓存索引 — `_batchImgStart + idx` 与 `saveImages` 索引一致 ✅
+- `_canvasProcess` / `_canvasExport` — 回调签名兼容，错误处理完善 ✅
+
+**代码优化机会（非 bug）：**
+
+| # | 问题 | 说明 |
+|---|------|------|
+| 1 | `doRotate` 代码重复 | 1207-1300行 ~90 行手动 canvas 代码，可改用 `_canvasProcess` 减少 ~60 行 |
+| 2 | `_canvasExport` 与 `_canvasProcess` 重叠 | `_canvasProcess` 是超集，`doFmtConvert`/`doResize` 可改用它，然后删除 `_canvasExport` |
+| 3 | `Date.now()` ID 碰撞 | 低概率，批量并行时 `Date.now()+idx` 在同一毫秒内可能碰撞 |
+
+**审查结论：代码质量良好，无严重 bug。当前版本可发布。**
+SUCCESS: The process "node.exe" with PID 29060 has been terminated.
+SUCCESS: The process "node.exe" with PID 21252 has been terminated.
+SUCCESS: The process "node.exe" with PID 20700 has been terminated.
+SUCCESS: The process "node.exe" with PID 27804 has been terminated.
+📤 git push...
+✅ 本轮完成，24秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 23:28:29 第 7 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+Already up to date.
+📝 discuss.md: 57/100 条，无需清理
