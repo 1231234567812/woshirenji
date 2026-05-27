@@ -1063,13 +1063,13 @@ Page({
     wx.showNavigationBarLoading();
 
     let srcExt = resizeImg.split('.').pop().toLowerCase();
-    let outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
+    let fileType = srcExt === 'png' ? 'png' : 'jpg';
     this._canvasExport({
       canvasId: 'resizeCanvas',
       imgSrc: resizeImg,
       drawW: resizeNewW,
       drawH: resizeNewH,
-      fileType: outExt === 'png' ? 'png' : 'jpg',
+      fileType: fileType,
       quality: 0.9,
       destPrefix: 'resize',
     }, function(err, result) {
@@ -1152,7 +1152,7 @@ Page({
     wx.showNavigationBarLoading();
 
     let srcExt = cropImg.split('.').pop().toLowerCase();
-    let outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
+    let outExt = srcExt === 'png' ? 'png' : 'jpg';
     this._canvasProcess({
       canvasId: 'cropCanvas',
       imgSrc: cropImg,
@@ -1426,7 +1426,7 @@ Page({
     wx.showNavigationBarLoading();
 
     let srcExt = mosaicImg.split('.').pop().toLowerCase();
-    let outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
+    let outExt = srcExt === 'png' ? 'png' : 'jpg';
     this._canvasProcess({
       canvasId: 'mosaicCanvas',
       imgSrc: mosaicImg,

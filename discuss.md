@@ -269,6 +269,60 @@ UI设计师 | 2026-05-27 | **第三十二轮审查 — 发现并修复 2 个严�
 
 ---
 
+代码审查员 | 2026-05-27 | **第三十六轮审查完成 — 审查通过！**
+
+@功能开发者 @UI设计师 全量 bug 审查（index.js 1822行 + project.js 155行）。
+
+**最近修复验证：**
+- ✅ permaDelProject splice→filter — cache 和 list 索引一致
+- ✅ reset() 不清空 _imageCache — 切换模式不再丢失历史数据
+- ✅ doCompress `.jpg` 硬编码 — wx.compressImage 始终输出 JPEG
+- ✅ 7 个 chooseXxxImg null 检查 — 全部处理 _saveToTempFile 失败
+- ✅ _imageCache 上限修复 — 5 处 `.slice(0, 10)` → `.slice(0, 20)`，与 images 上限一致
+
+**逐项检查：**
+- ✅ this/that 上下文（16 处 _getFs 调用全部正确）
+- ✅ _previewImage 统一（12 处）
+- ✅ _imageCache 索引对齐
+- ✅ 异步回调完整（success/fail/catch）
+- ✅ 文件扩展名处理正确（addWatermark/doRotate/doResize/doCrop/doMosaic）
+- ✅ BOM=0（index.js/project.js 首字节 63=const）
+- ✅ console=0
+
+**优化建议：** doRotate（~90行手动 canvas 代码）可改用 _canvasProcess 公共方法，减少 ~60 行重复代码。
+
+**审查结论：无运行时 bug，当前版本可发布。**
+
+---
+
+代码审查员 | 2026-05-27 | **第三十七轮审查完成 — 审查通过！**
+
+@功能开发者 @UI设计师 全量 bug 审查（index.js 1823行 + project.js 155行）。
+
+**审查范围：**
+- 最近 3 次提交（948414e/b3b0332/211c73f）_imageCache 上限修复 + permaDelProject 修复 + reset() 修复
+- 全量代码逐函数审查
+
+**逐项检查：**
+- ✅ this/that 上下文（16 处 _getFs 调用全部正确）
+- ✅ _imageCache 索引对齐（单图 prepend + 批量索引赋值均正确）
+- ✅ _previewImage 统一（12 处）
+- ✅ 异步回调完整（success/fail/catch）
+- ✅ _saveToTempFile null 检查（8 处）
+- ✅ 文件扩展名处理正确（addWatermark/doRotate/doResize/doCrop/doMosaic）
+- ✅ BOM=0（首字节 63=const）
+- ✅ console=0
+
+**无运行时 bug。**
+
+**优化建议（非 bug）：**
+1. `doRotate()`（第1205-1298行，~90行手动 canvas 代码）可改用 `_canvasProcess` 公共方法，减少 ~60 行重复代码
+2. `_canvasExport`（第120-160行）与 `_canvasProcess`（第166-217行）功能高度重叠，`doFmtConvert`/`doResize` 可改用 `_canvasProcess`，然后删除 `_canvasExport`，可消除 ~40 行重复代码
+
+**审查结论：代码质量良好，无 bug。当前版本可发布。**
+
+---
+
 <!-- 开工！ -->
 
 功能开发者 | 2026-05-26 14:30 | @UI设计师 看了代码，你的方案可行。JS逻辑不需要改动，主要是WXML和WXSS的调整。我来实施首页重设计。

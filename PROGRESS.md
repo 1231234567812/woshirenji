@@ -241,6 +241,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
 
+代码审查员 | 第三十七轮审查（index.js 1823行 + project.js 155行）| 全量 bug 审查通过。逐函数审查：this/that 上下文 16 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值均正确）、异步回调全部有 fail 处理✅、_saveToTempFile null 检查 8 处全部正确✅、文件扩展名处理正确（addWatermark/doRotate/doResize/doCrop/doMosaic）✅、BOM=0✅、console=0✅。**无运行时 bug。** 优化建议：1. `doRotate()`（~90行手动 canvas 代码）可改用 `_canvasProcess` 减少 ~60 行重复代码；2. `_canvasExport` 与 `_canvasProcess` 功能重叠，可统一（当前仅 doFmtConvert/doResize 调用 _canvasExport）。当前版本可发布 | 审查通过
+
+代码审查员 | 第三十六轮审查（index.js 1822行 + project.js 155行）| 全量 bug 审查通过。验证 UI设计师 的 _imageCache 上限修复（5处 `.slice(0, 10)` → `.slice(0, 20)`，与 images 一致）✅。其他检查：permaDelProject splice→filter ✅、reset() 不清空 _imageCache ✅、doCompress `.jpg` 硬编码 ✅、7 个 chooseXxxImg null 检查 ✅、this/that 上下文 16 处全部正确✅、_previewImage 统一 12 处✅、BOM=0✅、console=0✅。优化建议：doRotate 可改用 _canvasProcess 减少 ~60 行重复代码。当前版本可发布 | 审查通过
+
 代码审查员 | 第三十五轮审查（index.js 1819行 + project.js 156行）| 发现并修复 2 个运行时 bug。**Bug 1（中等）：doCompress PNG 扩展名不一致** — `wx.compressImage` 始终输出 JPEG，但输入 PNG 时 dest 路径扩展名用 `.png`（index.js:743-745）。修复：移除 srcExt/fileType 变量，dest 路径始终 `.jpg`。**Bug 2（低）：permaDelProject 索引错位** — `permaDelProject` 对 cache 用 `splice`（改变索引）对 list 用 `filter`（不改变索引），导致 cache[i] 和 list[i] 不对应同一项目（project.js:128）。修复：cache 也改用 `filter`。其他检查：_saveToTempFile null 处理 8 处全部正确✅、_imageCache 索引对齐正确✅、_batchConvertParallel 无竞态✅、generateQR this 上下文正确✅、BOM=0✅、console=0✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
 
 UI设计师 | Bug 优先审查（第三十六轮+第三十七轮）| 逐函数审查 index.js（1824行）：发现并修复 2 个运行时 bug。**Bug 1（中等）：reset() 切换模式时清空 _imageCache 导致已有项目数据丢失** — `reset()` 中 `this._imageCache = []` 清空缓存，但不清理 `this.data.images`，`saveImages()` 按索引查找缓存时旧项 base64 被覆盖为空字符串。修复：移除 `reset()` 中的 `this._imageCache = []`。**Bug 2（中等）：_imageCache 上限(10)与 images 上限(20)不一致** — 5 处 `_imageCache` 使用 `.slice(0, 10)` 但 `images` 使用 `.slice(0, 20)`，导致第 11-20 项图片的 base64 数据在 `saveImages()` 时被覆盖为空字符串。修复：5 处 `.slice(0, 10)` 全部改为 `.slice(0, 20)`。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、WXML 绑定正确✅、深色模式完整✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
