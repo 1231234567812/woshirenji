@@ -15,6 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复 doCompress 压缩 PNG/WEBP 图片时输出扩展名硬编码为 .jpg 的 bug（bad9af4）
+  - `doCompress`: 保存路径从硬编码 `.jpg` 改为根据源文件扩展名动态计算（png 保留 png，其余输出 jpg）
+  - `shareCompressedImage`: 分享文件名从硬编码 `compressed.jpg` 改为从结果路径提取实际扩展名
+  - 影响：PNG 图片压缩后扩展名与实际格式一致，分享文件名也正确
 - 代码审查员修复压缩比例为负数时显示双重负号的 bug（797179a）
   - 问题：当压缩后图片反而变大时，`compressRatio` 为负数（如 -5），WXML 显示 `--5%`
   - 修复：WXML 根据 ratio 正负显示"减小/增大"，使用绝对值；index.js stageText 同步修复
