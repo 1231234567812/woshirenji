@@ -740,7 +740,9 @@ Page({
           that.setData({ compressProgress: 70, compressStage: '保存中...' });
           // 保存压缩结果
           let fs = that._getFs();
-          let dest = wx.env.USER_DATA_PATH + '/compressed_' + Date.now() + '.jpg';
+          let srcExt = src.split('.').pop().toLowerCase();
+          let fileType = srcExt === 'png' ? 'png' : 'jpg';
+          let dest = wx.env.USER_DATA_PATH + '/compressed_' + Date.now() + '.' + fileType;
           let doneData = { compressing: false, compressProgress: 100, compressStage: stageText, compressNewSize: newSizeStr, compressRatio: ratio };
           fs.copyFile({
             srcPath: compressedPath, destPath: dest,
@@ -772,7 +774,11 @@ Page({
 
   saveCompressedImage() { this._saveToAlbum(this.data.compressResultPath); },
 
-  shareCompressedImage() { this._shareFile(this.data.compressResultPath, 'compressed.jpg'); },
+  shareCompressedImage() {
+    let p = this.data.compressResultPath;
+    let ext = p ? p.split('.').pop() : 'jpg';
+    this._shareFile(p, 'compressed.' + ext);
+  },
 
   previewCompressResult() { this._previewImage(this.data.compressResultPath || this.data.compressImagePath); },
 
@@ -955,6 +961,7 @@ Page({
       let p = this._getTempPath(res);
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that._saveToTempFile(p, 'fmt', (dest) => {
+        if (!dest) return;
         let ext = dest.split('.').pop().toLowerCase();
         let from = 'jpg';
         if (ext === 'png') from = 'png';
@@ -1485,7 +1492,7 @@ Page({
         fs.saveFile({
           tempFilePath: tempPath,
           success: (res) => callback(res.savedFilePath),
-          fail: () => wx.showToast({ title: '图片保存失败', icon: 'none' }),
+          fail: () => { wx.showToast({ title: '图片保存失败', icon: 'none' }); callback(null); },
         });
       },
     });
