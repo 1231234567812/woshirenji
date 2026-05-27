@@ -15,6 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复压缩比例为负数时显示双重负号的 bug（797179a）
+  - 问题：当压缩后图片反而变大时，`compressRatio` 为负数（如 -5），WXML 显示 `--5%`
+  - 修复：WXML 根据 ratio 正负显示"减小/增大"，使用绝对值；index.js stageText 同步修复
+  - 新增 `.compress-warn` 红色样式（增大时使用，与"减小"的橙色区分）
 - UI设计师修复 saveImages 旧项 base64 数据被清空的严重 bug
   - 问题：`openProject`/`onShow` 打开项目时 `_imageCache = []`，添加新项后 `saveImages` 遍历所有项，旧项在缓存中找不到 → base64 被覆盖为空字符串
   - 修复：`openProject` 和 `onShow` 中将 `_imageCache` 初始化为项目已有项的 base64 数据
@@ -215,7 +219,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 
 UI设计师 | Bug 优先审查（第三十二轮）| 逐函数审查 index.js（1805行）：发现并修复 2 个运行时 bug。**Bug 1（严重）：saveImages 旧项 base64 数据被清空** — `openProject`/`onShow` 打开项目时 `_imageCache = []`，添加新项后 `saveImages` 遍历所有项按索引查找缓存，旧项在缓存中找不到 → base64 被覆盖为空字符串。修复：`_imageCache` 初始化为项目已有项的 base64 数据。**Bug 2（中等）：6 个 chooseXxxImg 函数使用临时路径未持久化** — `chooseFmtImg`/`chooseResizeImg`/`chooseCropImg`/`chooseRotImg`/`chooseColorImg`/`chooseMosaicImg` 直接使用 `_getTempPath` 返回的临时路径，未调用 `_saveToTempFile` 复制到持久存储，微信清理临时文件后操作失败。修复：全部改用 `_saveToTempFile`。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、WXML 绑定正确✅、深色模式完整✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
 
-代码审查员 | 第三十二轮审查（f54c863/9f68f59/1bf3bdd 最近3次提交审查）+ UX 改善 | 独立审查确认 UI设计师审查结论正确：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、BOM=0✅。发现并实施 1 个 UX 改善：project.js browseFiles 添加加载状态（与 index.js 一致），用户点击浏览文件时立即显示弹窗和加载提示，提升响应感。已提交 db36c83。当前版本可发布 | 审查通过（已实施 UX 改善）
+代码审查员 | 第三十二轮审查（f54c863/9f68f59/1bf3bdd 最近3次提交审查）+ UX 改善 + bug 修复 | 独立审查确认 UI设计师审查结论正确：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、BOM=0✅。发现并实施 1 个 UX 改善：project.js browseFiles 添加加载状态（与 index.js 一致），已提交 db36c83。发现并修复 1 个 UI bug：压缩比例为负数时 WXML 显示双重负号（`--5%`），修复为根据正负显示"减小/增大"+绝对值，已提交 797179a。当前版本可发布 | 审查通过（已实施 UX 改善 + 修复 1 个 UI bug）
 
 UI设计师 | Bug 优先审查（f54c863 HEAD 最近3次提交审查）| 审查范围：最近3次提交（f54c863/9f68f59/1bf3bdd）webp 扩展名修复 + 文件浏览 webp/gif 支持 + 压缩进度条。逐函数审查 index.js（1797行）：运行时 bug=0✅（所有事件处理函数逻辑正确、setData 数据结构与 WXML 绑定匹配、wx:if/wx:for 条件合理、异步回调错误处理完善、边界情况处理完善）、逻辑错误=0✅（条件判断正确、边界处理完整）、异步问题=0✅（所有异步操作都有 success/fail 回调）、内存泄漏=0✅（无事件监听泄漏、无定时器残留）、微信 API 用法=0✅（chooseMedia/chooseImage 兼容正确、canvasToTempFilePath 参数正确、previewImage 正确）、BOM=0✅（index.js/wxml/wxss 全部无 BOM）、console=0✅、深色模式完整✅、WXML 绑定正确✅、wxss 无布局塌陷风险✅。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、app.json 配置正确✅。当前版本可发布 | 审查通过
 
