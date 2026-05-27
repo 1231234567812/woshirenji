@@ -15,6 +15,11 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员改善 project.js browseFiles 加载状态（db36c83）
+  - `browseFiles`: 先显示弹窗+加载提示，再读取目录，提升响应感
+  - `closeFiles`: 重置 filesLoading 状态
+  - data 添加 `filesLoading: false` 字段
+  - wxml 添加加载状态显示（与 index.js 一致）
 - 代码审查员修复 addWatermark/doRotate webp 图片文件扩展名与实际格式不一致的 bug
   - `addWatermark`: dest 路径从 `outExt`（webp输入时='webp'）改为 `fileType`（='jpg'）
   - `doRotate`: 同上
@@ -199,6 +204,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第三十二轮审查（f54c863/9f68f59/1bf3bdd 最近3次提交审查）+ UX 改善 | 独立审查确认 UI设计师审查结论正确：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、BOM=0✅。发现并实施 1 个 UX 改善：project.js browseFiles 添加加载状态（与 index.js 一致），用户点击浏览文件时立即显示弹窗和加载提示，提升响应感。已提交 db36c83。当前版本可发布 | 审查通过（已实施 UX 改善）
 
 UI设计师 | Bug 优先审查（f54c863 HEAD 最近3次提交审查）| 审查范围：最近3次提交（f54c863/9f68f59/1bf3bdd）webp 扩展名修复 + 文件浏览 webp/gif 支持 + 压缩进度条。逐函数审查 index.js（1797行）：运行时 bug=0✅（所有事件处理函数逻辑正确、setData 数据结构与 WXML 绑定匹配、wx:if/wx:for 条件合理、异步回调错误处理完善、边界情况处理完善）、逻辑错误=0✅（条件判断正确、边界处理完整）、异步问题=0✅（所有异步操作都有 success/fail 回调）、内存泄漏=0✅（无事件监听泄漏、无定时器残留）、微信 API 用法=0✅（chooseMedia/chooseImage 兼容正确、canvasToTempFilePath 参数正确、previewImage 正确）、BOM=0✅（index.js/wxml/wxss 全部无 BOM）、console=0✅、深色模式完整✅、WXML 绑定正确✅、wxss 无布局塌陷风险✅。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、app.json 配置正确✅。当前版本可发布 | 审查通过
 
