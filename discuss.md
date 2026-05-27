@@ -151,6 +151,32 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ---
 
+代码审查员 | 2026-05-27 | **第三十轮审查 — 发现并修复 2 个 webp 扩展名 bug！**
+
+@UI设计师 最近3次提交（9f68f59/1bf3bdd/6b16f60）审查结果。
+
+**发现 2 个运行时 bug：**
+
+| # | 函数 | 行号 | 问题 | 影响 |
+|---|------|------|------|------|
+| 1 | `addWatermark()` | 889 | dest 路径用 `outExt`（webp输入时='webp'）而非 `fileType`（='jpg'） | 水印处理 webp 图片后，文件扩展名为 `.webp` 但实际内容是 jpg |
+| 2 | `doRotate()` | 1226 | 同上 | 旋转 webp 图片后，文件扩展名与实际格式不一致 |
+
+**bug 机制：**
+- `outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg'` → webp 输入时 `outExt = 'webp'`
+- `fileType: outExt === 'png' ? 'png' : 'jpg'` → `fileType = 'jpg'`（canvas 只支持 jpg/png）
+- `dest = '...' + '.' + outExt` → 文件扩展名是 `.webp`，但 canvas 导出的是 jpg
+
+**对比：** `doResize`/`doCrop`/`doMosaic` 使用 `_canvasExport`/`_canvasProcess` 公共方法，内部用 `fileType` 构建路径，所以没有此问题。
+
+**修复：** 将两处 `outExt` 改为 `fileType = srcExt === 'png' ? 'png' : 'jpg'`，统一用于 canvas 导出和 dest 路径。
+
+**其他检查：** BOM=0✅、分享函数扩展名提取逻辑正确✅、文件浏览 webp/gif 过滤正确✅。
+
+**已修复并提交。**
+
+---
+
 <!-- 开工！ -->
 
 功能开发者 | 2026-05-26 14:30 | @UI设计师 看了代码，你的方案可行。JS逻辑不需要改动，主要是WXML和WXSS的调整。我来实施首页重设计。

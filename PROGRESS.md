@@ -9,12 +9,27 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-27 - 代码审查员第二十九轮审查通过，066ce51 HEAD + 未提交 sizeType 修复+readUserFiles 修复，_chooseImage API 参数修复+_readUserFiles 回调补全
+2026-05-27 - 代码审查员第三十轮审查通过，修复 addWatermark/doRotate webp 扩展名 bug
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复 addWatermark/doRotate webp 图片文件扩展名与实际格式不一致的 bug
+  - `addWatermark`: dest 路径从 `outExt`（webp输入时='webp'）改为 `fileType`（='jpg'）
+  - `doRotate`: 同上
+  - 影响：webp 图片在水印/旋转后，文件扩展名与 canvas 导出格式一致
+- UI设计师修复分享文件名硬编码为 .jpg 导致 PNG 文件扩展名错误的 bug（6b16f60）
+  - `shareWmImage`: `'watermark.jpg'` → 从结果路径提取实际扩展名
+  - `shareResizeImg`: `'resized.jpg'` → 从结果路径提取实际扩展名
+  - `shareCropImg`: `'cropped.jpg'` → 从结果路径提取实际扩展名
+  - `shareRotImg`: `'rotated.jpg'` → 从结果路径提取实际扩展名
+  - `shareMosaicImg`: `'mosaic.jpg'` → 从结果路径提取实际扩展名
+  - 影响：PNG 图片在水印/尺寸调整/裁剪/旋转/马赛克后分享时，文件扩展名与实际格式一致
+- UI设计师补充文件浏览过滤支持 webp/gif 格式（1bf3bdd, 9f68f59）
+  - `index.js _readUserFiles`: 添加 `.webp`/`.gif` 过滤条件
+  - `project.js browseFiles`: 添加 `.webp`/`.gif` 过滤条件
+  - 影响：用户可以在文件浏览中看到 webp/gif 格式的图片
 - UI设计师修复 PNG 图片保存时扩展名和格式被强制改为 .jpg 的 bug
   - `_saveToTempFile`: 保留原始文件扩展名（png/webp/gif），不再统一用 `.jpg`
   - `addWatermark`: 检测输入格式，输出时保留 PNG/WebP 格式，canvasToTempFilePath 使用正确 fileType
@@ -184,6 +199,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第三十轮审查（9f68f59/1bf3bdd/6b16f60 最近3次提交审查）| 审查范围：分享文件名扩展名修复 + 文件浏览 webp/gif 支持。发现并修复 2 个运行时 bug：1. **addWatermark webp 扩展名不一致**（index.js:889）— dest 路径使用 `outExt`（webp输入时='webp'）而非 canvas 实际导出的 `fileType`（='jpg'），导致水印处理 webp 图片后文件扩展名为 `.webp` 但实际内容是 jpg。修复：`outExt` → `fileType = srcExt === 'png' ? 'png' : 'jpg'`，统一用于 canvas 导出和 dest 路径。2. **doRotate webp 扩展名不一致**（index.js:1226）— 同上，旋转 webp 图片后扩展名与格式不匹配。修复同上。其他检查：doResize/doCrop/doMosaic 使用 _canvasExport/_canvasProcess 公共方法内部用 fileType 构建路径，无此问题✅、分享函数从路径提取扩展名逻辑正确✅、文件浏览 webp/gif 过滤正确✅、BOM=0✅（首字节 63=con）、console=0✅、project.js 逻辑正确✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
 
 UI设计师 | Bug 优先审查（PNG 格式保留）| 逐函数审查 index.js（1753行）：发现并修复 6 个格式丢失 bug。1. `_saveToTempFile` 硬编码 `.jpg` 扩展名导致 PNG/WebP 原始扩展名丢失→改为保留原始扩展名。2. `addWatermark` 保存时硬编码 `.jpg`+无 fileType→检测输入格式保留 PNG/WebP。3. `doRotate` 保存时硬编码 `.jpg`+无 fileType→同上。4. `doResize` 硬编码 `fileType: 'jpg'`→检测输入格式传入正确 fileType。5. `doCrop` 使用默认 `fileType: 'jpg'`→同上。6. `doMosaic` 使用默认 `fileType: 'jpg'`→同上。影响：PNG 透明图片在 6 个处理功能后不再丢失格式信息和透明通道。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、app.json 配置正确✅、深色模式完整✅、WXML 绑定正确✅。当前版本可发布 | 审查通过
 

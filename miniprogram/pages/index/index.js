@@ -20,6 +20,7 @@ Page({
     images: [],
     filesShow: false,
     filesList: [],
+    filesLoading: false,
     fileMode: '',
     batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0,
     qrInput: '', qrImagePath: '', qrGenerating: false, qrEcLevel: 'M',
@@ -879,14 +880,14 @@ Page({
 
             // 导出图片
             let srcExt = wmImagePath.split('.').pop().toLowerCase();
-            let outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
+            let fileType = srcExt === 'png' ? 'png' : 'jpg';
             wx.canvasToTempFilePath({
               canvas: canvas,
-              fileType: outExt === 'png' ? 'png' : 'jpg',
+              fileType: fileType,
               quality: 0.9,
               success(res) {
                 let fs = that._getFs();
-                let dest = wx.env.USER_DATA_PATH + '/wm_result_' + Date.now() + '.' + outExt;
+                let dest = wx.env.USER_DATA_PATH + '/wm_result_' + Date.now() + '.' + fileType;
                 fs.copyFile({
                   srcPath: res.tempFilePath, destPath: dest,
                   success() {
@@ -1216,14 +1217,14 @@ Page({
             ctx.restore();
 
             let srcExt = rotImg.split('.').pop().toLowerCase();
-            let outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
+            let fileType = srcExt === 'png' ? 'png' : 'jpg';
             wx.canvasToTempFilePath({
               canvas: canvas,
-              fileType: outExt === 'png' ? 'png' : 'jpg',
+              fileType: fileType,
               quality: 0.9,
               success(r) {
                 let fs = that._getFs();
-                let dest = wx.env.USER_DATA_PATH + '/rot_' + Date.now() + '.' + outExt;
+                let dest = wx.env.USER_DATA_PATH + '/rot_' + Date.now() + '.' + fileType;
                 fs.copyFile({
                   srcPath: r.tempFilePath, destPath: dest,
                   success() {
@@ -1726,11 +1727,12 @@ Page({
     });
   },
   browseFiles() {
-    this._readUserFiles(list => this.setData({ filesList: list, filesShow: true, fileMode: '' }));
+    this.setData({ filesShow: true, filesList: [], fileMode: '', filesLoading: true });
+    this._readUserFiles(list => this.setData({ filesList: list, filesLoading: false }));
   },
   pickFileForMode(e) {
-    this.setData({ fileMode: e.currentTarget.dataset.mode });
-    this._readUserFiles(list => this.setData({ filesList: list, filesShow: true }));
+    this.setData({ fileMode: e.currentTarget.dataset.mode, filesShow: true, filesList: [], filesLoading: true });
+    this._readUserFiles(list => this.setData({ filesList: list, filesLoading: false }));
   },
   openFile(e) {
     let idx = e.currentTarget.dataset.index;
@@ -1766,7 +1768,7 @@ Page({
       },
     });
   },
-  closeFiles() { this.setData({ filesShow: false, fileMode: '' }); },
+  closeFiles() { this.setData({ filesShow: false, fileMode: '', filesLoading: false }); },
 
   loadHistory(e) {
     let idx = e.currentTarget.dataset.index, item = this.data.images[idx];
