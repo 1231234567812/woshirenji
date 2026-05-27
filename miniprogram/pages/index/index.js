@@ -505,7 +505,8 @@ Page({
       let p = ps.find(x => x.id === pendingId);
       if (p && !p.deleted) {
         wx.setNavigationBarTitle({ title: p.name });
-        this._imageCache = []; this._fullCode = ''; this._fullText = '';
+        this._imageCache = (p.items || []).map(item => ({ base64: item.base64 || '', textContent: item.textContent || '' }));
+        this._fullCode = ''; this._fullText = '';
         this.setData({
           view: 'work', curId: pendingId, curName: p.name,
           images: (p.items || []).map(img => ({ id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview })),
@@ -569,7 +570,8 @@ Page({
     let p = ps.find(x => x.id === id);
     if (!p || p.deleted) return;
     wx.setNavigationBarTitle({ title: p.name });
-    this._imageCache = []; this._fullCode = ''; this._fullText = '';
+    this._imageCache = (p.items || []).map(item => ({ base64: item.base64 || '', textContent: item.textContent || '' }));
+    this._fullCode = ''; this._fullText = '';
     this.setData({
       view: 'work', curId: id, curName: p.name,
       images: (p.items || []).map(img => ({ id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview })),

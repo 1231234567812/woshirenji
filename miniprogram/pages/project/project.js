@@ -1,7 +1,7 @@
 const app = getApp();
 
 Page({
-  data: { list: [], darkMode: false, filesShow: false, filesList: [] },
+  data: { list: [], darkMode: false, filesShow: false, filesList: [], filesLoading: false },
   _projectsCache: null, // 缓存项目数据
   _lastLoadTime: 0, // 上次加载时间戳
 
@@ -73,18 +73,22 @@ Page({
 
   browseFiles() {
     let that = this;
+    this.setData({ filesShow: true, filesList: [], filesLoading: true });
     wx.getFileSystemManager().readdir({
       dirPath: wx.env.USER_DATA_PATH,
       success: (res) => {
         let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png') || f.endsWith('.webp') || f.endsWith('.gif'));
         if (files.length === 0) {
-          that.setData({ filesList: [], filesShow: true });
+          that.setData({ filesList: [], filesLoading: false });
           wx.showToast({ title: '暂无文件', icon: 'none' });
           return;
         }
-        that.setData({ filesList: files.map(f => ({ name: f, path: wx.env.USER_DATA_PATH + '/' + f })), filesShow: true });
+        that.setData({ filesList: files.map(f => ({ name: f, path: wx.env.USER_DATA_PATH + '/' + f })), filesLoading: false });
       },
-      fail: () => wx.showToast({ title: '无法读取目录', icon: 'none' }),
+      fail: () => {
+        that.setData({ filesList: [], filesLoading: false });
+        wx.showToast({ title: '无法读取目录', icon: 'none' });
+      },
     });
   },
   openFile(e) {
@@ -101,7 +105,7 @@ Page({
       },
     });
   },
-  closeFiles() { this.setData({ filesShow: false }); },
+  closeFiles() { this.setData({ filesShow: false, filesLoading: false }); },
 
   applyDark(dark) {
     let bg = dark ? '#000000' : '#F5F5F7';

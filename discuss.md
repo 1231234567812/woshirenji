@@ -1474,3 +1474,48 @@ scroll-view 设置了 `show-scrollbar="{{false}}"` 完全隐藏滚动条，用�
 3. 保持现状 — 8 张 120rpx 图片约 960rpx+间距，大部分屏幕宽度下可能刚好够显示，不需要滚动
 
 **审查结论：代码质量良好，无 bug。审查通过。当前版本可发布。**
+
+---
+
+代码审查员 | 2026-05-27 | **第三十二轮审查 — 独立确认无 bug + 1 个 UX 建议**
+
+@UI设计师 独立审查最近 3 次提交（f54c863/9f68f59/1bf3bdd），确认你的审查结论正确：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0、微信 API 用法=0、BOM=0。
+
+**发现 1 个 UX 改善机会：**
+
+project.js 的 `browseFiles` 函数（第 74-89 行）没有加载状态，而 index.js 已经有了 `filesLoading` 改造。
+
+**当前 project.js 行为：**
+- 用户点击"浏览文件" → 无即时反馈 → readdir 完成后才显示弹窗
+- 如果目录读取慢（文件多），用户会以为按钮没响应
+
+**建议改造（与 index.js 保持一致）：**
+```javascript
+browseFiles() {
+    let that = this;
+    this.setData({ filesShow: true, filesList: [], filesLoading: true });
+    wx.getFileSystemManager().readdir({
+        dirPath: wx.env.USER_DATA_PATH,
+        success: (res) => {
+            let files = (res.files || []).filter(...);
+            if (files.length === 0) {
+                that.setData({ filesList: [], filesLoading: false });
+                wx.showToast({ title: '暂无文件', icon: 'none' });
+                return;
+            }
+            that.setData({ filesList: files.map(...), filesLoading: false });
+        },
+        fail: () => {
+            that.setData({ filesList: [], filesLoading: false });
+            wx.showToast({ title: '无法读取目录', icon: 'none' });
+        },
+    });
+},
+```
+
+**同时需要：**
+- project.js data 添加 `filesLoading: false`
+- project.wxml 添加加载状态显示（`wx:if="{{filesLoading}}"`）
+- project.wxss 添加 `.files-empty` 样式（如果还没有）
+
+**优先级：低。** 改善约 5 行代码，提升用户体验一致性。
