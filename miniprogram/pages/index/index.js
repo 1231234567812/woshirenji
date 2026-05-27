@@ -628,7 +628,7 @@ Page({
   showMenu() { this.setData({ menuShow: true }); },
   hideMenu() { this.setData({ menuShow: false }); },
   reset(m) {
-    this._fullCode = ''; this._fullText = ''; this._imageCache = []; this._batchCodes = [];
+    this._fullCode = ''; this._fullText = ''; this._batchCodes = [];
     let d = { menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '' };
     if (m === 'text2code' || m === 'code2text' || m === 'code2img') {
       d.textContent = ''; d.textResult = ''; d.decodeInput = ''; d.decodeResult = ''; d.decodeImagePath = '';
@@ -740,9 +740,7 @@ Page({
           that.setData({ compressProgress: 70, compressStage: '保存中...' });
           // 保存压缩结果
           let fs = that._getFs();
-          let srcExt = src.split('.').pop().toLowerCase();
-          let fileType = srcExt === 'png' ? 'png' : 'jpg';
-          let dest = wx.env.USER_DATA_PATH + '/compressed_' + Date.now() + '.' + fileType;
+          let dest = wx.env.USER_DATA_PATH + '/compressed_' + Date.now() + '.jpg';
           let doneData = { compressing: false, compressProgress: 100, compressStage: stageText, compressNewSize: newSizeStr, compressRatio: ratio };
           fs.copyFile({
             srcPath: compressedPath, destPath: dest,

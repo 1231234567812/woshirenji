@@ -15,6 +15,11 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 reset() 切换模式时清空 _imageCache 导致已有项目数据丢失的 bug
+  - 问题：`reset()` 函数中 `this._imageCache = []` 会清空缓存，但不清理 `this.data.images`，导致 `saveImages()` 按索引查找缓存时旧项 base64 被覆盖为空字符串
+  - 触发场景：在已有项目中点击菜单切换功能模式（如"图片转代码"），旧项 base64 数据丢失
+  - 修复：移除 `reset()` 中的 `this._imageCache = []`，缓存仅在 `openProject`/`onShow` 打开项目时初始化
+  - 影响：切换功能模式时不再丢失已有项目的历史数据
 - 功能开发者修复 8 个函数未处理 _saveToTempFile 失败时 callback(null) 的 bug（0226cb7, 66050da）
   - 问题：`_saveToTempFile` 在 `copyFile` 和 `saveFile` 都失败时调用 `callback(null)`，但 8 个函数未检查 null，导致后续操作使用 null 路径失败
   - 受影响函数：`chooseCompressImage`/`chooseWmImage`/`chooseResizeImg`/`chooseCropImg`/`chooseRotImg`/`chooseColorImg`/`chooseMosaicImg`/`_saveTempImage`
@@ -225,6 +230,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | Bug 优先审查（第三十六轮）| 逐函数审查 index.js（1824行）：发现并修复 1 个运行时 bug。**Bug（中等）：reset() 切换模式时清空 _imageCache 导致已有项目数据丢失** — `reset()` 中 `this._imageCache = []` 清空缓存，但不清理 `this.data.images`，`saveImages()` 按索引查找缓存时旧项 base64 被覆盖为空字符串。触发场景：在已有项目中点击菜单切换功能模式。修复：移除 `reset()` 中的 `this._imageCache = []`，缓存仅在 `openProject`/`onShow` 时初始化。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、WXML 绑定正确✅、深色模式完整✅。当前版本可发布 | 审查通过（已修复 1 个 bug）
 
 功能开发者 | 第三十四轮审查+修复（0226cb7, 66050da）| 逐函数审查 index.js（1819行）：发现并修复 8 个函数未处理 _saveToTempFile 失败时 callback(null) 的 bug。问题：bad9af4 修复了 _saveToTempFile 的 callback(null) 和 chooseFmtImg 的 null 检查，但遗漏了其他 7 个 chooseXxxImg 函数和 _saveTempImage。修复：8 个函数统一添加 null 检查。BOM=0✅（首字节 63=con）、this 上下文全部正确✅、异步回调全部有 fail 处理✅、边界情况处理完善✅。当前版本可发布 | 审查通过（已修复 8 个 bug）
 

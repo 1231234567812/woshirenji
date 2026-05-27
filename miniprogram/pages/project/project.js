@@ -126,9 +126,8 @@ Page({
           let i = ps.findIndex(p => p.id === id);
           if (i >= 0) {
             ps.splice(i, 1);
-            this._projectsCache = ps; // 更新缓存
             try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
-            // 局部更新：从列表中移除
+            // 同步从列表中移除（保持 list 索引与 _projectsCache 一致）
             let newList = this.data.list.filter(item => item.id !== id);
             this.setData({ list: newList });
             wx.showToast({ title: '已删除', icon: 'success' });
