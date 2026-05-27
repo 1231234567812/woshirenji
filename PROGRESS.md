@@ -9,12 +9,16 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-27 - 功能开发者修复 7 个 chooseXxxImg null 路径 bug，当前版本可发布
+2026-05-27 - 功能开发者修复 doResize webp 扩展名 bug，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复 doResize webp 图片扩展名与实际格式不一致的 bug
+  - `doResize` 使用 `outExt`（webp输入时='webp'）构建 dest 路径，但 canvas 实际导出 JPG
+  - 修复：移除 `outExt`，改用 `fileType = srcExt === 'png' ? 'png' : 'jpg'`
+  - 影响：webp 图片尺寸调整后，文件扩展名与实际格式一致
 - 代码审查员修复 doCompress PNG 图片压缩后扩展名与实际格式不一致的 bug
   - `wx.compressImage` 始终输出 JPEG，但输入 PNG 时 dest 路径扩展名为 `.png`
   - 修复：dest 路径始终使用 `.jpg`（与实际输出格式一致）
@@ -240,6 +244,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+功能开发者 | 第三十八轮审查+修复（681674c）| 逐函数审查 index.js（1823行）：发现并修复 1 个运行时 bug。**Bug（中等）：doResize webp 图片扩展名与实际格式不一致** — doResize 使用 `outExt`（webp输入时='webp'）构建 dest 路径，但 `_canvasExport` 内部 canvas 实际导出 JPG（webp 不是 canvas 支持的导出格式），导致文件扩展名为 `.webp` 但实际内容是 JPG。修复：移除 `outExt` 变量，改用 `fileType = srcExt === 'png' ? 'png' : 'jpg'`，与 `_canvasExport` 内部的 dest 路径构建一致。其他检查：doCrop/doMosaic 使用 `_canvasProcess` 内部用 `fileType` 构建路径无此问题✅、doRotate 已正确使用 `fileType`✅、addWatermark 已正确使用 `fileType`✅、this/that 上下文 16 处全部正确✅、异步回调全部有 fail 处理✅、BOM=0✅（首字节 63=con）、console=0✅。当前版本可发布 | 审查通过（已修复 1 个 bug）
 
 代码审查员 | 第三十七轮审查（index.js 1823行 + project.js 155行）| 全量 bug 审查通过。逐函数审查：this/that 上下文 16 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值均正确）、异步回调全部有 fail 处理✅、_saveToTempFile null 检查 8 处全部正确✅、文件扩展名处理正确（addWatermark/doRotate/doResize/doCrop/doMosaic）✅、BOM=0✅、console=0✅。**无运行时 bug。** 优化建议：1. `doRotate()`（~90行手动 canvas 代码）可改用 `_canvasProcess` 减少 ~60 行重复代码；2. `_canvasExport` 与 `_canvasProcess` 功能重叠，可统一（当前仅 doFmtConvert/doResize 调用 _canvasExport）。当前版本可发布 | 审查通过
 
