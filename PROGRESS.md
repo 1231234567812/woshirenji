@@ -9,12 +9,23 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-27 - 代码审查员第二十八轮审查通过，ebab9f9 HEAD + 未提交 scroll-view 改造，批量缓存 bug 修复+空目录回调修复+scroll-view 横向滚动改造
+2026-05-27 - 代码审查员第二十九轮审查通过，066ce51 HEAD + 未提交 sizeType 修复+readUserFiles 修复，_chooseImage API 参数修复+_readUserFiles 回调补全
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 PNG 图片保存时扩展名和格式被强制改为 .jpg 的 bug
+  - `_saveToTempFile`: 保留原始文件扩展名（png/webp/gif），不再统一用 `.jpg`
+  - `addWatermark`: 检测输入格式，输出时保留 PNG/WebP 格式，canvasToTempFilePath 使用正确 fileType
+  - `doRotate`: 检测输入格式，输出时保留 PNG/WebP 格式
+  - `doResize`: 检测输入格式，传入正确 fileType 给 _canvasExport
+  - `doCrop`: 检测输入格式，传入正确 fileType 给 _canvasProcess
+  - `doMosaic`: 检测输入格式，传入正确 fileType 给 _canvasProcess
+  - 影响：PNG 透明图片在水印/旋转/裁剪/马赛克/尺寸调整后不再丢失格式信息
+- 代码审查员修复 _chooseImage sizeType 参数类型错误+_readUserFiles fail 回调缺失
+  - `_chooseImage`: `sizeType` 从字符串改为数组包装（`Array.isArray` 检查），符合 wx.chooseMedia/chooseImage API 要求
+  - `_readUserFiles`: fail 回调添加 `callback([])` 调用，避免 readdir 失败时 browseFiles 无反应
 - UI设计师修复批量转换 MIME 类型硬编码+文件扩展名丢失+骨架屏数量不一致
   - `_batchConvertOne`: 检测实际图片格式(MIME)而非硬编码 `image/jpeg`，修复 PNG 图片 base64 前缀错误
   - `_saveTempImages`: 保留原始文件扩展名而非统一用 `.jpg`，配合 MIME 检测
@@ -173,6 +184,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | Bug 优先审查（PNG 格式保留）| 逐函数审查 index.js（1753行）：发现并修复 6 个格式丢失 bug。1. `_saveToTempFile` 硬编码 `.jpg` 扩展名导致 PNG/WebP 原始扩展名丢失→改为保留原始扩展名。2. `addWatermark` 保存时硬编码 `.jpg`+无 fileType→检测输入格式保留 PNG/WebP。3. `doRotate` 保存时硬编码 `.jpg`+无 fileType→同上。4. `doResize` 硬编码 `fileType: 'jpg'`→检测输入格式传入正确 fileType。5. `doCrop` 使用默认 `fileType: 'jpg'`→同上。6. `doMosaic` 使用默认 `fileType: 'jpg'`→同上。影响：PNG 透明图片在 6 个处理功能后不再丢失格式信息和透明通道。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、app.json 配置正确✅、深色模式完整✅、WXML 绑定正确✅。当前版本可发布 | 审查通过
+
+代码审查员 | 第二十九轮审查（066ce51 HEAD 最近提交审查）| 审查范围：最近3次提交（066ce51/ac6f46f/a75da78）批量清空确认提示 + index.js 全量 bug 审查。发现并修复 2 个 bug：1. **_chooseImage sizeType 参数类型错误**（index.js:251）— `sizeType` 作为字符串传给 `wx.chooseMedia`/`wx.chooseImage`，但 API 要求数组类型，可能导致压缩/原图偏好不生效。修复：添加 `Array.isArray(sizeType) ? sizeType : [sizeType]` 包装。2. **_readUserFiles fail 回调不调用 callback**（index.js:1704）— `readdir` 失败时只 showToast 不调用 callback，导致 browseFiles 不设置 filesShow，用户点击"浏览文件"无反应。修复：fail 回调添加 `callback([])`。其他检查：BOM=0✅（index.js 首字节 63=const，无 BOM）、console=0✅、this 上下文全部正确✅（10处 this 在 Page 方法/箭头函数内、7处 that 在 function 回调内）、_batchConvertOne 缓存索引正确✅（imgIdx=_batchImgStart+idx 与 saveImages 索引一致）、doCrop/doRotate/doMosaic 裁剪区域/旋转变换/马赛克算法正确✅、generateQR 回调链完整✅、addWatermark globalAlpha 重置正确✅、decodeToImage base64 校验正确✅、project.js 逻辑正确✅。发现 1 个低优先级问题：批量转换无法取消（用户切换模式时后台回调仍在运行，实际风险低因批量转换很快）。当前版本可发布 | 审查通过（已修复 2 个 bug）
 
 UI设计师 | Bug 优先审查（scroll-view 改造后）| 逐函数审查 index.js（1742行）：发现并修复 3 个 bug。1. 功能 bug：`_batchConvertOne` 硬编码 `data:image/jpeg;base64,` 导致 PNG 图片 base64 前缀错误，改为从文件扩展名检测 MIME 类型。2. 功能 bug：`_saveTempImages` 把所有文件保存为 `.jpg` 扩展名导致 MIME 检测失效，改为保留原始扩展名。3. UX 问题：骨架屏显示 4 张图片占位但实际显示 8 张，改为 6 个占位。其他检查：scroll-view 横向滚动实现正确✅、white-space:nowrap+inline-block 标准写法✅、深色模式 .dark .card-img 已适配✅、project.js 逻辑正确无 bug✅、custom-tab-bar 正常✅、app.json 配置正确✅、图标文件齐全✅。当前版本可发布 | 审查通过
 

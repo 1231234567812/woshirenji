@@ -249,10 +249,11 @@ Page({
 
   // 选择图片（公共方法）
   _chooseImage(count, sizeType, onSuccess) {
+    let st = Array.isArray(sizeType) ? sizeType : [sizeType];
     if (wx.chooseMedia) {
-      wx.chooseMedia({ count: count, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: sizeType, success: onSuccess, fail: () => {} });
+      wx.chooseMedia({ count: count, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: st, success: onSuccess, fail: () => {} });
     } else {
-      wx.chooseImage({ count: count, sourceType: ['album', 'camera'], sizeType: sizeType, success: onSuccess, fail: () => {} });
+      wx.chooseImage({ count: count, sourceType: ['album', 'camera'], sizeType: st, success: onSuccess, fail: () => {} });
     }
   },
 
@@ -877,13 +878,15 @@ Page({
             ctx.globalAlpha = 1;
 
             // 导出图片
+            let srcExt = wmImagePath.split('.').pop().toLowerCase();
+            let outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
             wx.canvasToTempFilePath({
               canvas: canvas,
+              fileType: outExt === 'png' ? 'png' : 'jpg',
               quality: 0.9,
               success(res) {
-                // 保存结果
                 let fs = that._getFs();
-                let dest = wx.env.USER_DATA_PATH + '/wm_result_' + Date.now() + '.jpg';
+                let dest = wx.env.USER_DATA_PATH + '/wm_result_' + Date.now() + '.' + outExt;
                 fs.copyFile({
                   srcPath: res.tempFilePath, destPath: dest,
                   success() {
@@ -1034,12 +1037,14 @@ Page({
     this.setData({ resizing: true });
     wx.showNavigationBarLoading();
 
+    let srcExt = resizeImg.split('.').pop().toLowerCase();
+    let outType = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
     this._canvasExport({
       canvasId: 'resizeCanvas',
       imgSrc: resizeImg,
       drawW: resizeNewW,
       drawH: resizeNewH,
-      fileType: 'jpg',
+      fileType: outType,
       quality: 0.9,
       destPrefix: 'resize',
     }, function(err, result) {
@@ -1114,11 +1119,14 @@ Page({
     this.setData({ cropping: true });
     wx.showNavigationBarLoading();
 
+    let srcExt = cropImg.split('.').pop().toLowerCase();
+    let outType = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
     this._canvasProcess({
       canvasId: 'cropCanvas',
       imgSrc: cropImg,
       imgInfo: { width: cropW, height: cropH },
       drawW: sw, drawH: sh,
+      fileType: outType,
       destPrefix: 'crop',
     }, function(ctx, canvas, img) {
       ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
@@ -1195,12 +1203,15 @@ Page({
             ctx.drawImage(img, -iw / 2, -ih / 2, iw, ih);
             ctx.restore();
 
+            let srcExt = rotImg.split('.').pop().toLowerCase();
+            let outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
             wx.canvasToTempFilePath({
               canvas: canvas,
+              fileType: outExt === 'png' ? 'png' : 'jpg',
               quality: 0.9,
               success(r) {
                 let fs = that._getFs();
-                let dest = wx.env.USER_DATA_PATH + '/rot_' + Date.now() + '.jpg';
+                let dest = wx.env.USER_DATA_PATH + '/rot_' + Date.now() + '.' + outExt;
                 fs.copyFile({
                   srcPath: r.tempFilePath, destPath: dest,
                   success() {
@@ -1365,9 +1376,12 @@ Page({
     this.setData({ mosaicing: true });
     wx.showNavigationBarLoading();
 
+    let srcExt = mosaicImg.split('.').pop().toLowerCase();
+    let outType = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
     this._canvasProcess({
       canvasId: 'mosaicCanvas',
       imgSrc: mosaicImg,
+      fileType: outType,
       destPrefix: 'mosaic',
     }, function(ctx, canvas, img, info) {
       let iw = info.width, ih = info.height;
@@ -1418,7 +1432,9 @@ Page({
   _saveToTempFile(tempPath, prefix, callback) {
     if (!tempPath) { wx.showToast({ title: '图片路径无效', icon: 'none' }); return; }
     let fs = this._getFs();
-    let dest = wx.env.USER_DATA_PATH + '/' + prefix + '_' + Date.now() + '.jpg';
+    let ext = tempPath.split('.').pop().toLowerCase();
+    if (['png', 'webp', 'gif'].indexOf(ext) < 0) ext = 'jpg';
+    let dest = wx.env.USER_DATA_PATH + '/' + prefix + '_' + Date.now() + '.' + ext;
     fs.copyFile({
       srcPath: tempPath, destPath: dest,
       success: () => callback(dest),
@@ -1686,7 +1702,7 @@ Page({
         if (files.length === 0) { callback([]); wx.showToast({ title: '暂无文件', icon: 'none' }); return; }
         callback(files.map(f => ({ name: f, path: wx.env.USER_DATA_PATH + '/' + f })));
       },
-      fail: () => wx.showToast({ title: '无法读取目录', icon: 'none' }),
+      fail: () => { callback([]); wx.showToast({ title: '无法读取目录', icon: 'none' }); },
     });
   },
   browseFiles() {
