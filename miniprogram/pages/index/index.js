@@ -286,7 +286,8 @@ Page({
     let saved = [];
     let pending = tempPaths.length;
     tempPaths.forEach((p, idx) => {
-      let dest = wx.env.USER_DATA_PATH + '/batch_' + Date.now() + '_' + idx + '.jpg';
+      let ext = p.split('.').pop() || 'jpg';
+      let dest = wx.env.USER_DATA_PATH + '/batch_' + Date.now() + '_' + idx + '.' + ext;
       fs.copyFile({
         srcPath: p, destPath: dest,
         success() { saved[idx] = dest; if (--pending === 0) that._startBatchConvert(saved); },
@@ -404,8 +405,16 @@ Page({
   },
 
   clearBatch() {
-    this._batchCodes = [];
-    this.setData({ batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0 });
+    if (this._batchCodes.length === 0) return;
+    wx.showModal({
+      title: '清空', content: '确定清空所有批量转换结果？',
+      success: (res) => {
+        if (res.confirm) {
+          this._batchCodes = [];
+          this.setData({ batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0 });
+        }
+      },
+    });
   },
 
   // ========== 二维码生成 ==========
