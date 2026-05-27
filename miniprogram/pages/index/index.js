@@ -340,7 +340,9 @@ Page({
       filePath: paths[idx],
       encoding: 'base64',
       success(res) {
-        let b64 = 'data:image/jpeg;base64,' + res.data;
+        let ext = paths[idx].split('.').pop().toLowerCase();
+        let mime = ext === 'png' ? 'image/png' : (ext === 'gif' ? 'image/gif' : (ext === 'webp' ? 'image/webp' : 'image/jpeg'));
+        let b64 = 'data:' + mime + ';base64,' + res.data;
         let kb = (res.data.length * 0.75 / 1024).toFixed(1);
         that._batchCodes.push(b64);
 

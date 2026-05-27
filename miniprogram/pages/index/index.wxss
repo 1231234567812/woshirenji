@@ -21,8 +21,8 @@
 .card-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18rpx; }
 .card-name { font-size: 28rpx; font-weight: 600; color: #1D1D1F; }
 .card-date { font-size: 24rpx; color: #86868B; font-weight: 500; background: #F5F5F7; padding: 6rpx 16rpx; border-radius: 12rpx; }
-.card-imgs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12rpx; margin-bottom: 18rpx; }
-.card-img { width: 100%; aspect-ratio: 1; border-radius: 12rpx; border: 1rpx solid rgba(0,0,0,0.06); object-fit: cover; }
+.card-imgs { white-space: nowrap; margin-bottom: 18rpx; }
+.card-img { width: 120rpx; height: 120rpx; border-radius: 12rpx; border: 1rpx solid rgba(0,0,0,0.06); object-fit: cover; margin-right: 12rpx; display: inline-block; flex-shrink: 0; }
 .card-ft { display: flex; justify-content: space-between; align-items: center; padding-top: 16rpx; border-top: 1rpx solid rgba(0,0,0,0.06); }
 .card-num { font-size: 24rpx; color: #0071E3; font-weight: 700; }
 .card-del { font-size: 24rpx; color: #FF3B30; padding: 12rpx 28rpx; border-radius: 12rpx; background: #FFF5F5; font-weight: 600; border: 1rpx solid rgba(255,59,48,0.12); transition: background 0.2s ease; }
@@ -420,8 +420,8 @@
 .skeleton-line { border-radius: 12rpx; background: #E5E5EA; }
 .skeleton-title { width: 200rpx; height: 32rpx; }
 .skeleton-date { width: 120rpx; height: 24rpx; }
-.skeleton-imgs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12rpx; margin-bottom: 18rpx; }
-.skeleton-img { aspect-ratio: 1; border-radius: 12rpx; background: #E5E5EA; }
+.skeleton-imgs { display: flex; gap: 12rpx; margin-bottom: 18rpx; }
+.skeleton-img { width: 120rpx; height: 120rpx; border-radius: 12rpx; background: #E5E5EA; flex-shrink: 0; }
 .skeleton-count { width: 80rpx; height: 24rpx; }
 
 .dark .skeleton-card { background: #1C1C1E; box-shadow: none; }

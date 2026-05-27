@@ -41,6 +41,8 @@
             <view class="skeleton-img"></view>
             <view class="skeleton-img"></view>
             <view class="skeleton-img"></view>
+            <view class="skeleton-img"></view>
+            <view class="skeleton-img"></view>
           </view>
           <view class="skeleton-row">
             <view class="skeleton-line skeleton-count"></view>
@@ -60,9 +62,9 @@
           <text class="card-name">{{item.name}}</text>
           <text class="card-date">{{item.date}}</text>
         </view>
-        <view class="card-imgs" wx:if="{{item.items.length > 0}}">
-          <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" lazy-load wx:if="{{img.type === 'image' && index < 4}}" />
-        </view>
+        <scroll-view class="card-imgs" scroll-x enhanced show-scrollbar="{{false}}" wx:if="{{item.items.length > 0}}">
+          <image wx:for="{{item.items}}" wx:for-item="img" wx:key="id" class="card-img" src="{{img.path}}" mode="aspectFill" lazy-load wx:if="{{img.type === 'image' && index < 8}}" />
+        </scroll-view>
         <view class="card-ft">
           <text class="card-num">{{item.items.length}} 项</text>
           <text class="card-del" catchtap="delProject" data-id="{{item.id}}">删除</text>
