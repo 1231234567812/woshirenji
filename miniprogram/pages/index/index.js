@@ -1504,7 +1504,7 @@ Page({
   },
 
   _saveTempImage(tempPath) {
-    this._saveToTempFile(tempPath, 'img', (dest) => this._onImagePicked(dest));
+    this._saveToTempFile(tempPath, 'img', (dest) => { if (dest) this._onImagePicked(dest); });
   },
 
   chooseImage() {
