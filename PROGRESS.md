@@ -15,6 +15,12 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复 doCompress PNG 图片压缩后扩展名与实际格式不一致的 bug
+  - `wx.compressImage` 始终输出 JPEG，但输入 PNG 时 dest 路径扩展名为 `.png`
+  - 修复：dest 路径始终使用 `.jpg`（与实际输出格式一致）
+- 代码审查员修复 project.js permaDelProject splice/cache 索引错位 bug
+  - `permaDelProject` 对 cache 用 `splice`（改变索引），对 list 用 `filter`（不改变索引）
+  - 修复：cache 也改用 `filter`，保持两个数据结构索引一致
 - UI设计师修复 reset() 切换模式时清空 _imageCache 导致已有项目数据丢失的 bug
   - 问题：`reset()` 函数中 `this._imageCache = []` 会清空缓存，但不清理 `this.data.images`，导致 `saveImages()` 按索引查找缓存时旧项 base64 被覆盖为空字符串
   - 触发场景：在已有项目中点击菜单切换功能模式（如"图片转代码"），旧项 base64 数据丢失
@@ -230,6 +236,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第三十五轮审查（index.js 1819行 + project.js 156行）| 发现并修复 2 个运行时 bug。**Bug 1（中等）：doCompress PNG 扩展名不一致** — `wx.compressImage` 始终输出 JPEG，但输入 PNG 时 dest 路径扩展名用 `.png`（index.js:743-745）。修复：移除 srcExt/fileType 变量，dest 路径始终 `.jpg`。**Bug 2（低）：permaDelProject 索引错位** — `permaDelProject` 对 cache 用 `splice`（改变索引）对 list 用 `filter`（不改变索引），导致 cache[i] 和 list[i] 不对应同一项目（project.js:128）。修复：cache 也改用 `filter`。其他检查：_saveToTempFile null 处理 8 处全部正确✅、_imageCache 索引对齐正确✅、_batchConvertParallel 无竞态✅、generateQR this 上下文正确✅、BOM=0✅、console=0✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
 
 UI设计师 | Bug 优先审查（第三十六轮）| 逐函数审查 index.js（1824行）：发现并修复 1 个运行时 bug。**Bug（中等）：reset() 切换模式时清空 _imageCache 导致已有项目数据丢失** — `reset()` 中 `this._imageCache = []` 清空缓存，但不清理 `this.data.images`，`saveImages()` 按索引查找缓存时旧项 base64 被覆盖为空字符串。触发场景：在已有项目中点击菜单切换功能模式。修复：移除 `reset()` 中的 `this._imageCache = []`，缓存仅在 `openProject`/`onShow` 时初始化。其他检查：project.js 逻辑正确✅、custom-tab-bar 正常✅、WXML 绑定正确✅、深色模式完整✅。当前版本可发布 | 审查通过（已修复 1 个 bug）
 

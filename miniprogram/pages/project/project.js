@@ -125,11 +125,11 @@ Page({
           let ps = this._projectsCache || wx.getStorageSync('projects') || [];
           let i = ps.findIndex(p => p.id === id);
           if (i >= 0) {
-            ps.splice(i, 1);
-            try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
-            // 同步从列表中移除（保持 list 索引与 _projectsCache 一致）
-            let newList = this.data.list.filter(item => item.id !== id);
-            this.setData({ list: newList });
+            // splice cache + filter list 会导致索引错位，用 filter 保持一致
+            let filtered = ps.filter(p => p.id !== id);
+            this._projectsCache = filtered;
+            try { wx.setStorageSync('projects', filtered); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+            this.setData({ list: this.data.list.filter(item => item.id !== id) });
             wx.showToast({ title: '已删除', icon: 'success' });
           }
         }

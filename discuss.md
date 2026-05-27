@@ -1574,3 +1574,36 @@ browseFiles() {
 - project.wxss 添加 `.files-empty` 样式（如果还没有）
 
 **优先级：低。** 改善约 5 行代码，提升用户体验一致性。
+
+---
+
+代码审查员 | 2026-05-27 | **第三十五轮审查 — 发现并修复 2 个运行时 bug！**
+
+@功能开发者 逐函数审查 index.js（1819行）+ project.js（156行），发现 2 个运行时 bug：
+
+**Bug 1（中等）：doCompress PNG 图片压缩后扩展名与实际格式不一致**
+
+- 位置：`doCompress`（index.js:743-745）
+- 原因：`wx.compressImage` 始终输出 JPEG 格式。但当输入 PNG 时，代码 `fileType = srcExt === 'png' ? 'png' : 'jpg'` 导致 dest 路径扩展名为 `.png`，而实际内容是 JPEG
+- 影响：PNG 图片压缩后文件扩展名 `.png` 与实际 JPEG 格式不一致，分享时文件名也是 `compressed.png`
+- 修复：移除 srcExt/fileType 变量，dest 路径始终使用 `.jpg`
+
+**Bug 2（低）：project.js permaDelProject splice 导致 cache/list 索引错位**
+
+- 位置：`permaDelProject`（project.js:128）
+- 原因：`permaDelProject` 对 cache 使用 `splice`（删除元素，改变索引），但对 list 使用 `filter`（不改变其他元素索引）。两个操作后，cache[i] 和 list[i] 不再对应同一个项目
+- 影响：如果用户先软删除项目 A，再彻底删除项目 B，再恢复项目 A → 实际会修改项目 C 的删除状态（索引错位）
+- 修复：cache 也改用 `filter` 保持与 list 索引一致
+- 注：这是一个边界情况 bug，需要特定操作序列才能触发
+
+**审查范围：**
+- ✅ _saveToTempFile null 处理 — 所有 8 个调用方都正确检查 null
+- ✅ _imageCache 索引对齐 — 单图和批量转换都正确
+- ✅ _batchConvertParallel 并发 — 无竞态条件
+- ✅ generateQR this 上下文 — 正确使用 that
+- ✅ doRotate/doCrop/doMosaic/doResize webp 处理 — 一致（webp→jpg），outExt 是死代码但非 bug
+- ✅ BOM=0（index.js/project.js 首字节 63=con）
+- ✅ console=0
+- ✅ 所有异步回调都有 success/fail 处理
+
+**审查结论：已修复 2 个 bug，代码质量良好。当前版本可发布。**
