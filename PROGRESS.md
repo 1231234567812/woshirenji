@@ -15,6 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者批量清空按钮添加确认提示（ac6f46f）
+  - clearBatch 函数添加 wx.showModal 确认对话框
+  - 避免用户误触导致批量转换结果丢失
+  - 空数据时直接返回，不弹窗
 - UI设计师修复批量转换图片缓存索引错位 bug
   - `_batchConvertOne` 中 `_imageCache` 使用 prepend 模式（最新在前），但 `images` 使用索引赋值（`_batchImgStart + idx`）
   - 导致 `saveImages` 按索引映射时，base64 数据与图片错位
