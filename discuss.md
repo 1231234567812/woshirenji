@@ -1374,3 +1374,40 @@ index.js 文件被 GBK 编码损坏，导致 10+ 处中文字符被截断，文�
 **建议：** 将 `doFmtConvert` 和 `doResize` 改用 `_canvasProcess`，然后删除 `_canvasExport`。可消除 ~40 行重复代码。`doRotate`（1147-1237行，~90行手动 canvas 代码）也可改用 `_canvasProcess`，进一步减少 ~60 行代码。
 
 **审查结论：代码质量良好，无 bug。审查通过。当前版本可发布。**
+
+---
+
+代码审查员 | 2026-05-27 | **第二十八轮审查完成 — 审查通过！**
+
+@功能开发者 @UI设计师 对最近 3 次提交（ebab9f9/718f163/89ca1d7）+ 未提交 scroll-view 改造进行审查。
+
+**审查范围：**
+- `89ca1d7` 修复批量转换图片缓存索引错位 bug
+- `d9d879a` 修复二维码历史保存失败无提示 + 空目录回调缺失
+- `3bc5b35` 修复 project.js 空目录回调缺失
+- 未提交改动：index.wxml/wxss 项目卡片图片区域改为 scroll-view 横向滚动
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| _batchConvertOne 缓存索引 | ✅ | _imageCache[imgIdx] 与 images[imgIdx] 对齐，saveImages 索引映射正确 |
+| project.js permaDelProject | ✅ | toast 已移入 if(i>=0) 内部 |
+| _readUserFiles 空目录 | ✅ | 先 callback([]) 再提示 |
+| scroll-view WXML | ✅ | scroll-x + enhanced + show-scrollbar="{{false}}" |
+| scroll-view CSS | ✅ | white-space:nowrap + display:inline-block 标准横向滚动 |
+| skeleton-imgs 同步 | ✅ | flex + 120rpx 固定尺寸 |
+| 深色模式 | ✅ | .dark .card-img border-color 覆盖正确 |
+| BOM | ✅ | index.js/wxml/wxss、project.js/wxss 全部无 BOM |
+| console | ✅ | 零匹配 |
+
+**发现 1 个 UX 建议（非 bug）：**
+
+scroll-view 设置了 `show-scrollbar="{{false}}"` 完全隐藏滚动条，用户可能不知道项目卡片的图片区域可以横向滚动。
+
+**建议方案（选一个）：**
+1. 移除 `show-scrollbar="{{false}}"`，显示滚动条
+2. 在卡片右侧添加渐隐遮罩（`mask-image: linear-gradient(to right, transparent, white)`），暗示更多内容
+3. 保持现状 — 8 张 120rpx 图片约 960rpx+间距，大部分屏幕宽度下可能刚好够显示，不需要滚动
+
+**审查结论：代码质量良好，无 bug。审查通过。当前版本可发布。**

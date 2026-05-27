@@ -9,12 +9,16 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-27 - 代码审查员第二十七轮审查通过，d0154b7 HEAD，_canvasProcess 重构+doCrop/doMosaic 重构+project.js toast 修复
+2026-05-27 - 代码审查员第二十八轮审查通过，ebab9f9 HEAD + 未提交 scroll-view 改造，批量缓存 bug 修复+空目录回调修复+scroll-view 横向滚动改造
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复批量转换 MIME 类型硬编码+文件扩展名丢失+骨架屏数量不一致
+  - `_batchConvertOne`: 检测实际图片格式(MIME)而非硬编码 `image/jpeg`，修复 PNG 图片 base64 前缀错误
+  - `_saveTempImages`: 保留原始文件扩展名而非统一用 `.jpg`，配合 MIME 检测
+  - 骨架屏图片占位从 4 个改为 6 个，与实际显示 8 张更接近
 - 功能开发者批量清空按钮添加确认提示（ac6f46f）
   - clearBatch 函数添加 wx.showModal 确认对话框
   - 避免用户误触导致批量转换结果丢失
@@ -169,6 +173,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | Bug 优先审查（scroll-view 改造后）| 逐函数审查 index.js（1742行）：发现并修复 3 个 bug。1. 功能 bug：`_batchConvertOne` 硬编码 `data:image/jpeg;base64,` 导致 PNG 图片 base64 前缀错误，改为从文件扩展名检测 MIME 类型。2. 功能 bug：`_saveTempImages` 把所有文件保存为 `.jpg` 扩展名导致 MIME 检测失效，改为保留原始扩展名。3. UX 问题：骨架屏显示 4 张图片占位但实际显示 8 张，改为 6 个占位。其他检查：scroll-view 横向滚动实现正确✅、white-space:nowrap+inline-block 标准写法✅、深色模式 .dark .card-img 已适配✅、project.js 逻辑正确无 bug✅、custom-tab-bar 正常✅、app.json 配置正确✅、图标文件齐全✅。当前版本可发布 | 审查通过
+
+代码审查员 | 第二十八轮审查（ebab9f9 HEAD + 未提交 scroll-view 改造）| 审查范围：最近3次提交（ebab9f9/718f163/89ca1d7）批量缓存 bug 修复 + project.js 空目录修复 + 未提交 index.wxml/wxss scroll-view 横向滚动改造。运行时 bug=0✅（_batchConvertOne 缓存索引修复正确、_imageCache/imgIdx 映射一致、saveImages 索引对齐验证通过）、逻辑错误=0✅（project.js permaDelProject toast 已移入 if(i>=0) 内部、_readUserFiles 空目录先 callback([]) 再提示）、异步问题=0✅（所有回调链完整）、微信 API 用法=0✅、BOM=0✅（index.js/wxml/wxss、project.js/wxss 全部无 BOM）、console=0✅。scroll-view 改造审查：WXML `<view>` → `<scroll-view scroll-x enhanced show-scrollbar="{{false}}">` 正确✅、CSS white-space:nowrap + display:inline-block 横向滚动标准写法✅、图片上限 4→8 合理✅、skeleton-imgs 同步改为 flex+固定尺寸✅、深色模式 .dark .card-img border-color 覆盖正确✅。发现 1 个 UX 建议：scroll-view 的 show-scrollbar="{{false}}" 完全隐藏滚动条，用户可能不知道可以横向滚动，建议考虑右侧渐隐遮罩或显示滚动条指示器 | 审查通过
 
 功能开发者 | 全量功能审查（2026-05-27）| 逐函数审查 index.js（1741行）+ index.wxml（669行）+ project.js（152行）：运行时 bug=0✅（所有 this 上下文正确、回调处理完善）、逻辑错误=0✅（条件判断正确、边界处理完整）、异步问题=0✅（所有异步操作都有 success/fail 回调）、内存泄漏=0✅（无事件监听泄漏、无定时器残留）、微信 API 用法=0✅（chooseMedia/chooseImage 兼容正确、canvasToTempFilePath 参数正确、previewImage 正确）、BOM=0✅（index.js/wxml/wxss、project.js 均无 BOM）、WXML 无嵌套 text 标签✅、project.js permaDelProject toast 已移入 if 内部✅。代码质量良好，无新增问题。当前版本可发布 | 审查通过
 
