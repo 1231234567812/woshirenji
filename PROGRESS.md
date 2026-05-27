@@ -15,10 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
-- 功能开发者修复 7 个 chooseXxxImg 函数未处理 _saveToTempFile 失败时 callback(null) 的 bug（0226cb7）
-  - 问题：`_saveToTempFile` 在 `copyFile` 和 `saveFile` 都失败时调用 `callback(null)`，但 7 个函数未检查 null，导致后续操作使用 null 路径失败
-  - 受影响函数：`chooseCompressImage`/`chooseWmImage`/`chooseResizeImg`/`chooseCropImg`/`chooseRotImg`/`chooseColorImg`/`chooseMosaicImg`
-  - 修复：所有函数统一添加 `if (!dest) return;` 检查，与 `chooseFmtImg` 保持一致
+- 功能开发者修复 8 个函数未处理 _saveToTempFile 失败时 callback(null) 的 bug（0226cb7, 66050da）
+  - 问题：`_saveToTempFile` 在 `copyFile` 和 `saveFile` 都失败时调用 `callback(null)`，但 8 个函数未检查 null，导致后续操作使用 null 路径失败
+  - 受影响函数：`chooseCompressImage`/`chooseWmImage`/`chooseResizeImg`/`chooseCropImg`/`chooseRotImg`/`chooseColorImg`/`chooseMosaicImg`/`_saveTempImage`
+  - 修复：所有函数统一添加 `if (!dest) return;` 或 `if (p)` 检查，与 `chooseFmtImg` 保持一致
   - 影响：图片保存失败时用户只看到一条错误提示，不再出现误导性错误
 - 功能开发者修复 doCompress 压缩 PNG/WEBP 图片时输出扩展名硬编码为 .jpg 的 bug（bad9af4）
   - `doCompress`: 保存路径从硬编码 `.jpg` 改为根据源文件扩展名动态计算（png 保留 png，其余输出 jpg）
@@ -226,7 +226,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
 
-功能开发者 | 第三十四轮审查+修复（0226cb7）| 逐函数审查 index.js（1819行）：发现并修复 7 个 chooseXxxImg 函数未处理 _saveToTempFile 失败时 callback(null) 的 bug。问题：bad9af4 修复了 _saveToTempFile 的 callback(null) 和 chooseFmtImg 的 null 检查，但遗漏了其他 7 个函数。修复：chooseCompressImage/chooseWmImage/chooseResizeImg/chooseCropImg/chooseRotImg/chooseColorImg/chooseMosaicImg 统一添加 `if (!dest) return;`。BOM=0✅（首字节 63=con）、this 上下文全部正确✅、异步回调全部有 fail 处理✅、边界情况处理完善✅。当前版本可发布 | 审查通过（已修复 7 个 bug）
+功能开发者 | 第三十四轮审查+修复（0226cb7, 66050da）| 逐函数审查 index.js（1819行）：发现并修复 8 个函数未处理 _saveToTempFile 失败时 callback(null) 的 bug。问题：bad9af4 修复了 _saveToTempFile 的 callback(null) 和 chooseFmtImg 的 null 检查，但遗漏了其他 7 个 chooseXxxImg 函数和 _saveTempImage。修复：8 个函数统一添加 null 检查。BOM=0✅（首字节 63=con）、this 上下文全部正确✅、异步回调全部有 fail 处理✅、边界情况处理完善✅。当前版本可发布 | 审查通过（已修复 8 个 bug）
 
 代码审查员 | 第三十三轮审查（46a7482/bad9af4 最近提交审查）| 审查范围：doCompress PNG/WebP 扩展名修复 + _saveToTempFile 双失败 callback 修复。逐函数审查 index.js（1812行）：运行时 bug=0✅（bad9af4 已修复 _saveToTempFile callback(null) + chooseFmtImg null 检查 + doCompress/shareCompressedImage 扩展名硬编码）、逻辑错误=0✅（所有条件判断正确、边界处理完整）、异步问题=0✅（所有异步操作都有 success/fail 回调且 callback 不会丢失）、内存泄漏=0✅（无事件监听泄漏、无定时器残留）、微信 API 用法=0✅（chooseMedia/chooseImage 兼容正确、canvasToTempFilePath 参数正确）、BOM=0✅。project.js 逻辑正确✅、custom-tab-bar 正常✅、WXML 绑定与 data 定义一致✅。代码优化建议：doRotate（1197-1290行）~80行手动 canvas 代码可改用 _canvasProcess 公共方法减少重复。当前版本可发布 | 审查通过
 
