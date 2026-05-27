@@ -1042,13 +1042,13 @@ Page({
     wx.showNavigationBarLoading();
 
     let srcExt = resizeImg.split('.').pop().toLowerCase();
-    let outType = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
+    let outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
     this._canvasExport({
       canvasId: 'resizeCanvas',
       imgSrc: resizeImg,
       drawW: resizeNewW,
       drawH: resizeNewH,
-      fileType: outType,
+      fileType: outExt === 'png' ? 'png' : 'jpg',
       quality: 0.9,
       destPrefix: 'resize',
     }, function(err, result) {
@@ -1128,13 +1128,13 @@ Page({
     wx.showNavigationBarLoading();
 
     let srcExt = cropImg.split('.').pop().toLowerCase();
-    let outType = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
+    let outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
     this._canvasProcess({
       canvasId: 'cropCanvas',
       imgSrc: cropImg,
       imgInfo: { width: cropW, height: cropH },
       drawW: sw, drawH: sh,
-      fileType: outType,
+      fileType: outExt === 'png' ? 'png' : 'jpg',
       destPrefix: 'crop',
     }, function(ctx, canvas, img) {
       ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
@@ -1393,11 +1393,11 @@ Page({
     wx.showNavigationBarLoading();
 
     let srcExt = mosaicImg.split('.').pop().toLowerCase();
-    let outType = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
+    let outExt = (srcExt === 'png' || srcExt === 'webp') ? srcExt : 'jpg';
     this._canvasProcess({
       canvasId: 'mosaicCanvas',
       imgSrc: mosaicImg,
-      fileType: outType,
+      fileType: outExt === 'png' ? 'png' : 'jpg',
       destPrefix: 'mosaic',
     }, function(ctx, canvas, img, info) {
       let iw = info.width, ih = info.height;
@@ -1718,7 +1718,7 @@ Page({
     this._getFs().readdir({
       dirPath: wx.env.USER_DATA_PATH,
       success: (res) => {
-        let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png'));
+        let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png') || f.endsWith('.webp') || f.endsWith('.gif'));
         if (files.length === 0) { callback([]); wx.showToast({ title: '暂无文件', icon: 'none' }); return; }
         callback(files.map(f => ({ name: f, path: wx.env.USER_DATA_PATH + '/' + f })));
       },
