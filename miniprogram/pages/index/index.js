@@ -290,6 +290,7 @@ Page({
           that.setData({ batchConverting: false, batchProgress: '全部完成', images: sliced });
           that.saveImages(sliced);
           wx.showToast({ title: '转换完成', icon: 'success' });
+          setTimeout(function() { that.setData({ batchProgress: '' }); }, 3000);
         }
       });
     }
@@ -410,10 +411,10 @@ Page({
           var list = [itemMeta].concat(that.data.images).slice(0, 20);
           that.setData({ images: list });
           that.saveImages(list);
+          wx.showToast({ title: '已生成', icon: 'success' });
         },
-        fail: function() { wx.showToast({ title: '历史保存失败', icon: 'none' }); }
+        fail: function() { wx.showToast({ title: '已生成，但历史保存失败', icon: 'none' }); }
       });
-      wx.showToast({ title: '已生成', icon: 'success' });
     });
   },
 
@@ -588,7 +589,7 @@ Page({
   showMenu() { this.setData({ menuShow: true }); },
   hideMenu() { this.setData({ menuShow: false }); },
   reset(m) {
-    this._fullCode = ''; this._fullText = ''; this._batchCodes = [];
+    this._fullCode = ''; this._fullText = '';
     let d = { menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '' };
     if (m === 'text2code' || m === 'code2text' || m === 'code2img') {
       d.textContent = ''; d.textResult = ''; d.decodeInput = ''; d.decodeResult = ''; d.decodeImagePath = '';
@@ -673,6 +674,7 @@ Page({
   },
 
   doCompress() {
+    if (this.data.compressing) return;
     let that = this;
     let src = this.data.compressImagePath;
     if (!src) return;
@@ -842,6 +844,7 @@ Page({
   setFmtTo(e) { this.setData({ fmtTo: e.currentTarget.dataset.fmt }); },
 
   doFmtConvert() {
+    if (this.data.fmtConverting) return;
     let that = this;
     let { fmtImg, fmtTo } = this.data;
     if (!fmtImg) return;
@@ -916,6 +919,7 @@ Page({
   toggleResizeRatio() { this.setData({ resizeRatio: !this.data.resizeRatio }); },
 
   doResize() {
+    if (this.data.resizing) return;
     let that = this;
     let { resizeImg, resizeNewW, resizeNewH } = this.data;
     if (!resizeImg || resizeNewW <= 0 || resizeNewH <= 0) return;
@@ -977,6 +981,7 @@ Page({
   setCropRatio(e) { this.setData({ cropRatio: e.currentTarget.dataset.ratio }); },
 
   doCrop() {
+    if (this.data.cropping) return;
     let that = this;
     let { cropImg, cropW, cropH, cropRatio } = this.data;
     if (!cropImg || cropW <= 0 || cropH <= 0) return;
@@ -1065,6 +1070,7 @@ Page({
   rotFlipV() { this.setData({ rotFlipV: !this.data.rotFlipV }); },
 
   doRotate() {
+    if (this.data.rotating) return;
     let that = this;
     let { rotImg, rotDeg, rotFlipH, rotFlipV } = this.data;
     if (!rotImg) return;
@@ -1239,6 +1245,7 @@ Page({
   setMosaicLevel(e) { this.setData({ mosaicLevel: Number(e.currentTarget.dataset.level) }); },
 
   doMosaic() {
+    if (this.data.mosaicing) return;
     let that = this;
     let { mosaicImg, mosaicLevel } = this.data;
     if (!mosaicImg) return;
@@ -1304,7 +1311,7 @@ Page({
   },
 
   _saveToTempFile(tempPath, prefix, callback) {
-    if (!tempPath) { wx.showToast({ title: '图片路径无效', icon: 'none' }); return; }
+    if (!tempPath) { wx.showToast({ title: '图片路径无效', icon: 'none' }); callback(null); return; }
     let fs = this._getFs();
     let ext = tempPath.split('.').pop().toLowerCase();
     if (['png', 'webp', 'gif'].indexOf(ext) < 0) ext = 'jpg';
