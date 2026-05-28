@@ -15,6 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复 catch 块参数遮蔽外层事件参数（fd37ed0）
+  - `project.js` 3 处 `catch (e)` 遮蔽了外层函数参数 `e`
+  - `index.js` `quickAction` 中 `catch (e)` 遮蔽了事件参数 `e`
+  - 修复：全部改为 `catch (err)`
 - 代码审查员删除 _canvasExport 死代码（e1b821f）
   - `doFmtConvert` 和 `doResize` 改用 `_canvasProcess` 公共方法
   - 删除 `_canvasExport`（41 行），消除与 `_canvasProcess` 的功能重叠
