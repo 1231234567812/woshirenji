@@ -1377,7 +1377,7 @@ Page({
       let p = { id: 'p_' + Date.now(), name: '快速项目', date: new Date().toLocaleString(), items: [] };
       ps.unshift(p);
       this._projectsCache = ps; // 更新缓存
-      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
+      try { wx.setStorageSync('projects', ps); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
       this.setData({ view: 'work', curId: p.id, curName: p.name, images: [] });
     } else {
       this.setData({ view: 'work' });

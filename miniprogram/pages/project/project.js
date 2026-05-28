@@ -62,7 +62,7 @@ Page({
           if (i >= 0) {
             ps[i].deleted = true;
             this._projectsCache = ps; // 更新缓存
-            try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+            try { wx.setStorageSync('projects', ps); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
             // 局部更新，避免全量重载
             this.setData({ ['list[' + i + '].deleted']: true });
           }
@@ -128,7 +128,7 @@ Page({
             // splice cache + filter list 会导致索引错位，用 filter 保持一致
             let filtered = ps.filter(p => p.id !== id);
             this._projectsCache = filtered;
-            try { wx.setStorageSync('projects', filtered); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+            try { wx.setStorageSync('projects', filtered); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
             this.setData({ list: this.data.list.filter(item => item.id !== id) });
             wx.showToast({ title: '已删除', icon: 'success' });
           }
@@ -146,7 +146,7 @@ Page({
     if (i >= 0) {
       ps[i].deleted = false;
       this._projectsCache = ps; // 更新缓存
-      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+      try { wx.setStorageSync('projects', ps); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
       // 局部更新
       this.setData({ ['list[' + i + '].deleted']: false });
       wx.showToast({ title: '已恢复', icon: 'success' });
