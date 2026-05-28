@@ -9,12 +9,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-28 - 代码审查员修复批量转换并发保护 bug，当前版本可发布
+2026-05-28 - 代码审查员删除 _canvasExport 死代码，净减少 52 行，当前版本可发布
 
 ## 当前正在做的事
-<!-- 功能开发者审查中 -->
+<!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员删除 _canvasExport 死代码（e1b821f）
+  - `doFmtConvert` 和 `doResize` 改用 `_canvasProcess` 公共方法
+  - 删除 `_canvasExport`（41 行），消除与 `_canvasProcess` 的功能重叠
+  - 净减少 52 行重复代码（19 行新增，71 行删除）
+  - 与 `doCrop`/`doMosaic`/`doRotate` 保持一致的代码模式
 - 代码审查员修复批量转换无并发保护 bug
   - `chooseBatchImage` 缺少 `batchConverting` 状态检查
   - 用户快速连续点击可导致 `_batchCodes`/`_batchDone`/`_batchImgStart` 混乱
