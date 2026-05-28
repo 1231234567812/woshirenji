@@ -1210,83 +1210,42 @@ Page({
     this.setData({ rotating: true });
     wx.showNavigationBarLoading();
 
+    let srcExt = rotImg.split('.').pop().toLowerCase();
+    let fileType = srcExt === 'png' ? 'png' : 'jpg';
+    let isRightAngle = (rotDeg === 90 || rotDeg === 270);
+
     wx.getImageInfo({
       src: rotImg,
       success(info) {
         let iw = info.width, ih = info.height;
-        // 90/270度旋转时宽高互换
-        let isRightAngle = (rotDeg === 90 || rotDeg === 270);
         let cw = isRightAngle ? ih : iw;
         let ch = isRightAngle ? iw : ih;
 
-        const query = wx.createSelectorQuery();
-        query.select('#rotCanvas').fields({ node: true, size: true }).exec((res) => {
-          if (!res[0] || !res[0].node) {
-            that.setData({ rotating: false });
-            wx.hideNavigationBarLoading();
-            wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
-            return;
+        that._canvasProcess({
+          canvasId: 'rotCanvas',
+          imgSrc: rotImg,
+          imgInfo: info,
+          drawW: cw,
+          drawH: ch,
+          fileType: fileType,
+          destPrefix: 'rot',
+        }, function(ctx, canvas, img) {
+          ctx.save();
+          ctx.translate(cw / 2, ch / 2);
+          ctx.rotate(rotDeg * Math.PI / 180);
+          if (rotFlipH) ctx.scale(-1, 1);
+          if (rotFlipV) ctx.scale(1, -1);
+          ctx.drawImage(img, -iw / 2, -ih / 2, iw, ih);
+          ctx.restore();
+        }, function(err, result) {
+          that.setData({ rotating: false });
+          wx.hideNavigationBarLoading();
+          if (err) {
+            wx.showToast({ title: err, icon: 'none' });
+          } else {
+            that.setData({ rotResult: result.path, rotSize: result.size });
+            wx.showToast({ title: '旋转完成', icon: 'success' });
           }
-          const canvas = res[0].node;
-          const ctx = canvas.getContext('2d');
-          canvas.width = cw;
-          canvas.height = ch;
-
-          const img = canvas.createImage();
-          img.onload = function() {
-            ctx.save();
-            ctx.translate(cw / 2, ch / 2);
-            ctx.rotate(rotDeg * Math.PI / 180);
-            if (rotFlipH) ctx.scale(-1, 1);
-            if (rotFlipV) ctx.scale(1, -1);
-            ctx.drawImage(img, -iw / 2, -ih / 2, iw, ih);
-            ctx.restore();
-
-            let srcExt = rotImg.split('.').pop().toLowerCase();
-            let fileType = srcExt === 'png' ? 'png' : 'jpg';
-            wx.canvasToTempFilePath({
-              canvas: canvas,
-              fileType: fileType,
-              quality: 0.9,
-              success(r) {
-                let fs = that._getFs();
-                let dest = wx.env.USER_DATA_PATH + '/rot_' + Date.now() + '.' + fileType;
-                fs.copyFile({
-                  srcPath: r.tempFilePath, destPath: dest,
-                  success() {
-                    wx.getFileInfo({
-                      filePath: dest,
-                      success(fi) {
-                        let kb = (fi.size / 1024).toFixed(1);
-                        that.setData({ rotResult: dest, rotSize: kb + ' KB', rotating: false });
-                        wx.hideNavigationBarLoading();
-                        wx.showToast({ title: '旋转完成', icon: 'success' });
-                      },
-                      fail() {
-                        that.setData({ rotResult: dest, rotSize: '', rotating: false });
-                        wx.hideNavigationBarLoading();
-                      },
-                    });
-                  },
-                  fail() {
-                    that.setData({ rotResult: r.tempFilePath, rotSize: '', rotating: false });
-                    wx.hideNavigationBarLoading();
-                  },
-                });
-              },
-              fail() {
-                that.setData({ rotating: false });
-                wx.hideNavigationBarLoading();
-                wx.showToast({ title: '导出失败', icon: 'none' });
-              },
-            });
-          };
-          img.onerror = function() {
-            that.setData({ rotating: false });
-            wx.hideNavigationBarLoading();
-            wx.showToast({ title: '图片加载失败', icon: 'none' });
-          };
-          img.src = rotImg;
         });
       },
       fail() {
