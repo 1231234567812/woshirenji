@@ -9,12 +9,18 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-28 - 第四十四轮审查通过，批量转换 imgIdx 守卫+images/_imageCache 同步 slice，当前版本可发布
+2026-05-28 - addWatermark 改用 _canvasProcess，净减少 90 行重复代码，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员重构 addWatermark 改用 _canvasProcess 公共方法（1d9a6ae）
+  - `addWatermark` 原有 ~140 行独立 canvas 处理代码（Canvas 初始化、图片加载、导出、保存）
+  - 重构后使用 `_canvasProcess` 公共方法，水印绘制逻辑保留在 `drawFn` 回调中
+  - 与 `doFmtConvert`/`doResize`/`doCrop`/`doMosaic`/`doRotate` 保持一致的代码模式
+  - 净减少 90 行重复代码（41 行新增，131 行删除）
+  - index.js 从 1733 行减少到 1643 行
 - 代码审查员修复 catch 块参数遮蔽外层事件参数（fd37ed0）
   - `project.js` 3 处 `catch (e)` 遮蔽了外层函数参数 `e`
   - `index.js` `quickAction` 中 `catch (e)` 遮蔽了事件参数 `e`
