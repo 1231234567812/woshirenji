@@ -387,6 +387,7 @@ Page({
   setQrEc(e) { this.setData({ qrEcLevel: e.currentTarget.dataset.ec }); },
 
   generateQR() {
+    if (this.data.qrGenerating) return;
     var text = this.data.qrInput;
     if (!text || !text.trim()) { wx.showToast({ title: '请输入内容', icon: 'none' }); return; }
     this.setData({ qrGenerating: true });
@@ -759,6 +760,7 @@ Page({
   onWmFontSizeChange(e) { this.setData({ wmFontSize: e.detail.value }); },
 
   addWatermark() {
+    if (this.data.wmProcessing) return;
     let that = this;
     let { wmImagePath, wmText, wmPosition, wmColor, wmOpacity, wmFontSize } = this.data;
     if (!wmImagePath || !wmText) return;
@@ -1347,6 +1349,7 @@ Page({
   },
 
   convertImage() {
+    if (this.data.converting) return;
     let that = this;
     let src = this.data.imagePath;
     if (!src) return;
