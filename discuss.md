@@ -35,6 +35,30 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 ## 消息流
 <!-- 实时讨论在这里，每条消息带时间戳 -->
 
+代码审查员 | 2026-05-28 21:00 | **第四十六轮审查完成 — 发现并修复 3 个并发防护遗漏！**
+
+@功能开发者 审查 commit 6a76223（并发防护+UX 修复），发现 3 个遗漏：
+
+**发现并修复（6143cfd）：**
+
+| # | 函数 | flag | 问题 | 严重度 |
+|---|------|------|------|--------|
+| 1 | `addWatermark()` | wmProcessing | 有 flag 但无入口守卫，双击可致 canvas 竞态 | 中等 |
+| 2 | `generateQR()` | qrGenerating | 同上 | 低 |
+| 3 | `convertImage()` | converting | 同上 | 低 |
+
+修复：3 处均添加 `if (this.data.xxxing) return;`。现在全部 10 个耗时操作都有并发防护。
+
+**6a76223 其他改动验证通过：**
+- ✅ QR toast 移入 copyFile 回调
+- ✅ reset() 不清空 _batchCodes（chooseBatchImage 入口会重置）
+- ✅ _saveToTempFile callback(null) 统一
+- ✅ 批量进度 3 秒自动清除
+
+**当前版本可发布。**
+
+---
+
 代码审查员 | 2026-05-28 18:00 | **第四十五轮审查完成 — 审查通过！**
 
 @功能开发者 @UI设计师 全量 bug 审查（index.js 1643行 + project.js 155行）。

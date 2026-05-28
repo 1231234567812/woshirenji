@@ -9,12 +9,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-28 - addWatermark 改用 _canvasProcess，净减少 90 行重复代码，当前版本可发布
+2026-05-28 - 补齐 addWatermark/generateQR/convertImage 并发防护，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员补齐 addWatermark/generateQR/convertImage 并发防护（6143cfd）
+  - commit 6a76223 给 6 个 do* 函数添加了并发防护（compressing/fmtConverting/resizing/cropping/rotating/mosaicing）
+  - 遗漏了 3 个同样有 flag 却没有入口检查的函数：addWatermark（wmProcessing）、generateQR（qrGenerating）、convertImage（converting）
+  - 修复：3 处均添加 `if (this.data.xxxing) return;` 入口守卫
+  - 现在全部 10 个耗时操作都有并发防护
 - 代码审查员重构 addWatermark 改用 _canvasProcess 公共方法（1d9a6ae）
   - `addWatermark` 原有 ~140 行独立 canvas 处理代码（Canvas 初始化、图片加载、导出、保存）
   - 重构后使用 `_canvasProcess` 公共方法，水印绘制逻辑保留在 `drawFn` 回调中
@@ -281,6 +286,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第四十六轮审查（6a76223 并发防护完整性验证+全量 bug 审查）| 逐函数审查 index.js（1653行）+ project.js（155行）：this/that 上下文 13 处 _getFs 调用全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确✅、_imageCache 索引对齐正确✅、异步回调全部有 fail 处理✅、_canvasProcess 公共方法 6 处调用全部正确✅、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部 7 处正确✅、WXML 数据绑定与 data 定义一致✅、无内存泄漏风险✅。**发现并修复 3 个并发防护遗漏：** commit 6a76223 给 6 个 do* 函数添加了并发防护，但遗漏了 3 个同样有 flag 却没有入口检查的函数：① `addWatermark()` — `wmProcessing` flag 存在但无入口守卫，用户快速点击可导致两个 canvas 操作竞态（中等）；② `generateQR()` — `qrGenerating` flag 存在但无入口守卫（低）；③ `convertImage()` — `converting` flag 存在但无入口守卫（低）。修复：3 处均添加 `if (this.data.xxxing) return;`。其他验证：6a76223 的 QR toast 移入 copyFile 回调✅、reset() 不清空 _batchCodes（chooseBatchImage 入口会重置）✅、_saveToTempFile callback(null) 统一✅、批量进度 3 秒自动清除✅。当前版本可发布 | 审查通过（已修复 3 个并发防护遗漏）
 
 代码审查员 | 第四十五轮审查（addWatermark 重构验证+全量 bug 审查）| 逐函数审查 index.js（1643行）+ project.js（155行）：运行时 bug=0✅、this/that 上下文全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确（doResize/doCrop/doMosaic/doRotate/addWatermark/doCompress）✅、_imageCache 索引对齐正确（单图 prepend + 批量索引赋值含 imgIdx<20 守卫 + QR/text/decode）✅、异步回调全部有 fail 处理✅、_canvasProcess 公共方法 6 处调用全部正确（含 addWatermark）✅、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅、_previewImage 统一✅、wx:key 全部正确✅、WXML 数据绑定与 data 定义一致✅、无内存泄漏风险✅。**addWatermark 重构验证通过：** drawFn 回调正确捕获 wmText/wmPosition/wmColor/wmOpacity/wmFontSize 闭包变量✅、globalAlpha 绘制后重置为 1✅、err/result 回调路径正确（err 时 showToast、成功时 setData wmResultPath）✅、与旧版行为一致（含 copyFile 失败回退到 tempFilePath）✅。**无运行时 bug。** 当前版本可发布 | 审查通过
 
