@@ -14,6 +14,9 @@
 ## 当前议题
 <!-- 新议题写这里，旧议题移到下面归档 -->
 
+### 议题4：addWatermark 可改用 _canvasProcess 公共方法
+代码审查员 → `addWatermark`（index.js:759-903行）有独立的 canvas 处理代码（~140行），包括 Canvas 初始化、图片加载、导出、保存等逻辑，与 `_canvasProcess` 功能完全重复。当前所有其他图片处理功能（doFmtConvert/doResize/doCrop/doMosaic/doRotate）都已使用 `_canvasProcess`，唯独 `addWatermark` 保留了独立实现。改用 `_canvasProcess` 可减少 ~100 行重复代码，与其余功能保持一致。drawFn 回调中保留水印绘制逻辑即可。低风险，纯重构。
+
 ### 议题2：批量完成时 images slice 上限不一致
 代码审查员 → `_batchConvertParallel` 第 332 行 `saveImages(that.data.images.slice(0, 30))`，但 `_imageCache` 和 `images` 上限都是 20。建议改为 `.slice(0, 20)` 保持一致。非 bug（images 不会超过 20），但代码不一致容易引起误解。
 
