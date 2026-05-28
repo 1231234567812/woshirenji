@@ -764,141 +764,51 @@ Page({
     this.setData({ wmProcessing: true });
     wx.showNavigationBarLoading();
 
-    // 获取图片信息
-    wx.getImageInfo({
-      src: wmImagePath,
-      success(imgInfo) {
-        let imgWidth = imgInfo.width;
-        let imgHeight = imgInfo.height;
+    let srcExt = wmImagePath.split('.').pop().toLowerCase();
+    let fileType = srcExt === 'png' ? 'png' : 'jpg';
 
-        // 使用 Canvas 2D 绘制水印
-        const query = wx.createSelectorQuery();
-        query.select('#wmCanvas').fields({ node: true, size: true }).exec((res) => {
-          if (!res[0] || !res[0].node) {
-            that.setData({ wmProcessing: false });
-            wx.hideNavigationBarLoading();
-            wx.showToast({ title: 'Canvas 初始化失败', icon: 'none' });
-            return;
-          }
+    this._canvasProcess({
+      canvasId: 'wmCanvas',
+      imgSrc: wmImagePath,
+      fileType: fileType,
+      quality: 0.9,
+      destPrefix: 'wm_result',
+    }, function(ctx, canvas, img, info) {
+      let imgWidth = info.width, imgHeight = info.height;
+      ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
 
-          const canvas = res[0].node;
-          const ctx = canvas.getContext('2d');
+      let x = 0, y = 0, textAlign = 'left', textBaseline = 'top', padding = 20;
+      let fontSize = wmFontSize * (imgWidth / 750);
 
-          // 设置 Canvas 尺寸为图片尺寸
-          canvas.width = imgWidth;
-          canvas.height = imgHeight;
+      switch (wmPosition) {
+        case 'top-left': x = padding; y = padding; break;
+        case 'top-right': x = imgWidth - padding; y = padding; textAlign = 'right'; break;
+        case 'center': x = imgWidth / 2; y = imgHeight / 2; textAlign = 'center'; textBaseline = 'middle'; break;
+        case 'bottom-left': x = padding; y = imgHeight - padding; textBaseline = 'bottom'; break;
+        case 'bottom-right': x = imgWidth - padding; y = imgHeight - padding; textAlign = 'right'; textBaseline = 'bottom'; break;
+      }
 
-          // 创建图片对象
-          const img = canvas.createImage();
-          img.onload = function() {
-            // 绘制原图
-            ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
+      ctx.font = 'bold ' + fontSize + 'px sans-serif';
+      ctx.textAlign = textAlign;
+      ctx.textBaseline = textBaseline;
 
-            // 计算水印位置
-            let x = 0, y = 0;
-            let textAlign = 'left';
-            let textBaseline = 'top';
-            let padding = 20;
+      // 阴影增强可读性
+      ctx.fillStyle = 'rgba(0, 0, 0, ' + (wmOpacity / 100 * 0.5) + ')';
+      ctx.fillText(wmText, x + 2, y + 2);
 
-            // 根据字体大小调整位置
-            let fontSize = wmFontSize * (imgWidth / 750); // 按比例缩放
-
-            switch (wmPosition) {
-              case 'top-left':
-                x = padding;
-                y = padding;
-                textAlign = 'left';
-                textBaseline = 'top';
-                break;
-              case 'top-right':
-                x = imgWidth - padding;
-                y = padding;
-                textAlign = 'right';
-                textBaseline = 'top';
-                break;
-              case 'center':
-                x = imgWidth / 2;
-                y = imgHeight / 2;
-                textAlign = 'center';
-                textBaseline = 'middle';
-                break;
-              case 'bottom-left':
-                x = padding;
-                y = imgHeight - padding;
-                textAlign = 'left';
-                textBaseline = 'bottom';
-                break;
-              case 'bottom-right':
-                x = imgWidth - padding;
-                y = imgHeight - padding;
-                textAlign = 'right';
-                textBaseline = 'bottom';
-                break;
-            }
-
-            // 设置水印样式
-            ctx.font = 'bold ' + fontSize + 'px sans-serif';
-            ctx.textAlign = textAlign;
-            ctx.textBaseline = textBaseline;
-
-            // 绘制文字阴影（增强可读性）
-            ctx.fillStyle = 'rgba(0, 0, 0, ' + (wmOpacity / 100 * 0.5) + ')';
-            ctx.fillText(wmText, x + 2, y + 2);
-
-            // 绘制水印文字
-            let color = wmColor;
-            let alpha = wmOpacity / 100;
-            ctx.fillStyle = color;
-            ctx.globalAlpha = alpha;
-            ctx.fillText(wmText, x, y);
-            ctx.globalAlpha = 1;
-
-            // 导出图片
-            let srcExt = wmImagePath.split('.').pop().toLowerCase();
-            let fileType = srcExt === 'png' ? 'png' : 'jpg';
-            wx.canvasToTempFilePath({
-              canvas: canvas,
-              fileType: fileType,
-              quality: 0.9,
-              success(res) {
-                let fs = that._getFs();
-                let dest = wx.env.USER_DATA_PATH + '/wm_result_' + Date.now() + '.' + fileType;
-                fs.copyFile({
-                  srcPath: res.tempFilePath, destPath: dest,
-                  success() {
-                    that.setData({ wmResultPath: dest, wmProcessing: false });
-                    wx.hideNavigationBarLoading();
-                    wx.showToast({ title: '水印添加成功', icon: 'success' });
-                  },
-                  fail() {
-                    that.setData({ wmResultPath: res.tempFilePath, wmProcessing: false });
-                    wx.hideNavigationBarLoading();
-                    wx.showToast({ title: '水印添加成功', icon: 'success' });
-                  },
-                });
-              },
-              fail(err) {
-                that.setData({ wmProcessing: false });
-                wx.hideNavigationBarLoading();
-                wx.showToast({ title: '导出失败', icon: 'none' });
-              },
-            });
-          };
-
-          img.onerror = function() {
-            that.setData({ wmProcessing: false });
-            wx.hideNavigationBarLoading();
-            wx.showToast({ title: '图片加载失败', icon: 'none' });
-          };
-
-          img.src = wmImagePath;
-        });
-      },
-      fail() {
-        that.setData({ wmProcessing: false });
-        wx.hideNavigationBarLoading();
-        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
-      },
+      ctx.fillStyle = wmColor;
+      ctx.globalAlpha = wmOpacity / 100;
+      ctx.fillText(wmText, x, y);
+      ctx.globalAlpha = 1;
+    }, function(err, result) {
+      that.setData({ wmProcessing: false });
+      wx.hideNavigationBarLoading();
+      if (err) {
+        wx.showToast({ title: err, icon: 'none' });
+      } else {
+        that.setData({ wmResultPath: result.path });
+        wx.showToast({ title: '水印添加成功', icon: 'success' });
+      }
     });
   },
 
