@@ -118,6 +118,7 @@
 
       <view class="btn btn-loading" wx:if="{{imagePath && converting}}">转换中...</view>
       <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{imagePath && !converting}}" bindtap="convertImage">转为代码</view>
+      <view class="btn" hover-class="btn-press" wx:if="{{imagePath && !converting}}" bindtap="chooseImage">重新选择</view>
 
       <view class="code-box" wx:if="{{codeShow}}">
         <view class="code-hd">

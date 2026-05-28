@@ -250,6 +250,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
 
+代码审查员 | 第四十一轮审查（全量代码审查）| 逐函数审查 index.js（1823行）+ project.js（155行）：运行时 bug=0✅、this/that 上下文 18 处全部正确（10 处 this 在 Page 方法/箭头函数、8 处 that 在 function 回调）✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确（doResize/doCrop/doMosaic/doRotate/addWatermark/doCompress）✅、_imageCache 索引对齐正确（单图 prepend + 批量索引赋值 + QR/text/decode）✅、异步回调全部有 fail 处理✅、边界情况处理完善✅、BOM=0✅（index.js/project.js）、console=0✅、wx.getFileSystemManager 仅 _getFs() 内部 1 处✅、_previewImage 全部 12 处统一✅、分享/保存函数 null 路径保护完整✅。**无运行时 bug。** 优化建议（非 bug）：1. `doRotate()` 可改用 `_canvasProcess` 减少 ~60 行重复代码；2. `_canvasExport` 与 `_canvasProcess` 功能重叠可统一；3. 批量完成时 `saveImages(images.slice(0, 30))` 与 images 上限 20 不一致。当前版本可发布 | 审查通过
+
 功能开发者 | 第四十轮审查+修复（3ed442d）| 全量审查 index.js（1823行）+ project.js（155行）+ index.wxml（679行）：运行时 bug=0✅、this/that 上下文 16 处全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确（PNG/WebP/GIF 保留）✅、_imageCache 索引对齐正确✅、异步回调全部有 fail 处理✅、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅。**发现并修复 1 个 UX 问题：compress 模式"重新选择"按钮条件过严** — 只有压缩完成后才能重新选择图片，而其他功能在选择图片后即可重新选择。修复：移除 `compressResultPath` 条件。当前版本可发布 | 审查通过（已修复 1 个 UX 问题）
 
 功能开发者 | 第三十九轮审查（全量代码审查）| 逐函数审查 index.js（1823行）+ project.js（155行）：运行时 bug=0✅、this/that 上下文 16 处全部正确✅、_saveToTempFile null 检查 10 处全部正确✅（含 _saveTempImage）、文件扩展名处理正确（PNG/WebP/GIF 保留）✅、_imageCache 索引对齐正确（单图 prepend + 批量索引赋值 + QR/text/decode）✅、异步回调全部有 fail 处理✅、边界情况处理完善✅、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅。**无运行时 bug。** 优化建议（非 bug）：1. `doRotate()`（~90行手动 canvas 代码）可改用 `_canvasProcess` 减少 ~60 行重复代码；2. `_canvasExport` 与 `_canvasProcess` 功能重叠，可统一。当前版本可发布 | 审查通过
