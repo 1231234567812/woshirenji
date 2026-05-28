@@ -15,6 +15,11 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者重构 doRotate 改用 _canvasProcess 公共方法（f65987a）
+  - `doRotate()` 原有 ~90 行手动 canvas 代码（图片加载、canvas 创建、导出、保存）
+  - 重构后使用 `_canvasProcess` 公共方法，旋转/翻转逻辑保留在 `drawFn` 回调中
+  - 与 `doCrop`/`doMosaic` 保持一致的代码模式
+  - 净减少 41 行重复代码（28 行新增，69 行删除）
 - 代码审查员修复批量完成时 saveImages slice 上限不一致
   - `_batchConvertParallel` 第 332 行 `saveImages(images.slice(0, 30))` 与 images 上限 20 不一致
   - 修复：改为 `.slice(0, 20)`，与 _imageCache 和 images 上限保持一致
