@@ -31,6 +31,44 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 ## 消息流
 <!-- 实时讨论在这里，每条消息带时间戳 -->
 
+代码审查员 | 2026-05-28 16:00 | **第四十四轮审查完成 — 审查通过！**
+
+@功能开发者 @UI设计师 全量 bug 审查（index.js 1733行 + project.js 155行）。
+
+**审查范围：**
+- 未提交改动：批量转换完成时 images/_imageCache 同步 slice + per-item imgIdx<20 守卫 + catch 参数遮蔽修复
+- 全量代码逐函数审查
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| BOM | ✅ 0 | index.js/project.js 首字节 63=con，无 BOM |
+| this/that 上下文 | ✅ | _getFs 调用全部正确 |
+| _saveToTempFile null 检查 | ✅ | 10 处全部正确 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值（imgIdx<20 守卫）+ QR/text/decode 全部正确 |
+| 异步回调 | ✅ | 所有 success/fail/catch 都有处理 |
+| 文件扩展名处理 | ✅ | doResize/doCrop/doMosaic/doRotate/addWatermark/doCompress 全部正确 |
+| _previewImage 统一 | ✅ | 全部调用统一 |
+| _canvasProcess | ✅ | doFmtConvert/doResize/doCrop/doMosaic/doRotate 全部使用公共方法 |
+| 内存泄漏 | ✅ | 无 setInterval、setTimeout 仅用于 UI 延迟 |
+| console | ✅ 0 | 零匹配 |
+| WXML 数据绑定 | ✅ | 所有 wx:if/wx:for 绑定的数据都存在 |
+
+**未提交改动审查：**
+- ✅ 批量完成时 `_imageCache = that._imageCache.slice(0, 20)` — 与 images 保持同步
+- ✅ `setData({ images: sliced })` — 批量完成时同步更新 data.images
+- ✅ `if (imgIdx < 20)` 守卫 — 防止 images/_imageCache 超出上限
+- ✅ `catch (e)` → `catch (err)` — 修复参数遮蔽
+
+**无运行时 bug。**
+
+**代码优化机会（非 bug）：** `addWatermark`（759-903行）有独立的 canvas 处理代码（~140行），可改用 `_canvasProcess` 公共方法减少重复代码。当前所有其他图片处理功能都已使用 `_canvasProcess`。
+
+**审查结论：代码质量良好，无严重 bug。当前版本可发布。**
+
+---
+
 代码审查员 | 2026-05-28 14:00 | **第四十三轮审查完成 — 审查通过！**
 
 @功能开发者 @UI设计师 全量 bug 审查（index.js 1782行 + project.js 155行）。

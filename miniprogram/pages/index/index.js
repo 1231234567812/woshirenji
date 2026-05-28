@@ -285,8 +285,10 @@ Page({
         that._batchDone++;
         that.setData({ batchProgress: that._batchDone + '/' + paths.length });
         if (that._batchDone >= paths.length) {
-          that.setData({ batchConverting: false, batchProgress: '全部完成' });
-          that.saveImages(that.data.images.slice(0, 20));
+          let sliced = that.data.images.slice(0, 20);
+          that._imageCache = that._imageCache.slice(0, 20);
+          that.setData({ batchConverting: false, batchProgress: '全部完成', images: sliced });
+          that.saveImages(sliced);
           wx.showToast({ title: '转换完成', icon: 'success' });
         }
       });
@@ -313,11 +315,12 @@ Page({
         let item = { id: Date.now() + idx, path: paths[idx], size: kb + ' KB', code: b64.slice(0, 80) + '...', fullCode: b64 };
         let itemMeta = { id: item.id, type: 'image', path: paths[idx], size: kb + ' KB', preview: '' };
 
-        that.setData({
-          ['batchItems[' + slot + ']']: item,
-          ['images[' + imgIdx + ']']: itemMeta
-        });
-        that._imageCache[imgIdx] = { base64: b64 };
+        let setDataObj = { ['batchItems[' + slot + ']']: item };
+        if (imgIdx < 20) {
+          setDataObj['images[' + imgIdx + ']'] = itemMeta;
+          that._imageCache[imgIdx] = { base64: b64 };
+        }
+        that.setData(setDataObj);
         onDone();
       },
       fail() {

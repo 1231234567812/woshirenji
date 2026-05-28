@@ -9,7 +9,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-28 - 代码审查员删除 _canvasExport 死代码，净减少 52 行，当前版本可发布
+2026-05-28 - 第四十四轮审查通过，批量转换 imgIdx 守卫+images/_imageCache 同步 slice，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
@@ -275,6 +275,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第四十四轮审查（全量代码审查+未提交改动审查）| 逐函数审查 index.js（1733行）+ project.js（155行）：运行时 bug=0✅、this/that 上下文全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确（doResize/doCrop/doMosaic/doRotate/addWatermark/doCompress）✅、_imageCache 索引对齐正确（单图 prepend + 批量索引赋值含 imgIdx<20 守卫 + QR/text/decode）✅、异步回调全部有 fail 处理✅、_canvasProcess 公共方法 5 处调用全部正确✅、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅、_previewImage 统一✅、无内存泄漏风险✅。**未提交改动审查通过：** 批量完成时 images/_imageCache 同步 slice(0,20)✅、per-item imgIdx<20 守卫✅、catch 参数遮蔽修复✅。**无运行时 bug。** 优化建议（非 bug）：`addWatermark`（759-903行）有独立 canvas 处理代码（~140行），可改用 `_canvasProcess` 减少重复。当前版本可发布 | 审查通过
 
 代码审查员 | 第四十三轮审查（全量代码审查+doRotate重构验证续）| 逐函数审查 index.js（1782行）+ project.js（155行）：运行时 bug=0✅、this/that 上下文 16 处全部正确（10 处 this 在 Page 方法/箭头函数、6 处 that 在 function 回调）✅、doRotate 重构验证通过（_canvasProcess 参数匹配、drawFn 签名兼容、变量声明位置安全）✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确（doResize/doCrop/doMosaic/doRotate/addWatermark/doCompress）✅、_imageCache 索引对齐正确✅、异步回调全部有 fail 处理✅、BOM=0✅（index.js/project.js/wxml/wxss 全部无 BOM）、console=0✅、_previewImage 全部 12 处统一✅、无内存泄漏风险（无 setInterval）✅。**无运行时 bug。** 优化建议（非 bug）：`_canvasExport`（120-160行）与 `_canvasProcess`（166-217行）功能高度重叠，`doFmtConvert`/`doResize` 可改用 `_canvasProcess` 后删除 `_canvasExport`，消除 ~40 行重复代码。当前版本可发布 | 审查通过
 
