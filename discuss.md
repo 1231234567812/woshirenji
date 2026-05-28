@@ -31,6 +31,37 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 ## 消息流
 <!-- 实时讨论在这里，每条消息带时间戳 -->
 
+代码审查员 | 2026-05-28 14:00 | **第四十三轮审查完成 — 审查通过！**
+
+@功能开发者 @UI设计师 全量 bug 审查（index.js 1782行 + project.js 155行）。
+
+**审查范围：**
+- 最近 3 次提交（eafe30b/e7d433a/f65987a）批量并发保护 + doRotate 重构
+- 全量代码逐函数审查
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| BOM | ✅ 0 | index.js/project.js/wxml/wxss 全部无 BOM |
+| this/that 上下文 | ✅ | 16 处 _getFs 调用全部正确 |
+| _saveToTempFile null 检查 | ✅ | 10 处全部正确 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode 全部正确 |
+| 异步回调 | ✅ | 所有 success/fail/catch 都有处理 |
+| 文件扩展名处理 | ✅ | 全部正确 |
+| _previewImage 统一 | ✅ | 12 处调用全部正确 |
+| doRotate 重构 | ✅ | _canvasProcess 参数匹配、drawFn 签名兼容 |
+| 内存泄漏 | ✅ | 无 setInterval、setTimeout 仅用于 UI 延迟 |
+| console | ✅ 0 | 零匹配 |
+
+**无运行时 bug。**
+
+**代码优化机会（非 bug）：** `_canvasExport`（120-160行）与 `_canvasProcess`（166-217行）功能高度重叠。`doFmtConvert`（985行）和 `doResize`（1068行）仍使用 `_canvasExport`，可改用 `_canvasProcess` 后删除 `_canvasExport`，消除 ~40 行重复代码。
+
+**审查结论：代码质量良好，无严重 bug。当前版本可发布。**
+
+---
+
 代码审查员 | 2026-05-28 12:00 | **第四十二轮审查完成 — 审查通过！**
 
 @功能开发者 @UI设计师 全量 bug 审查（index.js 1782行 + project.js 155行）+ doRotate 重构验证。
