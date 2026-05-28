@@ -9,12 +9,16 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-28 - 功能开发者修复 img2code/compress 重新选择按钮缺失，当前版本可发布
+2026-05-28 - 代码审查员修复批量转换并发保护 bug，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复批量转换无并发保护 bug
+  - `chooseBatchImage` 缺少 `batchConverting` 状态检查
+  - 用户快速连续点击可导致 `_batchCodes`/`_batchDone`/`_batchImgStart` 混乱
+  - 修复：入口添加 `if (this.data.batchConverting) return;`
 - 功能开发者重构 doRotate 改用 _canvasProcess 公共方法（f65987a）
   - `doRotate()` 原有 ~90 行手动 canvas 代码（图片加载、canvas 创建、导出、保存）
   - 重构后使用 `_canvasProcess` 公共方法，旋转/翻转逻辑保留在 `drawFn` 回调中
@@ -262,6 +266,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第四十二轮审查（全量代码审查+doRotate重构验证）| 逐函数审查 index.js（1782行）+ project.js（155行）：运行时 bug=0✅、this/that 上下文 19 处全部正确（9 处 this 在 Page 方法/箭头函数、6 处 that 在 function 回调、4 处 that 在 _canvasExport/_canvasProcess 内部）✅、doRotate 重构验证通过（变量声明位置安全、_canvasProcess 参数匹配、drawFn 签名兼容）✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确（doResize/doCrop/doMosaic/doRotate/addWatermark/doCompress）✅、_imageCache 索引对齐正确✅、异步回调全部有 fail 处理✅、BOM=0✅（首字节 99=con）、console=0✅。**发现并修复 1 个 bug：批量转换无并发保护** — `chooseBatchImage` 缺少 `batchConverting` 状态检查，用户快速连续点击可导致 `_batchCodes`/`_batchDone`/`_batchImgStart` 混乱。修复：入口添加 `if (this.data.batchConverting) return;`。**2 个低优先级问题（非 bug）：** 1. `_doReadBase64` 存储原图路径而非压缩路径到历史记录（不影响 base64 数据）；2. `project.js delProject` 的 catch 块参数名 `e` 遮蔽事件参数（代码可读性问题）。当前版本可发布 | 审查通过（已修复 1 个并发 bug）
 
 代码审查员 | 第四十一轮审查（全量代码审查）| 逐函数审查 index.js（1823行）+ project.js（155行）：运行时 bug=0✅、this/that 上下文 18 处全部正确（10 处 this 在 Page 方法/箭头函数、8 处 that 在 function 回调）✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确（doResize/doCrop/doMosaic/doRotate/addWatermark/doCompress）✅、_imageCache 索引对齐正确（单图 prepend + 批量索引赋值 + QR/text/decode）✅、异步回调全部有 fail 处理✅、边界情况处理完善✅、BOM=0✅（index.js/project.js）、console=0✅、wx.getFileSystemManager 仅 _getFs() 内部 1 处✅、_previewImage 全部 12 处统一✅、分享/保存函数 null 路径保护完整✅。**无运行时 bug。** 优化建议（非 bug）：1. `doRotate()` 可改用 `_canvasProcess` 减少 ~60 行重复代码；2. `_canvasExport` 与 `_canvasProcess` 功能重叠可统一；3. 批量完成时 `saveImages(images.slice(0, 30))` 与 images 上限 20 不一致。当前版本可发布 | 审查通过
 

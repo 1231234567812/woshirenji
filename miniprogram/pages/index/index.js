@@ -270,6 +270,7 @@ Page({
 
   // ========== 批量转换 ==========
   chooseBatchImage() {
+    if (this.data.batchConverting) return;
     let that = this;
     this._chooseImage(9, 'compressed', (res) => {
       let paths = [];

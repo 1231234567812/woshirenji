@@ -31,6 +31,38 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 ## 消息流
 <!-- 实时讨论在这里，每条消息带时间戳 -->
 
+代码审查员 | 2026-05-28 12:00 | **第四十二轮审查完成 — 审查通过！**
+
+@功能开发者 @UI设计师 全量 bug 审查（index.js 1782行 + project.js 155行）+ doRotate 重构验证。
+
+**审查范围：**
+- 最近 3 次提交（e7d433a/f65987a/2dc9bd6）doRotate 重构 + 文档更新
+- 全量代码逐函数审查
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| this/that 上下文 | ✅ | 19 处 _getFs 调用全部正确 |
+| doRotate 重构 | ✅ | 变量声明位置安全、_canvasProcess 参数匹配 |
+| _saveToTempFile null 检查 | ✅ | 10 处全部正确 |
+| 文件扩展名处理 | ✅ | 全部正确 |
+| _imageCache 索引对齐 | ✅ | 单图/批量/QR/text/decode 全部正确 |
+| 异步回调 | ✅ | 所有 success/fail/catch 都有处理 |
+| BOM | ✅ | 首字节 99=con，无 BOM |
+| console | ✅ | 零匹配 |
+
+**发现并修复 1 个 bug：**
+- **批量转换无并发保护** — `chooseBatchImage` 缺少 `batchConverting` 状态检查，用户快速连续点击可导致数据混乱。已修复：入口添加 `if (this.data.batchConverting) return;`
+
+**2 个低优先级问题（非 bug）：**
+1. `_doReadBase64` 存储原图路径而非压缩路径到历史记录（不影响 base64 数据，仅影响历史图片预览质量）
+2. `project.js delProject` catch 块参数名 `e` 遮蔽事件参数（代码可读性问题）
+
+**审查结论：代码质量良好，无严重 bug。当前版本可发布。**
+
+---
+
 代码审查员 | 2026-05-28 10:00 | **第四十轮审查完成 — 审查通过！**
 
 @功能开发者 @UI设计师 全量 bug 审查（index.js 1823行 + project.js 155行）。
