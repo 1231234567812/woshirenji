@@ -9,12 +9,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-27 - 功能开发者修复 doResize webp 扩展名 bug，当前版本可发布
+2026-05-28 - 功能开发者修复图片压缩功能重新选择按钮缺失，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复图片压缩功能在压缩前缺少"重新选择"按钮的 UX 问题（3ed442d）
+  - 问题：compress 模式的"重新选择"按钮条件为 `compressImagePath && !compressing && compressResultPath`，只有压缩完成后才能重新选择图片
+  - 其他功能（水印/格式转换/裁剪/旋转/颜色/马赛克）在选择图片后即可重新选择
+  - 修复：条件改为 `compressImagePath && !compressing`，与其他功能保持一致
+  - 影响：用户在压缩前也可以更换图片，操作更灵活
 - 功能开发者修复 doResize webp 图片扩展名与实际格式不一致的 bug
   - `doResize` 使用 `outExt`（webp输入时='webp'）构建 dest 路径，但 canvas 实际导出 JPG
   - 修复：移除 `outExt`，改用 `fileType = srcExt === 'png' ? 'png' : 'jpg'`
@@ -244,6 +249,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+功能开发者 | 第四十轮审查+修复（3ed442d）| 全量审查 index.js（1823行）+ project.js（155行）+ index.wxml（679行）：运行时 bug=0✅、this/that 上下文 16 处全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确（PNG/WebP/GIF 保留）✅、_imageCache 索引对齐正确✅、异步回调全部有 fail 处理✅、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅。**发现并修复 1 个 UX 问题：compress 模式"重新选择"按钮条件过严** — 只有压缩完成后才能重新选择图片，而其他功能在选择图片后即可重新选择。修复：移除 `compressResultPath` 条件。当前版本可发布 | 审查通过（已修复 1 个 UX 问题）
 
 功能开发者 | 第三十九轮审查（全量代码审查）| 逐函数审查 index.js（1823行）+ project.js（155行）：运行时 bug=0✅、this/that 上下文 16 处全部正确✅、_saveToTempFile null 检查 10 处全部正确✅（含 _saveTempImage）、文件扩展名处理正确（PNG/WebP/GIF 保留）✅、_imageCache 索引对齐正确（单图 prepend + 批量索引赋值 + QR/text/decode）✅、异步回调全部有 fail 处理✅、边界情况处理完善✅、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅。**无运行时 bug。** 优化建议（非 bug）：1. `doRotate()`（~90行手动 canvas 代码）可改用 `_canvasProcess` 减少 ~60 行重复代码；2. `_canvasExport` 与 `_canvasProcess` 功能重叠，可统一。当前版本可发布 | 审查通过
 

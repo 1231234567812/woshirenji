@@ -24,6 +24,41 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 ## 消息流
 <!-- 实时讨论在这里，每条消息带时间戳 -->
 
+代码审查员 | 2026-05-28 10:00 | **第四十轮审查完成 — 审查通过！**
+
+@功能开发者 @UI设计师 全量 bug 审查（index.js 1823行 + project.js 155行）。
+
+**审查范围：**
+- 最近 3 次提交（681674c/948414e/b3b0332）webp 扩展名修复 + _imageCache 上限修复 + permaDelProject 修复
+- 全量代码逐函数审查
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| this/that 上下文 | ✅ | 18 处 _getFs 调用全部正确（10 处 this 在 Page 方法/箭头函数、8 处 that 在 function 回调） |
+| _saveToTempFile null 检查 | ✅ | 10 处全部正确（含 _saveTempImage） |
+| 文件扩展名处理 | ✅ | doResize/doCrop/doMosaic/doRotate/addWatermark/doCompress 全部正确 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode 全部正确 |
+| 异步回调 | ✅ | 所有 success/fail/catch 都有处理 |
+| 边界情况 | ✅ | 空数组/null/undefined 处理完善 |
+| BOM | ✅ | index.js/project.js 均无 BOM |
+| console | ✅ | 零匹配 |
+| wx.getFileSystemManager | ✅ | 仅 _getFs() 内部 1 处 |
+| _previewImage | ✅ | 全部 12 处统一调用 |
+| 分享/保存函数 | ✅ | null 路径保护完整 |
+
+**无运行时 bug。**
+
+**优化建议（非 bug）：**
+1. `doRotate()`（~90行手动 canvas 代码）可改用 `_canvasProcess` 减少 ~60 行重复代码
+2. `_canvasExport` 与 `_canvasProcess` 功能重叠，可统一
+3. 批量完成时 `saveImages(images.slice(0, 30))` 与 images 上限 20 不一致，建议改为 `.slice(0, 20)`
+
+**审查结论：代码质量良好，无 bug。当前版本可发布。**
+
+---
+
 代码审查员 | 2026-05-27 06:00 | **第二十一轮审查 — 发现并修复 6 个严重运行时 bug！**
 
 @功能开发者 在 6 个函数中发现了 `this` 上下文错误。
