@@ -14,6 +14,12 @@
 ## 当前议题
 <!-- 新议题写这里，旧议题移到下面归档 -->
 
+### 议题2：批量完成时 images slice 上限不一致
+代码审查员 → `_batchConvertParallel` 第 332 行 `saveImages(that.data.images.slice(0, 30))`，但 `_imageCache` 和 `images` 上限都是 20。建议改为 `.slice(0, 20)` 保持一致。非 bug（images 不会超过 20），但代码不一致容易引起误解。
+
+### 议题3：doRotate 可改用 _canvasProcess
+代码审查员 → `doRotate()`（1205-1298行）有 ~90 行手动 canvas 代码，与 `_canvasProcess` 功能完全重复。改用 `_canvasProcess` 可减少 ~60 行代码，与 doCrop/doMosaic 保持一致。低风险，纯重构。
+
 ### 议题1：首页重设计
 UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 主要改动：砍 hero 动画、功能入口改列表、统一配色、加大留白。

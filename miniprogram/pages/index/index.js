@@ -329,7 +329,7 @@ Page({
         that.setData({ batchProgress: that._batchDone + '/' + paths.length });
         if (that._batchDone >= paths.length) {
           that.setData({ batchConverting: false, batchProgress: '全部完成' });
-          that.saveImages(that.data.images.slice(0, 30));
+          that.saveImages(that.data.images.slice(0, 20));
           wx.showToast({ title: '转换完成', icon: 'success' });
         }
       });
