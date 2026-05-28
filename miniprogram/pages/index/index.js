@@ -114,50 +114,6 @@ Page({
     return ps;
   },
 
-  // Canvas 图片处理公共方法：加载图片→绘制→导出→保存
-  // opts: { canvasId, imgSrc, drawW, drawH, fileType, quality, destPrefix }
-  // callback: (err, { path, size }) => void
-  _canvasExport(opts, callback) {
-    let that = this;
-    const query = wx.createSelectorQuery();
-    query.select('#' + opts.canvasId).fields({ node: true, size: true }).exec(function(res) {
-      if (!res[0] || !res[0].node) { callback('Canvas 初始化失败'); return; }
-      const canvas = res[0].node;
-      const ctx = canvas.getContext('2d');
-      canvas.width = opts.drawW;
-      canvas.height = opts.drawH;
-
-      const img = canvas.createImage();
-      img.onload = function() {
-        ctx.drawImage(img, 0, 0, opts.drawW, opts.drawH);
-        let fileType = opts.fileType || 'jpg';
-        let quality = opts.quality;
-        wx.canvasToTempFilePath({
-          canvas: canvas,
-          fileType: fileType,
-          quality: quality,
-          success: function(r) {
-            let fs = that._getFs();
-            let dest = wx.env.USER_DATA_PATH + '/' + (opts.destPrefix || 'img') + '_' + Date.now() + '.' + fileType;
-            fs.copyFile({
-              srcPath: r.tempFilePath, destPath: dest,
-              success: function() {
-                wx.getFileInfo({
-                  filePath: dest,
-                  success: function(fi) { callback(null, { path: dest, size: (fi.size / 1024).toFixed(1) + ' KB' }); },
-                  fail: function() { callback(null, { path: dest, size: '' }); },
-                });
-              },
-              fail: function() { callback(null, { path: r.tempFilePath, size: '' }); },
-            });
-          },
-          fail: function() { callback('导出失败'); },
-        });
-      };
-      img.onerror = function() { callback('图片加载失败'); };
-      img.src = opts.imgSrc;
-    });
-  },
 
   // Canvas 处理+导出（公共方法）
   // opts: { canvasId, imgSrc, imgInfo, drawW, drawH, fileType, quality, destPrefix }
@@ -979,30 +935,20 @@ Page({
     this.setData({ fmtConverting: true });
     wx.showNavigationBarLoading();
 
-    wx.getImageInfo({
-      src: fmtImg,
-      success(info) {
-        that._canvasExport({
-          canvasId: 'fmtCanvas',
-          imgSrc: fmtImg,
-          drawW: info.width,
-          drawH: info.height,
-          fileType: fmtTo === 'jpg' ? 'jpg' : 'png',
-          quality: fmtTo === 'jpg' ? 0.9 : undefined,
-          destPrefix: 'fmt',
-        }, function(err, result) {
-          that.setData({ fmtConverting: false });
-          wx.hideNavigationBarLoading();
-          if (err) { wx.showToast({ title: err, icon: 'none' }); return; }
-          that.setData({ fmtResult: result.path, fmtSize: result.size });
-          wx.showToast({ title: '转换完成', icon: 'success' });
-        });
-      },
-      fail() {
-        that.setData({ fmtConverting: false });
-        wx.hideNavigationBarLoading();
-        wx.showToast({ title: '获取图片信息失败', icon: 'none' });
-      },
+    that._canvasProcess({
+      canvasId: 'fmtCanvas',
+      imgSrc: fmtImg,
+      fileType: fmtTo === 'jpg' ? 'jpg' : 'png',
+      quality: fmtTo === 'jpg' ? 0.9 : undefined,
+      destPrefix: 'fmt',
+    }, function(ctx, canvas, img, info) {
+      ctx.drawImage(img, 0, 0, info.width, info.height);
+    }, function(err, result) {
+      that.setData({ fmtConverting: false });
+      wx.hideNavigationBarLoading();
+      if (err) { wx.showToast({ title: err, icon: 'none' }); return; }
+      that.setData({ fmtResult: result.path, fmtSize: result.size });
+      wx.showToast({ title: '转换完成', icon: 'success' });
     });
   },
 
@@ -1065,7 +1011,7 @@ Page({
 
     let srcExt = resizeImg.split('.').pop().toLowerCase();
     let fileType = srcExt === 'png' ? 'png' : 'jpg';
-    this._canvasExport({
+    this._canvasProcess({
       canvasId: 'resizeCanvas',
       imgSrc: resizeImg,
       drawW: resizeNewW,
@@ -1073,6 +1019,8 @@ Page({
       fileType: fileType,
       quality: 0.9,
       destPrefix: 'resize',
+    }, function(ctx, canvas, img) {
+      ctx.drawImage(img, 0, 0, resizeNewW, resizeNewH);
     }, function(err, result) {
       that.setData({ resizing: false });
       wx.hideNavigationBarLoading();
@@ -1643,7 +1591,7 @@ Page({
       let str = '';
       for (let i = 0; i < bytes.length; i += 8192) str += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
       b64 = btoa(str);
-    } catch (e) { b64 = '编码失败'; }
+    } catch (e) { wx.showToast({ title: '编码失败', icon: 'none' }); return; }
     this._fullText = b64;
     let itemMeta = { id: Date.now(), type: 'text', path: '', size: raw.length + ' 字', preview: raw.slice(0, 30) };
     this._imageCache = [{ base64: b64, textContent: raw }].concat(this._imageCache).slice(0, 20);
