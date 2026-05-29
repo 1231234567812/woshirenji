@@ -1568,6 +1568,7 @@ Page({
   decodeToText() {
     let b64 = this.data.decodeInput; let idx = b64.indexOf('base64,'); if (idx >= 0) b64 = b64.slice(idx + 7);
     b64 = b64.replace(/\s/g, '');
+    if (!b64) { wx.showToast({ title: '请输入 Base64 代码', icon: 'none' }); return; }
     try {
       let bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
       let r = typeof TextDecoder !== 'undefined' ? new TextDecoder().decode(bytes) : String.fromCharCode.apply(null, bytes);
