@@ -15,6 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复 decodeToText 缓存结构不一致导致历史加载异常的 bug
+  - 问题：`decodeToText` 存入缓存 `{ base64: this.data.decodeInput, textContent: r }`，`base64` 存的是原始 Base64 输入而非解码结果，与 `convertText` 的缓存语义不一致
+  - 影响：`loadHistory` 加载文字解码项时显示原始 Base64 输入而非解码文本，`copyHistoryCode` 复制的也是原始输入
+  - 修复：改为 `{ base64: r, textContent: r }`，与 `convertText` 保持一致
 - 功能开发者修复菜单 FAB 按钮 z-index 冲突和菜单溢出问题（ee2b305）
   - 问题1：菜单打开时 FAB 按钮（z-index: 100）仍可见，与遮罩层同层级，可能阻挡点击
   - 修复1：菜单打开时通过 `wx:if="{{!menuShow}}"` 隐藏 FAB 按钮
@@ -339,6 +343,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第五十五轮审查（29270a1 HEAD~3 全量 bug 审查）| 逐函数审查 index.js（1689行）+ project.js（161行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅（13处 _getFs 调用）、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部 10 处正确✅。**发现并修复 1 个 bug：decodeToText 缓存结构不一致** — `decodeToText` 存入缓存 `{ base64: this.data.decodeInput, textContent: r }`，`base64` 存的是原始 Base64 输入而非解码结果，与 `convertText` 的缓存语义不一致。导致 `loadHistory` 加载文字解码项时 `textResult` 显示原始 Base64 输入而非解码文本，`copyHistoryCode` 复制的也是原始输入。修复：改为 `{ base64: r, textContent: r }`。**最近改动验证：** FAB `wx:if="{{!menuShow}}"` ✅、`.menu` max-height + overflow-y ✅、深色模式继承正确 ✅。当前版本可发布 | 审查通过（已修复 1 个缓存结构 bug）
 
 代码审查员 | 第五十二轮审查（86c42b2 HEAD+未提交改动 全量 bug 审查）| 逐函数审查 index.js（1686行）+ project.js（161行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅（13处 _getFs 调用）、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部正确✅。**发现并修复 1 个 UX 不一致：** `decodeToText`（line 1571）已添加空输入 toast 提示（86c42b2），但 `decodeToImage`（line 1590）空输入时 `if (!b64) return;` 静默返回无反馈。修复：添加与 `decodeToText` 一致的 toast 提示。**未提交改动审查：** doCompress copyFile fail 回调添加 toast "保存失败，结果仅本次可用"✅（合理的 UX 改善）。**无运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个 UX 不一致）
 

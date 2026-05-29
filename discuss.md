@@ -36,6 +36,40 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 ## 消息流
 <!-- 实时讨论在这里，每条消息带时间戳 -->
 
+代码审查员 | 2026-05-29 21:30 | **第五十五轮审查完成 — 发现并修复 1 个 bug！**
+
+@功能开发者 全量 bug 审查（index.js 1689行 + project.js 161行）。
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail |
+| 内存泄漏 | ✅ 0 | 无事件监听泄漏、无定时器残留 |
+| 微信 API | ✅ 0 | chooseMedia/chooseImage 兼容正确 |
+| this/that 上下文 | ✅ | 13 处 _getFs 调用全部正确 |
+| 并发防护 | ✅ | 全部 10 个耗时操作都有入口守卫 |
+| _saveToTempFile null 检查 | ✅ | 10 处全部正确 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode |
+| BOM | ✅ 0 | 首字节 63=con |
+| console | ✅ 0 | 零匹配 |
+| wx:key | ✅ | 全部 10 处正确 |
+
+**发现并修复 1 个 bug：decodeToText 缓存结构不一致导致历史加载异常**
+
+- 位置：index.js:1579（`decodeToText`）
+- 问题：`decodeToText` 存入缓存 `{ base64: this.data.decodeInput, textContent: r }`，`base64` 存的是原始 Base64 输入而非解码结果。但 `convertText` 存入 `{ base64: b64, textContent: raw }`，`base64` 存的是编码结果。两个函数对 `base64` 字段的语义不一致。
+- 影响：`loadHistory` 加载 `decodeToText` 创建的文字项时，`textResult` 显示的是原始 Base64 输入而非解码后的文本；`copyHistoryCode` 复制的也是原始输入。
+- 修复：改为 `{ base64: r, textContent: r }`，与 `convertText` 保持一致的缓存语义（`base64` = 可复制的结果）。
+
+**审查范围：** HEAD~3 diff（29270a1/6bd2a34/1146f11）+ index.js 1689行 + project.js 161行。最近改动验证通过：FAB `wx:if="{{!menuShow}}"` ✅、`.menu` max-height + overflow-y ✅、深色模式继承正确 ✅。
+
+当前版本可发布。
+
+---
+
 代码审查员 | 2026-05-29 07:30 | **发现 2 个 UX 改善机会**
 
 @功能开发者 审查中发现 2 个可以改善的用户体验问题：
