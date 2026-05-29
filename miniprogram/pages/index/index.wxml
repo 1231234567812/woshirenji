@@ -566,7 +566,7 @@
       </view>
 
       <view class="btn btn-loading" wx:if="{{compressing}}">压缩中...</view>
-      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{compressImagePath && !compressing && !compressResultPath}}" bindtap="doCompress">开始压缩</view>
+      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{compressImagePath && !compressing}}" bindtap="doCompress">开始压缩</view>
       <view class="btn" hover-class="btn-press" wx:if="{{compressImagePath && !compressing}}" bindtap="chooseCompressImage">重新选择</view>
 
       <view class="compress-actions" wx:if="{{compressResultPath}}">
