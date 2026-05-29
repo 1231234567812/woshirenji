@@ -15,6 +15,9 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复 openFile 操作菜单中冗余的取消选项
+  - `wx.showActionSheet` 自带取消按钮（iOS 底部、Android 返回键），itemList 中的"取消"导致用户看到两个取消选项
+  - 修复：index.js 和 project.js 的 `openFile` 函数均移除冗余的"取消"项
 - 功能开发者改善 saveAllBatch 批量保存后添加浏览目录操作菜单
   - `saveAllBatch` 批量保存成功后，toast 结束时弹出操作菜单（"浏览保存目录"），与 `saveCodeFile` 保持一致的 UX
   - 用户不再需要手动找文件浏览器来查看刚保存的文件
