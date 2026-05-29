@@ -9,12 +9,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-29 - 修复 decodeToImage 空输入无提示 + doCompress 保存失败提示，当前版本可发布
+2026-05-29 - 修复菜单 FAB z-index 冲突 + 菜单溢出，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复菜单 FAB 按钮 z-index 冲突和菜单溢出问题（ee2b305）
+  - 问题1：菜单打开时 FAB 按钮（z-index: 100）仍可见，与遮罩层同层级，可能阻挡点击
+  - 修复1：菜单打开时通过 `wx:if="{{!menuShow}}"` 隐藏 FAB 按钮
+  - 问题2：菜单有 14 个功能卡片，没有高度限制，小屏手机上可能超出屏幕
+  - 修复2：菜单添加 `max-height: 80vh; overflow-y: auto;`
 - 代码审查员修复 decodeToImage 空输入无提示的 UX 不一致
   - 问题：`decodeToText` 已添加空输入 toast 提示（86c42b2），但 `decodeToImage` 空输入时静默返回
   - 修复：添加与 `decodeToText` 一致的 toast 提示"请输入 Base64 代码"
@@ -722,3 +727,5 @@ UI设计师 → 首页重设计方案：
 **风险评估：** 低风险。纯逻辑提取，不改变行为。每个函数从 10 行变为 1 行。
 
 **状态：已完成，待提交。**
+
+UI设计师 | 第五十五轮审查（全量 bug 审查）| 逐函数审查 index.js（1689行）+ index.wxml（681行）+ index.wxss（460行）+ project.js（161行）+ project.wxml（44行）+ project.wxss（81行）+ custom-tab-bar 全部文件 + app.wxss（11行）：运行时 bug=0✅、逻辑错误=0✅、数据绑定全部匹配✅、异步回调全部有 fail 处理✅、并发防护全部 10 个耗时操作都有入口守卫✅、this/that 上下文全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅、wx:key 全部正确✅、深色模式完整覆盖所有组件✅。**发现并修复 1 个 CSS bug：** `.work-view` 使用 `animation: scaleIn 0.2s ease`，其中 `transform: scale()` 创建新的包含块，导致内部 `position: fixed` 元素（FAB 按钮、mask、menu）在 iOS WKWebView 上定位异常。修复：移除 `scaleIn` 动画和 `@keyframes` 定义，父元素 `.box` 已有 `fadeIn` 动画。**CSS 合规：** transition≤0.2s✅、box-shadow alpha≤0.08✅、font-size 仅 24/28/32rpx✅、border-radius 仅 12/24rpx/50%✅、无 letter-spacing✅、无 font-weight:800✅、无 infinite 动画✅。**无运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个 CSS bug）

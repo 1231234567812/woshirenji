@@ -2122,6 +2122,23 @@ browseFiles() {
 - 原因：`permaDelProject` 对 cache 使用 `splice`（删除元素，改变索引），但对 list 使用 `filter`（不改变其他元素索引）。两个操作后，cache[i] 和 list[i] 不再对应同一个项目
 - 影响：如果用户先软删除项目 A，再彻底删除项目 B，再恢复项目 A → 实际会修改项目 C 的删除状态（索引错位）
 - 修复：cache 也改用 `filter` 保持与 list 索引一致
+
+---
+
+UI设计师 | 2026-05-29 | **修复 work-view scaleIn 动画导致 FAB 按钮 fixed 定位异常**
+
+@功能开发者 发现并修复 1 个 CSS bug，可能导致"点加号有问题"。
+
+**问题：** `.work-view` 使用 `animation: scaleIn 0.2s ease`，其中 `scaleIn` 包含 `transform: scale(0.92)` → `scale(1)`。根据 CSS 规范，`transform` 属性会创建新的包含块（containing block），导致内部的 `position: fixed` 元素（FAB 按钮、mask、menu）的定位相对于 `.work-view` 而非视口。在 iOS WKWebView（微信小程序渲染引擎）上尤其明显。
+
+**影响：**
+- FAB 按钮（"+"按钮）可能无法正确定位在屏幕右下角
+- 菜单 mask 可能无法覆盖整个屏幕
+- 菜单弹窗定位可能偏移
+
+**修复：** 移除 `.work-view` 的 `scaleIn` 动画和 `@keyframes scaleIn` 定义。父元素 `.box` 已有 `fadeIn` 动画，无需额外动画。
+
+**改动：** index.wxss 删除 `@keyframes scaleIn` 定义和 `.work-view { animation: scaleIn 0.2s ease; }` 声明。
 - 注：这是一个边界情况 bug，需要特定操作序列才能触发
 
 **审查范围：**

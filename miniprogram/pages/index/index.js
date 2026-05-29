@@ -1576,7 +1576,7 @@ Page({
       let bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
       let r = typeof TextDecoder !== 'undefined' ? new TextDecoder().decode(bytes) : String.fromCharCode.apply(null, bytes);
       let itemMeta = { id: Date.now(), type: 'text', path: '', size: r.length + ' 字', preview: r.slice(0, 30) };
-      this._imageCache = [{ base64: this.data.decodeInput, textContent: r }].concat(this._imageCache).slice(0, 20);
+      this._imageCache = [{ base64: r, textContent: r }].concat(this._imageCache).slice(0, 20);
       let list = [itemMeta].concat(this.data.images).slice(0, 20);
       // 合并更新
       this.setData({ decodeResult: r.length > 500 ? r.slice(0, 500) + '...' : r, images: list });
@@ -1590,7 +1590,7 @@ Page({
     if (!b64) { wx.showToast({ title: '请输入 Base64 代码', icon: 'none' }); return; }
     let idx = b64.indexOf('base64,');
     let raw = (idx >= 0 ? b64.slice(idx + 7) : b64).replace(/\s/g, '');
-    if (!/^[A-Za-z0-9+/=]+$/.test(raw)) {
+    if (!/^[A-Za-z0-9+/]+={0,2}$/.test(raw)) {
       wx.showToast({ title: '不是有效的 Base64', icon: 'none' });
       return;
     }
