@@ -1488,11 +1488,13 @@ Page({
 
   copyCode() {
     if (!this._fullCode) return;
-    wx.setClipboardData({
-      data: this._fullCode.slice(0, 80000),
-      success: () => wx.showToast({ title: '已复制', icon: 'success' }),
-      fail: () => wx.showToast({ title: '太长了', icon: 'none' }),
-    });
+    let data = this._fullCode;
+    if (data.length <= 80000) {
+      wx.setClipboardData({ data: data, success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
+    } else {
+      let wan = (data.length / 10000).toFixed(1);
+      wx.setClipboardData({ data: data.slice(0, 80000), success: () => wx.showToast({ title: '数据过长（约' + wan + '万字符），已复制前8万字符', icon: 'none', duration: 3000 }) });
+    }
   },
 
   previewImg() { this._previewImage(this.data.imagePath); },
