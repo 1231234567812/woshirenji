@@ -15,6 +15,11 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 doCrop 裁剪功能 2 个 bug（第六十三轮审查）
+  - `cropRatio='free'` 时裁剪为空操作，输出与原图完全相同 → toast 提示"请选择裁剪比例"
+  - 极小图片下 `sh`/`sw` 可为 0，画布尺寸回退到原图 → 添加 `Math.max(1, ...)` 防护
+- UI设计师修复 _extractColors 采样画布宽高比失真
+  - 硬编码 50x50 导致非正方形图片颜色比例失真 → 保持宽高比缩小到 ~50px
 - 代码审查员改善 decodeToImage 历史记录显示图片大小（第六十二轮审查）
   - 问题：`decodeToImage` 生成的历史记录 `size` 为空字符串，用户在历史列表看到"未转"标签，不知道图片大小
   - 修复：writeFile 成功后用 `wx.getFileInfo` 获取文件大小，显示 "XX KB"（与 `convertImage` 保持一致）
