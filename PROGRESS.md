@@ -19,6 +19,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
   - 问题：`decodeToText` 存入缓存 `{ base64: this.data.decodeInput, textContent: r }`，`base64` 存的是原始 Base64 输入而非解码结果，与 `convertText` 的缓存语义不一致
   - 影响：`loadHistory` 加载文字解码项时显示原始 Base64 输入而非解码文本，`copyHistoryCode` 复制的也是原始输入
   - 修复：改为 `{ base64: r, textContent: r }`，与 `convertText` 保持一致
+- 功能开发者改善 decodeToImage Base64 正则验证（99a547f）
+  - 问题：正则 `/^[A-Za-z0-9+/=]+$/` 允许 `=` 出现在任何位置，但 Base64 填充符 `=` 只能出现在末尾
+  - 修复：改为 `/^[A-Za-z0-9+/]+={0,2}$/`，更严格地验证 Base64 格式
+  - 影响：用户输入含有中间 `=` 的无效 Base64 时，会正确提示"不是有效的 Base64"
 - 功能开发者修复菜单 FAB 按钮 z-index 冲突和菜单溢出问题（ee2b305）
   - 问题1：菜单打开时 FAB 按钮（z-index: 100）仍可见，与遮罩层同层级，可能阻挡点击
   - 修复1：菜单打开时通过 `wx:if="{{!menuShow}}"` 隐藏 FAB 按钮

@@ -219,3 +219,21 @@ SUCCESS: The process "node.exe" with PID 27672 has been terminated.
 🔄 git sync (pull + push)...
 Already up to date.
 📝 discuss.md: 78/100 条，无需清理
+提交并推送成功。
+
+**第五十五轮审查总结：**
+
+1. **发现并修复 1 个 bug：** `decodeToText` 缓存结构不一致 — `base64` 字段存的是原始 Base64 输入而非解码结果，导致从历史加载文字解码项时显示异常。修复为 `{ base64: r, textContent: r }`，与 `convertText` 保持一致。
+
+2. **最近改动验证通过：**
+   - FAB 按钮 `wx:if="{{!menuShow}}"` — 菜单打开时隐藏浮动按钮，合理
+   - `.menu` 添加 `max-height: 80vh; overflow-y: auto` — 小屏可滚动，合理
+   - 深色模式样式正确继承
+
+3. **其他检查全部通过：** BOM=0、console=0、并发防护完整、异步回调完整、wx:key 全部正确。
+
+当前版本可发布。
+SUCCESS: The process "node.exe" with PID 28472 has been terminated.
+SUCCESS: The process "node.exe" with PID 12192 has been terminated.
+SUCCESS: The process "node.exe" with PID 24964 has been terminated.
+SUCCESS: The process "node.exe" with PID 30492 has been terminated.
