@@ -1587,7 +1587,7 @@ Page({
 
   decodeToImage() {
     let b64 = this.data.decodeInput.trim();
-    if (!b64) return;
+    if (!b64) { wx.showToast({ title: '请输入 Base64 代码', icon: 'none' }); return; }
     let idx = b64.indexOf('base64,');
     let raw = (idx >= 0 ? b64.slice(idx + 7) : b64).replace(/\s/g, '');
     if (!/^[A-Za-z0-9+/=]+$/.test(raw)) {
