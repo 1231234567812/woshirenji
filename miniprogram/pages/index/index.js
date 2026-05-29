@@ -1022,27 +1022,29 @@ Page({
 
     // 计算裁剪区域（居中裁剪）
     let sx = 0, sy = 0, sw = cropW, sh = cropH;
-    if (cropRatio === '1:1') {
+    if (cropRatio === 'free') {
+      wx.showToast({ title: '请选择裁剪比例', icon: 'none' }); return;
+    } else if (cropRatio === '1:1') {
       let side = Math.min(cropW, cropH);
       sx = Math.floor((cropW - side) / 2);
       sy = Math.floor((cropH - side) / 2);
       sw = side; sh = side;
     } else if (cropRatio === '4:3') {
       let targetW = cropW;
-      let targetH = Math.floor(cropW * 3 / 4);
+      let targetH = Math.max(1, Math.floor(cropW * 3 / 4));
       if (targetH > cropH) {
         targetH = cropH;
-        targetW = Math.floor(cropH * 4 / 3);
+        targetW = Math.max(1, Math.floor(cropH * 4 / 3));
       }
       sx = Math.floor((cropW - targetW) / 2);
       sy = Math.floor((cropH - targetH) / 2);
       sw = targetW; sh = targetH;
     } else if (cropRatio === '16:9') {
       let targetW = cropW;
-      let targetH = Math.floor(cropW * 9 / 16);
+      let targetH = Math.max(1, Math.floor(cropW * 9 / 16));
       if (targetH > cropH) {
         targetH = cropH;
-        targetW = Math.floor(cropH * 16 / 9);
+        targetW = Math.max(1, Math.floor(cropH * 16 / 9));
       }
       sx = Math.floor((cropW - targetW) / 2);
       sy = Math.floor((cropH - targetH) / 2);
@@ -1191,8 +1193,11 @@ Page({
     wx.getImageInfo({
       src: imgPath,
       success(info) {
-        // 缩小到 50x50 加速采样
-        let sw = 50, sh = 50;
+        // 保持宽高比缩小到 ~50px 加速采样
+        let maxSide = Math.max(info.width, info.height);
+        let scale = 50 / maxSide;
+        let sw = Math.max(1, Math.round(info.width * scale));
+        let sh = Math.max(1, Math.round(info.height * scale));
         const query = wx.createSelectorQuery();
         query.select('#colorCanvas').fields({ node: true, size: true }).exec((res) => {
           if (!res[0] || !res[0].node) {
@@ -1604,12 +1609,26 @@ Page({
     this._getFs().writeFile({
       filePath: fname, data: raw, encoding: 'base64',
       success: () => {
-        let itemMeta = { id: Date.now(), type: 'image', path: fname, size: '', preview: '' };
-        that._imageCache = [{ base64: b64, path: fname }].concat(that._imageCache).slice(0, 20);
-        let list = [itemMeta].concat(that.data.images).slice(0, 20);
-        that.setData({ decodeImagePath: fname, images: list });
-        that.saveImages(list);
-        wx.showToast({ title: '已显示', icon: 'success' });
+        wx.getFileInfo({
+          filePath: fname,
+          success(fi) {
+            let kb = (fi.size / 1024).toFixed(1);
+            let itemMeta = { id: Date.now(), type: 'image', path: fname, size: kb + ' KB', preview: '' };
+            that._imageCache = [{ base64: b64, path: fname }].concat(that._imageCache).slice(0, 20);
+            let list = [itemMeta].concat(that.data.images).slice(0, 20);
+            that.setData({ decodeImagePath: fname, images: list });
+            that.saveImages(list);
+            wx.showToast({ title: '已显示', icon: 'success' });
+          },
+          fail() {
+            let itemMeta = { id: Date.now(), type: 'image', path: fname, size: '', preview: '' };
+            that._imageCache = [{ base64: b64, path: fname }].concat(that._imageCache).slice(0, 20);
+            let list = [itemMeta].concat(that.data.images).slice(0, 20);
+            that.setData({ decodeImagePath: fname, images: list });
+            that.saveImages(list);
+            wx.showToast({ title: '已显示', icon: 'success' });
+          },
+        });
       },
       fail: () => wx.showToast({ title: '写入失败', icon: 'none' }),
     });

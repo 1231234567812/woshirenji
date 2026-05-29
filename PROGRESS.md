@@ -15,6 +15,9 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员改善 decodeToImage 历史记录显示图片大小（第六十二轮审查）
+  - 问题：`decodeToImage` 生成的历史记录 `size` 为空字符串，用户在历史列表看到"未转"标签，不知道图片大小
+  - 修复：writeFile 成功后用 `wx.getFileInfo` 获取文件大小，显示 "XX KB"（与 `convertImage` 保持一致）
 - 代码审查员补齐 3 处 wx.shareFileMessage/openDocument fail 回调遗漏（第五十八轮审查）
   - index.js:1530 `wx.shareFileMessage`（saveCodeFile 内）缺少 fail 回调
   - project.js:107 `wx.openDocument`（openFile 内）缺少 fail 回调
@@ -363,6 +366,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | 第六十三轮审查（c7a7eec HEAD 全量 bug 审查）| 逐函数审查 index.js（1691行）+ index.wxml（681行）+ project.js（161行）：**发现并修复 2 个 bug：** ① `doCrop` `cropRatio='free'` 时裁剪为无操作空函数（line 1024）— 自由比例下 `sx=0, sy=0, sw=cropW, sh=cropH` 即原图全部区域，输出与原图完全相同，用户看到"裁剪完成"但实际未裁剪。修复：自由比例时 toast 提示"请选择裁剪比例"并 return；② `doCrop` 极小图片下 `sh`/`sw` 可为 0（line 1032-1049）— 如 `cropW=1` 时 `Math.floor(1*3/4)=0`，`drawH=0` 为 falsy 导致画布回退到原图高度。修复：添加 `Math.max(1, ...)` 防护。**其他验证：** `_extractColors` 采样画布已改为保持宽高比（`maxSide=50`）✅、`doCompress` 临时文件路径在当前会话内正常工作（toast 已提示"仅本次可用"，非 bug）✅、`_batchId` 守卫方案完整✅、数据绑定全部匹配✅。当前版本可发布 | 审查通过（已修复 2 个 bug）
+
+代码审查员 | 第六十二轮审查（c7a7eec HEAD 全量 bug 审查）| 逐函数审查 index.js（1691行）+ project.js（161行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文 14 处 _getFs 调用全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅（含 _batchId 守卫方案验证）、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（首字节 63=con）、console=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 40+ 个全部有对应函数✅、wx:key 全部正确✅。**发现 1 个 UX 改善机会（非 bug）：** `decodeToImage` 生成的历史记录 `size` 为空（index.js:1607），用户在历史列表看到"未转"标签，建议用 `wx.getFileInfo` 获取大小。**无运行时 bug。** 当前版本可发布 | 审查通过
 
 代码审查员 | 第六十一轮审查（935f48a HEAD 全量 bug 审查）| 逐函数审查 index.js（1691行）+ project.js（161行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文 14 处 _getFs 调用全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅（含 _batchId 守卫方案验证）、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（首字节 63=con）、console=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 40+ 个全部有对应函数✅、wx:key 全部正确✅。**验证最近提交 (90b4648)：** _batchId 守卫方案正确（所有回调路径检查 myBatchId）✅、clearBatch 添加 _batchId++✅、reset(m) 添加 _batchId++✅、3 处 fail 回调补齐✅、convertText 空输入 toast✅。**无运行时 bug。** 当前版本可发布 | 审查通过
 
