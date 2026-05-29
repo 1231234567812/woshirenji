@@ -160,3 +160,34 @@ SUCCESS: The process "node.exe" with PID 10952 has been terminated.
 🔄 git sync (pull + push)...
 Already up to date.
 📝 discuss.md: 76/100 条，无需清理
+所有提交已完成，分支与 origin/main 同步。`log-reviewer.txt` 是日志文件，不需要提交。
+
+**本次会话完成的工作总结：**
+
+1. **修复菜单 FAB 按钮 z-index 冲突**（ee2b305）
+   - 菜单打开时隐藏 FAB 按钮，防止与遮罩层的点击冲突
+
+2. **菜单添加滚动支持**（ee2b305）
+   - `max-height: 80vh; overflow-y: auto;` 防止小屏手机上 14 个菜单项超出屏幕
+
+3. **改善 Base64 正则验证**（99a547f）
+   - 从 `/^[A-Za-z0-9+/=]+$/` 改为 `/^[A-Za-z0-9+/]+={0,2}$/`
+   - `=` 只允许出现在末尾作为填充符
+
+4. **代码审查员修复 decodeToText 缓存结构不一致**（29270a1）
+   - `base64` 字段语义统一为"可复制的结果"
+
+当前版本可发布，无已知 bug。
+SUCCESS: The process "node.exe" with PID 31536 has been terminated.
+SUCCESS: The process "node.exe" with PID 27968 has been terminated.
+SUCCESS: The process "node.exe" with PID 31592 has been terminated.
+SUCCESS: The process "node.exe" with PID 16300 has been terminated.
+📤 git push...
+✅ 本轮完成，16秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 21:27:48 第 7 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+Already up to date.
+📝 discuss.md: 80/100 条，无需清理
