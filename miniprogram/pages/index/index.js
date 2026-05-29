@@ -356,7 +356,7 @@ Page({
     } else {
       let copied = 0, len = 0;
       for (let i = 0; i < this._batchCodes.length; i++) {
-        if (len + this._batchCodes[i].length + 1 > 80000) break;
+        if (len + this._batchCodes[i].length + 1 > 80000 && copied > 0) break;
         len += this._batchCodes[i].length + 1;
         copied++;
       }
@@ -1653,7 +1653,7 @@ Page({
     }
     // 普通模式：操作文件
     wx.showActionSheet({
-      itemList: ['用其他应用打开', '转发给朋友', '取消'],
+      itemList: ['用其他应用打开', '转发给朋友'],
       success: (r) => {
         if (r.tapIndex === 0) {
           wx.openDocument({ filePath: f.path, showMenu: true });

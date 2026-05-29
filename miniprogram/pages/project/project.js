@@ -101,7 +101,7 @@ Page({
     let f = this.data.filesList[e.currentTarget.dataset.index];
     if (!f) return;
     wx.showActionSheet({
-      itemList: ['用其他应用打开', '转发给朋友', '取消'],
+      itemList: ['用其他应用打开', '转发给朋友'],
       success: (r) => {
         if (r.tapIndex === 0) {
           wx.openDocument({ filePath: f.path, showMenu: true });

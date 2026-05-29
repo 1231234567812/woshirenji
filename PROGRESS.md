@@ -15,6 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者改善 saveAllBatch 批量保存后添加浏览目录操作菜单
+  - `saveAllBatch` 批量保存成功后，toast 结束时弹出操作菜单（"浏览保存目录"），与 `saveCodeFile` 保持一致的 UX
+  - 用户不再需要手动找文件浏览器来查看刚保存的文件
+  - 改动：提取 `showResult` 函数统一处理结果展示，`ok > 0` 时延迟弹出 action sheet
 - 功能开发者改善 copyAllBatch/copyTextCode 长数据提示
   - `copyAllBatch`: 数据超长时显示"已复制前 X 条，共 Y 条"，而非"太长了，分批复制"
   - `copyTextCode`: 数据超长时显示"数据过长（约 X 万字符），已复制前8万字符"，而非"太长了"
