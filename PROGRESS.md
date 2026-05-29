@@ -9,12 +9,20 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-29 - 修复 decodeToText 空输入 + copyCode 长数据提示，当前版本可发布
+2026-05-29 - 修复 decodeToImage 空输入无提示 + doCompress 保存失败提示，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复 decodeToImage 空输入无提示的 UX 不一致
+  - 问题：`decodeToText` 已添加空输入 toast 提示（86c42b2），但 `decodeToImage` 空输入时静默返回
+  - 修复：添加与 `decodeToText` 一致的 toast 提示"请输入 Base64 代码"
+  - 影响：两个解码功能的空输入行为保持一致
+- 功能开发者修复 doCompress copyFile 失败时无用户反馈的 UX 问题
+  - 问题：`doCompress` 中 `fs.copyFile` 失败时静默回退到临时路径，用户不知道结果仅本次可用
+  - 修复：添加 toast "保存失败，结果仅本次可用"
+  - 影响：用户能清楚知道压缩结果的持久性
 - 功能开发者修复 copyCode 长数据提示与 copyTextCode 保持一致（a1eafaa）
   - 问题：`copyCode` 的 fail 回调显示"太长了"，但数据已被 `slice(0, 80000)` 截断，错误消息误导
   - 修复：改为与 `copyTextCode` 一致的提示，显示数据总长度和已复制的字符数
@@ -23,6 +31,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
   - 问题：输入为空或纯空白时，`atob('')` 不抛异常，空文本被静默保存到历史记录，用户无任何反馈
   - 修复：在 strip 空白后检查 `b64` 是否为空，空则提示"请输入 Base64 代码"并 return
   - 影响：用户不再看到空的历史记录条目
+- 功能开发者修复 decodeToImage 空输入时静默返回的 UX 问题（9ccf0ab）
+  - 问题：输入为空或纯空白时，`decodeToImage` 静默返回，用户无任何反馈
+  - 修复：在 trim 后检查 `b64` 是否为空，空则提示"请输入 Base64 代码"并 return
+  - 影响：与 `decodeToText` 空输入行为保持一致，用户得到明确提示
 - UI设计师修复压缩模式缺少"重新压缩"按钮的 UX 问题
   - 问题：`doCompress` 按钮条件含 `!compressResultPath`，压缩完成后按钮消失，用户必须重新选择图片才能换质量重试
   - 其他所有图片处理模式（水印/格式/尺寸/裁剪/旋转/马赛克）都支持不重新选择直接重新操作
@@ -322,6 +334,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第五十二轮审查（86c42b2 HEAD+未提交改动 全量 bug 审查）| 逐函数审查 index.js（1686行）+ project.js（161行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅（13处 _getFs 调用）、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部正确✅。**发现并修复 1 个 UX 不一致：** `decodeToText`（line 1571）已添加空输入 toast 提示（86c42b2），但 `decodeToImage`（line 1590）空输入时 `if (!b64) return;` 静默返回无反馈。修复：添加与 `decodeToText` 一致的 toast 提示。**未提交改动审查：** doCompress copyFile fail 回调添加 toast "保存失败，结果仅本次可用"✅（合理的 UX 改善）。**无运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个 UX 不一致）
 
 代码审查员 | 第五十轮审查（527fb40/3bacc65/5afe7e6 HEAD~3 全量 bug 审查）| 逐函数审查 index.js（1673行）+ project.js（161行）：batchId 守卫（3bacc65）验证通过✅（所有回调路径正确检查 _batchId、stale 回调被正确丢弃）、已删除项目反馈（5afe7e6）验证通过✅、drawFn 异常捕获（4e184b0）验证通过✅、copyTextCode 改善验证通过✅、BOM=0✅（首字节 99=con）、console=0✅。**发现并修复 1 个边界 bug：copyAllBatch 单条数据超长时复制空字符串** — 当 _batchCodes 第一个元素超过 80000 字符时（单张图片 base64 约 60KB+ 很常见），循环在 i=0 就 break，copied=0，len=0，all.slice(0,0) 复制空字符串，用户看到"已复制前 0 条"。修复：添加 `&& copied > 0` 条件，确保至少复制一条数据（e558151）。其他检查：this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_imageCache 索引对齐正确✅、project.js 逻辑正确✅。当前版本可发布 | 审查通过（已修复 1 个边界 bug）
 
