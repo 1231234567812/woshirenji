@@ -104,9 +104,9 @@ Page({
       itemList: ['用其他应用打开', '转发给朋友'],
       success: (r) => {
         if (r.tapIndex === 0) {
-          wx.openDocument({ filePath: f.path, showMenu: true });
+          wx.openDocument({ filePath: f.path, showMenu: true, fail: () => wx.showToast({ title: '打开失败', icon: 'none' }) });
         } else if (r.tapIndex === 1) {
-          wx.shareFileMessage({ filePath: f.path, fileName: f.name });
+          wx.shareFileMessage({ filePath: f.path, fileName: f.name, fail: () => wx.showToast({ title: '分享失败', icon: 'none' }) });
         }
       },
     });

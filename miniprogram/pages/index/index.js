@@ -1527,7 +1527,7 @@ Page({
                 if (r.tapIndex === 0) {
                   wx.openDocument({ filePath: fname, showMenu: true, fail: () => that.browseFiles() });
                 } else if (r.tapIndex === 1) {
-                  wx.shareFileMessage({ filePath: fname, fileName: name + '.txt' });
+                  wx.shareFileMessage({ filePath: fname, fileName: name + '.txt', fail: () => wx.showToast({ title: '分享失败', icon: 'none' }) });
                 } else {
                   that.browseFiles();
                 }
@@ -1542,7 +1542,7 @@ Page({
 
   onTextInput(e) { this.setData({ textContent: e.detail.value }); },
   convertText() {
-    let raw = this.data.textContent; if (!raw) return;
+    let raw = this.data.textContent; if (!raw) { wx.showToast({ title: '请输入文字', icon: 'none' }); return; }
     let b64 = '';
     try {
       let bytes = new TextEncoder().encode(raw);
