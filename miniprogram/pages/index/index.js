@@ -374,12 +374,24 @@ Page({
         let prefix = (res.content || 'batch').replace(/[:"<>|?*\n\r\\/]/g, '-').slice(0, 30);
         let fs = that._getFs();
         let ok = 0, fail = 0, total = that._batchCodes.length;
+        let showResult = function() {
+          let msg = fail > 0 ? '已保存 ' + ok + ' 个，失败 ' + fail + ' 个' : '已保存 ' + ok + ' 个文件';
+          wx.showToast({ title: msg, icon: fail > 0 ? 'none' : 'success', duration: 2000 });
+          if (ok > 0) {
+            setTimeout(function() {
+              wx.showActionSheet({
+                itemList: ['浏览保存目录'],
+                success: function(r) { if (r.tapIndex === 0) that.browseFiles(); },
+              });
+            }, 2200);
+          }
+        };
         that._batchCodes.forEach((code, i) => {
           let fname = wx.env.USER_DATA_PATH + '/' + prefix + '_' + (i + 1) + '.txt';
           fs.writeFile({
             filePath: fname, data: code, encoding: 'utf8',
-            success() { ok++; if (ok + fail === total) { wx.showToast({ title: fail > 0 ? '已保存 ' + ok + ' 个，失败 ' + fail + ' 个' : '已保存 ' + ok + ' 个文件', icon: fail > 0 ? 'none' : 'success' }); } },
-            fail() { fail++; if (ok + fail === total) { wx.showToast({ title: ok > 0 ? '已保存 ' + ok + ' 个，失败 ' + fail + ' 个' : '保存失败', icon: 'none' }); } },
+            success() { ok++; if (ok + fail === total) showResult(); },
+            fail() { fail++; if (ok + fail === total) showResult(); },
           });
         });
       },
