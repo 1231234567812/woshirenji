@@ -45,6 +45,12 @@ Page({
   // 点开项目 → 跳回首页并传项目ID
   openProject(e) {
     let id = e.currentTarget.dataset.id;
+    let ps = this._projectsCache || wx.getStorageSync('projects') || [];
+    let p = ps.find(x => x.id === id);
+    if (p && p.deleted) {
+      wx.showToast({ title: '项目已删除，请先恢复', icon: 'none' });
+      return;
+    }
     wx.setStorageSync('openProjectId', id);
     wx.switchTab({ url: '/pages/index/index' });
   },

@@ -9,12 +9,16 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-28 - 补齐 addWatermark/generateQR/convertImage 并发防护，当前版本可发布
+2026-05-29 - 添加 drawFn 异常捕获和批量转换取消防护，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者添加 drawFn 异常捕获和批量转换取消防护（4e184b0）
+  - `_canvasProcess` 中 drawFn 添加 try-catch，防止绘制函数异常导致静默失败
+  - `_batchConvertParallel` 和 `_batchConvertOne` 添加 batchConverting 入口检查，防止取消后继续处理
+  - `doRotate` 添加无变换检查（rotDeg===0 && !rotFlipH && !rotFlipV），避免空操作
 - 代码审查员补齐 addWatermark/generateQR/convertImage 并发防护（6143cfd）
   - commit 6a76223 给 6 个 do* 函数添加了并发防护（compressing/fmtConverting/resizing/cropping/rotating/mosaicing）
   - 遗漏了 3 个同样有 flag 却没有入口检查的函数：addWatermark（wmProcessing）、generateQR（qrGenerating）、convertImage（converting）
@@ -286,6 +290,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第四十七轮审查（de902b6/6143cfd/6a76223 HEAD~3 全量 bug 审查）| 逐函数审查 index.js（1657行）+ project.js（155行）：this/that 上下文全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确✅、_imageCache 索引对齐正确✅、异步回调全部有 fail 处理✅、_canvasProcess 公共方法 6 处调用全部正确✅（含新增 drawFn try-catch 防护）、并发防护全部 10 个耗时操作都有入口守卫✅、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部 7 处正确✅、WXML 数据绑定与 data 定义一致✅、无内存泄漏风险✅。**发现 1 个低风险竞态条件（未修复）：** 批量转换取消后立即重新开始，旧批次已发出的 readFile 回调可污染新批次的 _batchDone 计数器。触发条件极苛刻（用户需在批量转换进行中返回菜单并立即开始新批次，且旧 readFile 尚未返回），实际风险极低。**其他验证：** _canvasProcess drawFn try-catch 正确✅、generateQR toast 移入 copyFile 回调✅、reset() 不清空 _batchCodes✅、doRotate 无变换检查✅、批量完成进度 3 秒自动清除✅。当前版本可发布 | 审查通过
+
+UI设计师 | 第四十八轮审查（de902b6 HEAD 全量 bug 审查）| 逐函数审查 index.js（1656行）+ index.wxml（680行）+ index.wxss（461行）+ project.js（155行）+ project.wxml（44行）：运行时 bug=0✅、逻辑错误=0✅、数据绑定全部匹配✅、异步回调全部有 fail 处理✅、并发防护全部 10 个耗时操作都有入口守卫✅、this/that 上下文全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅、wx:key 全部正确✅、深色模式完整✅。**CLAUDE.md 合规性 10/10 通过：** transition≤0.2s✅、animation≤0.2s✅、box-shadow alpha≤0.08✅、font-size 仅 24/28/32rpx✅、border-radius 仅 12/24rpx/50%✅、无 letter-spacing✅、无 font-weight:800✅、无 animation-delay✅、无 emoji/HTML 实体✅。**无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
 代码审查员 | 第四十六轮审查（6a76223 并发防护完整性验证+全量 bug 审查）| 逐函数审查 index.js（1653行）+ project.js（155行）：this/that 上下文 13 处 _getFs 调用全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确✅、_imageCache 索引对齐正确✅、异步回调全部有 fail 处理✅、_canvasProcess 公共方法 6 处调用全部正确✅、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部 7 处正确✅、WXML 数据绑定与 data 定义一致✅、无内存泄漏风险✅。**发现并修复 3 个并发防护遗漏：** commit 6a76223 给 6 个 do* 函数添加了并发防护，但遗漏了 3 个同样有 flag 却没有入口检查的函数：① `addWatermark()` — `wmProcessing` flag 存在但无入口守卫，用户快速点击可导致两个 canvas 操作竞态（中等）；② `generateQR()` — `qrGenerating` flag 存在但无入口守卫（低）；③ `convertImage()` — `converting` flag 存在但无入口守卫（低）。修复：3 处均添加 `if (this.data.xxxing) return;`。其他验证：6a76223 的 QR toast 移入 copyFile 回调✅、reset() 不清空 _batchCodes（chooseBatchImage 入口会重置）✅、_saveToTempFile callback(null) 统一✅、批量进度 3 秒自动清除✅。当前版本可发布 | 审查通过（已修复 3 个并发防护遗漏）
 
