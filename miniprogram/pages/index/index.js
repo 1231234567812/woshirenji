@@ -745,6 +745,7 @@ Page({
             fail() {
               that.setData({ ...doneData, compressResultPath: compressedPath });
               wx.hideNavigationBarLoading();
+              wx.showToast({ title: '保存失败，结果仅本次可用', icon: 'none' });
               setTimeout(() => { that.setData({ compressProgress: 0, compressStage: '' }); }, 800);
             },
           });
