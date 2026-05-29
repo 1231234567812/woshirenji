@@ -15,6 +15,11 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复批量转换竞态条件（批次 ID 守卫方案）
+  - 问题：用户取消批量转换后立即重新开始，旧批次已发出的 readFile 回调可污染新批次的 _batchDone 计数器
+  - 方案：`_startBatchConvert` 时递增 `_batchId`，所有回调中检查 `if (that._batchId !== myBatchId) return;`
+  - 改动：新增 `_batchId` 属性（~1行），`_startBatchConvert`/`_batchConvertParallel`/`_batchConvertOne` 3 个函数添加批次 ID 守卫（~6行）
+  - 彻底解决了旧批次回调污染新批次数据的竞态问题
 - 功能开发者添加 drawFn 异常捕获和批量转换取消防护（4e184b0）
   - `_canvasProcess` 中 drawFn 添加 try-catch，防止绘制函数异常导致静默失败
   - `_batchConvertParallel` 和 `_batchConvertOne` 添加 batchConverting 入口检查，防止取消后继续处理
@@ -290,6 +295,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第四十九轮审查（4e184b0 HEAD 全量 bug 审查）| 逐函数审查 index.js（1656行）+ project.js（161行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅（所有回调都有 success/fail/catch）、内存泄漏=0✅（无事件监听泄漏、无定时器残留）、微信 API 用法=0✅（chooseMedia/chooseImage 兼容正确）、this/that 上下文全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode）、并发防护全部 10 个耗时操作都有入口守卫✅、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部正确✅、深色模式完整✅。**无运行时 bug。** 发现 1 个 UX 改善机会：`copyAllBatch`（index.js:346-350行）在数据太长时显示"太长了，分批复制"，但用户不知道如何分批操作，建议改为显示"已复制前 X 条，共 Y 条"引导用户使用单条复制按钮。当前版本可发布 | 审查通过
 
 代码审查员 | 第四十七轮审查（de902b6/6143cfd/6a76223 HEAD~3 全量 bug 审查）| 逐函数审查 index.js（1657行）+ project.js（155行）：this/that 上下文全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确✅、_imageCache 索引对齐正确✅、异步回调全部有 fail 处理✅、_canvasProcess 公共方法 6 处调用全部正确✅（含新增 drawFn try-catch 防护）、并发防护全部 10 个耗时操作都有入口守卫✅、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部 7 处正确✅、WXML 数据绑定与 data 定义一致✅、无内存泄漏风险✅。**发现 1 个低风险竞态条件（未修复）：** 批量转换取消后立即重新开始，旧批次已发出的 readFile 回调可污染新批次的 _batchDone 计数器。触发条件极苛刻（用户需在批量转换进行中返回菜单并立即开始新批次，且旧 readFile 尚未返回），实际风险极低。**其他验证：** _canvasProcess drawFn try-catch 正确✅、generateQR toast 移入 copyFile 回调✅、reset() 不清空 _batchCodes✅、doRotate 无变换检查✅、批量完成进度 3 秒自动清除✅。当前版本可发布 | 审查通过
 

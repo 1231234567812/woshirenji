@@ -96,6 +96,7 @@ Page({
   _lastLoadTime: 0,
   _dataDirty: false,
   _fs: null,
+  _batchId: 0,
 
   _getFs() {
     if (!this._fs) this._fs = wx.getFileSystemManager();
@@ -266,23 +267,25 @@ Page({
   _startBatchConvert(paths) {
     let valid = paths.filter(Boolean);
     if (valid.length === 0) { wx.showToast({ title: '图片保存失败', icon: 'none' }); return; }
+    let myBatchId = ++this._batchId;
     this._batchCodes = [];
     this.setData({ batchItems: [], batchConverting: true, batchProgress: '0/' + valid.length, batchTotal: valid.length });
     this._batchDone = 0;
     this._batchNextSlot = 0;
     this._batchImgStart = this.data.images.length;
     // 并行处理，每次最多3个
-    this._batchConvertParallel(valid, 0);
+    this._batchConvertParallel(valid, 0, myBatchId);
   },
 
-  _batchConvertParallel(paths, startIdx) {
-    if (!this.data.batchConverting) return;
+  _batchConvertParallel(paths, startIdx, myBatchId) {
+    if (!this.data.batchConverting || this._batchId !== myBatchId) return;
     let that = this;
     let concurrency = 3;
     let endIdx = Math.min(startIdx + concurrency, paths.length);
 
     for (let i = startIdx; i < endIdx; i++) {
-      this._batchConvertOne(paths, i, function() {
+      this._batchConvertOne(paths, i, myBatchId, function() {
+        if (that._batchId !== myBatchId) return;
         that._batchDone++;
         that.setData({ batchProgress: that._batchDone + '/' + paths.length });
         if (that._batchDone >= paths.length && that.data.batchConverting) {
@@ -296,17 +299,18 @@ Page({
       });
     }
     if (endIdx < paths.length) {
-      setTimeout(function() { that._batchConvertParallel(paths, endIdx); }, 100);
+      setTimeout(function() { that._batchConvertParallel(paths, endIdx, myBatchId); }, 100);
     }
   },
 
-  _batchConvertOne(paths, idx, onDone) {
-    if (!this.data.batchConverting) return;
+  _batchConvertOne(paths, idx, myBatchId, onDone) {
+    if (!this.data.batchConverting || this._batchId !== myBatchId) return;
     let that = this;
     this._getFs().readFile({
       filePath: paths[idx],
       encoding: 'base64',
       success(res) {
+        if (that._batchId !== myBatchId) return;
         let ext = paths[idx].split('.').pop().toLowerCase();
         let mime = ext === 'png' ? 'image/png' : (ext === 'gif' ? 'image/gif' : (ext === 'webp' ? 'image/webp' : 'image/jpeg'));
         let b64 = 'data:' + mime + ';base64,' + res.data;
@@ -327,6 +331,7 @@ Page({
         onDone();
       },
       fail() {
+        if (that._batchId !== myBatchId) return;
         let slot = that._batchNextSlot++;
         that.setData({
           ['batchItems[' + slot + ']']: { id: Date.now() + idx, path: paths[idx], size: '失败', code: '读取失败', fullCode: '' }
