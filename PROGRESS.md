@@ -15,6 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者改善 copyAllBatch/copyTextCode 长数据提示
+  - `copyAllBatch`: 数据超长时显示"已复制前 X 条，共 Y 条"，而非"太长了，分批复制"
+  - `copyTextCode`: 数据超长时显示"数据过长（约 X 万字符），已复制前8万字符"，而非"太长了"
+  - 影响：用户能清楚知道复制了多少、还剩多少
 - 功能开发者修复批量转换竞态条件（批次 ID 守卫方案）
   - 问题：用户取消批量转换后立即重新开始，旧批次已发出的 readFile 回调可污染新批次的 _batchDone 计数器
   - 方案：`_startBatchConvert` 时递增 `_batchId`，所有回调中检查 `if (that._batchId !== myBatchId) return;`

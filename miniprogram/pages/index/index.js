@@ -351,7 +351,17 @@ Page({
   copyAllBatch() {
     if (this._batchCodes.length === 0) return;
     let all = this._batchCodes.join('\n');
-    wx.setClipboardData({ data: all.slice(0, 80000), success: () => wx.showToast({ title: '已复制全部', icon: 'success' }), fail: () => wx.showToast({ title: '太长了，分批复制', icon: 'none' }) });
+    if (all.length <= 80000) {
+      wx.setClipboardData({ data: all, success: () => wx.showToast({ title: '已复制全部 ' + this._batchCodes.length + ' 条', icon: 'success' }) });
+    } else {
+      let copied = 0, len = 0;
+      for (let i = 0; i < this._batchCodes.length; i++) {
+        if (len + this._batchCodes[i].length + 1 > 80000) break;
+        len += this._batchCodes[i].length + 1;
+        copied++;
+      }
+      wx.setClipboardData({ data: all.slice(0, len), success: () => wx.showToast({ title: '已复制前 ' + copied + ' 条，共 ' + this._batchCodes.length + ' 条', icon: 'none', duration: 3000 }) });
+    }
   },
 
   saveAllBatch() {
@@ -1533,11 +1543,13 @@ Page({
   },
   copyTextCode() {
     if (!this._fullText) return;
-    wx.setClipboardData({
-      data: this._fullText.slice(0, 80000),
-      success: () => wx.showToast({ title: '已复制', icon: 'success' }),
-      fail: () => wx.showToast({ title: '太长了', icon: 'none' }),
-    });
+    let data = this._fullText;
+    if (data.length <= 80000) {
+      wx.setClipboardData({ data: data, success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
+    } else {
+      let wan = (data.length / 10000).toFixed(1);
+      wx.setClipboardData({ data: data.slice(0, 80000), success: () => wx.showToast({ title: '数据过长（约' + wan + '万字符），已复制前8万字符', icon: 'none', duration: 3000 }) });
+    }
   },
 
   onDecodeInput(e) { this.setData({ decodeInput: e.detail.value }); },
