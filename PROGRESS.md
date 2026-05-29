@@ -15,6 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复压缩模式缺少"重新压缩"按钮的 UX 问题
+  - 问题：`doCompress` 按钮条件含 `!compressResultPath`，压缩完成后按钮消失，用户必须重新选择图片才能换质量重试
+  - 其他所有图片处理模式（水印/格式/尺寸/裁剪/旋转/马赛克）都支持不重新选择直接重新操作
+  - 修复：移除 `!compressResultPath` 条件，与其他模式保持一致
 - 功能开发者修复 openFile 操作菜单中冗余的取消选项
   - `wx.showActionSheet` 自带取消按钮（iOS 底部、Android 返回键），itemList 中的"取消"导致用户看到两个取消选项
   - 修复：index.js 和 project.js 的 `openFile` 函数均移除冗余的"取消"项
@@ -312,6 +316,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
 
 代码审查员 | 第五十轮审查（527fb40/3bacc65/5afe7e6 HEAD~3 全量 bug 审查）| 逐函数审查 index.js（1673行）+ project.js（161行）：batchId 守卫（3bacc65）验证通过✅（所有回调路径正确检查 _batchId、stale 回调被正确丢弃）、已删除项目反馈（5afe7e6）验证通过✅、drawFn 异常捕获（4e184b0）验证通过✅、copyTextCode 改善验证通过✅、BOM=0✅（首字节 99=con）、console=0✅。**发现并修复 1 个边界 bug：copyAllBatch 单条数据超长时复制空字符串** — 当 _batchCodes 第一个元素超过 80000 字符时（单张图片 base64 约 60KB+ 很常见），循环在 i=0 就 break，copied=0，len=0，all.slice(0,0) 复制空字符串，用户看到"已复制前 0 条"。修复：添加 `&& copied > 0` 条件，确保至少复制一条数据（e558151）。其他检查：this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_imageCache 索引对齐正确✅、project.js 逻辑正确✅。当前版本可发布 | 审查通过（已修复 1 个边界 bug）
+
+UI设计师 | 第五十一轮审查（c787958 HEAD 全量 bug 审查）| 逐函数审查 index.js（1686行）+ index.wxml（681行）+ index.wxss（461行）+ project.js（161行）+ project.wxml（44行）+ project.wxss（81行）+ custom-tab-bar 全部文件：运行时 bug=0✅、逻辑错误=0✅、数据绑定全部匹配✅、异步回调全部有 fail 处理✅、并发防护全部 10 个耗时操作都有入口守卫✅、this/that 上下文全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、文件扩展名处理正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode）、BOM=0✅、console=0✅、wx:key 全部正确✅、深色模式完整✅、CLAUDE.md 合规性 10/10 通过。**发现并修复 1 个 UX 问题：** 压缩模式 `doCompress` 按钮条件含 `!compressResultPath`，压缩完成后按钮消失，用户必须重新选择图片才能换质量重试，而其他所有图片处理模式都支持不重新选择直接重新操作。修复：移除 `!compressResultPath` 条件。**无运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个 UX 问题）
 
 代码审查员 | 第四十九轮审查（4e184b0 HEAD 全量 bug 审查）| 逐函数审查 index.js（1656行）+ project.js（161行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅（所有回调都有 success/fail/catch）、内存泄漏=0✅（无事件监听泄漏、无定时器残留）、微信 API 用法=0✅（chooseMedia/chooseImage 兼容正确）、this/that 上下文全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode）、并发防护全部 10 个耗时操作都有入口守卫✅、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部正确✅、深色模式完整✅。**无运行时 bug。** 发现 1 个 UX 改善机会：`copyAllBatch`（index.js:346-350行）在数据太长时显示"太长了，分批复制"，但用户不知道如何分批操作，建议改为显示"已复制前 X 条，共 Y 条"引导用户使用单条复制按钮。当前版本可发布 | 审查通过
 
