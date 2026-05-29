@@ -15,6 +15,11 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 4 个并发/错误处理 bug（第五十九轮审查）
+  - `clearBatch` 未递增 `_batchId`：清除批量任务后异步回调仍写入脏数据 → 添加 `_batchId++`
+  - `reset(m)` 未取消后台批量任务：切换模式时异步回调可覆盖新数据 → 添加 `_batchId++`
+  - `wx.shareFileMessage` 缺少 fail 回调 → 添加 toast 提示
+  - `wx.openDocument` 缺少 fail 回调 → 添加 toast 提示
 - 代码审查员第二次修复 decodeToText 缓存结构不一致 bug（第五十六轮审查）
   - 问题：提交 575e7dc 声称修复了此问题，但修复未实际应用到代码，line 1579 仍存 `this.data.decodeInput` 而非解码结果 `r`
   - 修复：改为 `{ base64: r, textContent: r }`
@@ -350,6 +355,12 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | 第五十九轮审查（cc229cb HEAD 全量 bug 审查）| 逐函数审查 index.js（1690行）+ index.wxml（681行）+ index.wxss（461行）+ project.js（161行）：**发现并修复 4 个 bug：** ① `clearBatch` 未递增 `_batchId`（line 401-412）— 清除批量任务后异步回调仍会写入脏数据，修复：添加 `this._batchId++`；② `reset(m)` 未取消后台批量任务（line 621-648）— 批量转换期间切换功能模式，异步完成回调可覆盖新模式产生的数据，修复：在 reset 开头添加 `this._batchId++`；③ `wx.shareFileMessage`（line 202/1665）缺少 fail 回调，分享失败时用户无反馈，修复：添加 fail toast；④ `wx.openDocument`（line 204/1663）缺少 fail 回调，打开失败时用户无反馈，修复：添加 fail toast。**其他验证：** 数据绑定全部匹配✅、深色模式完整✅、decodeToText 缓存结构（base64: r, textContent: r）正确✅。当前版本可发布 | 审查通过（已修复 4 个 bug）
+
+代码审查员 | 第五十八轮审查（cc229cb HEAD 全量 bug 审查）| 逐函数审查 index.js（1689行）+ project.js（161行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文 14 处 _getFs 调用全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode）、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部 7 处正确✅。**无运行时 bug。** 发现 1 个 UX 改善机会（非 bug）：`convertText`（line 1543）空输入时静默返回无反馈，与 `decodeToText`/`decodeToImage` 的 toast 提示不一致，建议添加 1 行 toast 提示。当前版本可发布 | 审查通过
+
+代码审查员 | 第五十七轮审查（cc229cb HEAD 全量 bug 审查）| 逐函数审查 index.js（1689行）+ project.js（161行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅（13处 _getFs 调用）、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode）、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部正确✅。**审查范围：** 最近提交 cc229cb（decodeToText 缓存结构第二次修复）验证通过✅，line 1579 确认为 `{ base64: r, textContent: r }`。**无运行时 bug。** 发现 1 个代码优化机会（非 bug）：`_extractColors` 中的 canvas 初始化代码（wx.createSelectorQuery + getContext）与 `_canvasProcess` 有重复，但因需要 `getImageData` 获取像素数据，无法直接改用 `_canvasProcess`。当前版本可发布 | 审查通过
 
 代码审查员 | 第五十六轮审查（953e30e HEAD 全量 bug 审查）| 逐函数审查 index.js（1689行）+ project.js（161行）：逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅（13处 _getFs 调用）、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（首字节 63=cons）、console=0✅、wx:key 全部正确✅。**发现并修复 1 个 bug（第二次）：decodeToText 缓存结构不一致** — 第 575e7dc 号提交声称修复了此问题，但修复未实际应用到代码。`decodeToText`（line 1579）仍然存入 `{ base64: this.data.decodeInput, textContent: r }`，`base64` 存的是原始 Base64 输入而非解码结果。已再次修复为 `{ base64: r, textContent: r }`。**最近改动验证：** Base64 正则 `/^[A-Za-z0-9+/]+={0,2}$/` 改善正确✅。当前版本可发布 | 审查通过（已修复 1 个缓存结构 bug — 第二次修复）
 

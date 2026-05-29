@@ -199,9 +199,9 @@ Page({
       itemList: ['转发给朋友', '用其他应用打开'],
       success(r) {
         if (r.tapIndex === 0) {
-          wx.shareFileMessage({ filePath: path, fileName: fileName });
+          wx.shareFileMessage({ filePath: path, fileName: fileName, fail: () => wx.showToast({ title: '分享失败', icon: 'none' }) });
         } else if (r.tapIndex === 1) {
-          wx.openDocument({ filePath: path, showMenu: true });
+          wx.openDocument({ filePath: path, showMenu: true, fail: () => wx.showToast({ title: '打开失败', icon: 'none' }) });
         }
       },
     });
@@ -404,6 +404,7 @@ Page({
       title: '清空', content: '确定清空所有批量转换结果？',
       success: (res) => {
         if (res.confirm) {
+          this._batchId++;
           this._batchCodes = [];
           this.setData({ batchItems: [], batchConverting: false, batchProgress: '', batchTotal: 0 });
         }
@@ -619,6 +620,7 @@ Page({
   showMenu() { this.setData({ menuShow: true }); },
   hideMenu() { this.setData({ menuShow: false }); },
   reset(m) {
+    this._batchId++;
     this._fullCode = ''; this._fullText = '';
     let d = { menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '' };
     if (m === 'text2code' || m === 'code2text' || m === 'code2img') {
@@ -1660,9 +1662,9 @@ Page({
       itemList: ['用其他应用打开', '转发给朋友'],
       success: (r) => {
         if (r.tapIndex === 0) {
-          wx.openDocument({ filePath: f.path, showMenu: true });
+          wx.openDocument({ filePath: f.path, showMenu: true, fail: () => wx.showToast({ title: '打开失败', icon: 'none' }) });
         } else if (r.tapIndex === 1) {
-          wx.shareFileMessage({ filePath: f.path, fileName: f.name });
+          wx.shareFileMessage({ filePath: f.path, fileName: f.name, fail: () => wx.showToast({ title: '分享失败', icon: 'none' }) });
         }
       },
     });
