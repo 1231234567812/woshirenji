@@ -132,7 +132,7 @@ Page({
 
           const img = canvas.createImage();
           img.onload = function() {
-            drawFn(ctx, canvas, img, info);
+            try { drawFn(ctx, canvas, img, info); } catch (err) { callback('绘制失败'); return; }
             let fileType = opts.fileType || 'jpg';
             let quality = opts.quality || 0.9;
             wx.canvasToTempFilePath({
@@ -276,6 +276,7 @@ Page({
   },
 
   _batchConvertParallel(paths, startIdx) {
+    if (!this.data.batchConverting) return;
     let that = this;
     let concurrency = 3;
     let endIdx = Math.min(startIdx + concurrency, paths.length);
@@ -284,7 +285,7 @@ Page({
       this._batchConvertOne(paths, i, function() {
         that._batchDone++;
         that.setData({ batchProgress: that._batchDone + '/' + paths.length });
-        if (that._batchDone >= paths.length) {
+        if (that._batchDone >= paths.length && that.data.batchConverting) {
           let sliced = that.data.images.slice(0, 20);
           that._imageCache = that._imageCache.slice(0, 20);
           that.setData({ batchConverting: false, batchProgress: '全部完成', images: sliced });
@@ -300,6 +301,7 @@ Page({
   },
 
   _batchConvertOne(paths, idx, onDone) {
+    if (!this.data.batchConverting) return;
     let that = this;
     this._getFs().readFile({
       filePath: paths[idx],
@@ -1076,6 +1078,7 @@ Page({
     let that = this;
     let { rotImg, rotDeg, rotFlipH, rotFlipV } = this.data;
     if (!rotImg) return;
+    if (rotDeg === 0 && !rotFlipH && !rotFlipV) { wx.showToast({ title: '未做任何变换', icon: 'none' }); return; }
 
     this.setData({ rotating: true });
     wx.showNavigationBarLoading();

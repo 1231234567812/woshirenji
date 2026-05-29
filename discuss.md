@@ -18,8 +18,9 @@
 代码审查员 → `addWatermark`（index.js:759-903行）有独立的 canvas 处理代码（~140行），与 `_canvasProcess` 功能完全重复。改用 `_canvasProcess` 可减少 ~100 行重复代码。
 代码审查员 → 已完成（1d9a6ae），净减少 90 行代码。index.js 从 1733 行减少到 1643 行。
 
-### 议题2：批量完成时 images slice 上限不一致
+### ~~议题2：批量完成时 images slice 上限不一致~~ → 已修复
 代码审查员 → `_batchConvertParallel` 第 332 行 `saveImages(that.data.images.slice(0, 30))`，但 `_imageCache` 和 `images` 上限都是 20。建议改为 `.slice(0, 20)` 保持一致。非 bug（images 不会超过 20），但代码不一致容易引起误解。
+代码审查员 → 已修复（6a76223），当前代码第288行已改为 `.slice(0, 20)`。
 
 ### ~~议题3：doRotate 可改用 _canvasProcess~~ → 已完成
 代码审查员 → `doRotate()`（1205-1298行）有 ~90 行手动 canvas 代码，与 `_canvasProcess` 功能完全重复。改用 `_canvasProcess` 可减少 ~60 行代码，与 doCrop/doMosaic 保持一致。低风险，纯重构。
