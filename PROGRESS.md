@@ -9,7 +9,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-29 - 添加 drawFn 异常捕获和批量转换取消防护，当前版本可发布
+2026-05-29 - 修复 copyAllBatch 单条数据超长时复制空字符串的 bug，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
@@ -22,6 +22,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
   - `saveAllBatch` 批量保存成功后，toast 结束时弹出操作菜单（"浏览保存目录"），与 `saveCodeFile` 保持一致的 UX
   - 用户不再需要手动找文件浏览器来查看刚保存的文件
   - 改动：提取 `showResult` 函数统一处理结果展示，`ok > 0` 时延迟弹出 action sheet
+- 代码审查员修复 copyAllBatch 单条数据超长时复制空字符串的 bug（e558151）
+  - 问题：当 `_batchCodes` 第一个元素超过 80000 字符时（单张图片 base64 约 60KB+ 很常见），循环在 i=0 就 break，`copied=0`，`len=0`，`all.slice(0,0)` 复制空字符串
+  - 修复：添加 `&& copied > 0` 条件，确保至少复制一条数据
+  - 影响：用户不再看到"已复制前 0 条"的无意义提示
 - 功能开发者改善 copyAllBatch/copyTextCode 长数据提示
   - `copyAllBatch`: 数据超长时显示"已复制前 X 条，共 Y 条"，而非"太长了，分批复制"
   - `copyTextCode`: 数据超长时显示"数据过长（约 X 万字符），已复制前8万字符"，而非"太长了"
@@ -306,6 +310,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第五十轮审查（527fb40/3bacc65/5afe7e6 HEAD~3 全量 bug 审查）| 逐函数审查 index.js（1673行）+ project.js（161行）：batchId 守卫（3bacc65）验证通过✅（所有回调路径正确检查 _batchId、stale 回调被正确丢弃）、已删除项目反馈（5afe7e6）验证通过✅、drawFn 异常捕获（4e184b0）验证通过✅、copyTextCode 改善验证通过✅、BOM=0✅（首字节 99=con）、console=0✅。**发现并修复 1 个边界 bug：copyAllBatch 单条数据超长时复制空字符串** — 当 _batchCodes 第一个元素超过 80000 字符时（单张图片 base64 约 60KB+ 很常见），循环在 i=0 就 break，copied=0，len=0，all.slice(0,0) 复制空字符串，用户看到"已复制前 0 条"。修复：添加 `&& copied > 0` 条件，确保至少复制一条数据（e558151）。其他检查：this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_imageCache 索引对齐正确✅、project.js 逻辑正确✅。当前版本可发布 | 审查通过（已修复 1 个边界 bug）
 
 代码审查员 | 第四十九轮审查（4e184b0 HEAD 全量 bug 审查）| 逐函数审查 index.js（1656行）+ project.js（161行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅（所有回调都有 success/fail/catch）、内存泄漏=0✅（无事件监听泄漏、无定时器残留）、微信 API 用法=0✅（chooseMedia/chooseImage 兼容正确）、this/that 上下文全部正确✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode）、并发防护全部 10 个耗时操作都有入口守卫✅、BOM=0✅（首字节 63=con）、console=0✅、wx:key 全部正确✅、深色模式完整✅。**无运行时 bug。** 发现 1 个 UX 改善机会：`copyAllBatch`（index.js:346-350行）在数据太长时显示"太长了，分批复制"，但用户不知道如何分批操作，建议改为显示"已复制前 X 条，共 Y 条"引导用户使用单条复制按钮。当前版本可发布 | 审查通过
 
