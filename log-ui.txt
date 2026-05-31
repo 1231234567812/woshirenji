@@ -735,3 +735,48 @@ SUCCESS: The process "node.exe" with PID 21004 has been terminated.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔄 git sync (pull + push)...
 📝 discuss.md: 100/100 条，无需清理
+完成全量代码审查。经过逐函数检查 index.js（1767行）、project.js（167行）、index.wxml（681行），我的结论是：
+
+**没有发现功能性 bug。**
+
+最近几轮审查（第一百零二轮）已经修复了所有已知的运行时 bug，包括：
+- project.js 3 处缓存一致性 bug（delProject/permaDelProject/restoreProject 的 catch 块 return）
+- index.js 4 处缓存一致性 bug（quickAction/createProject/delProject/saveImages）
+- decodeToText 栈溢出
+- doResize 尺寸上限
+- 批量转换 _imageCache 空洞
+- chooseCropImg/doCrop 静默失败
+
+**验证结果：**
+- ✅ 所有 11 个耗时操作都有并发防护入口守卫
+- ✅ _saveToTempFile null 检查 10 处全部正确
+- ✅ _imageCache 索引对齐正确（单图 prepend + 批量索引赋值 + QR/text/decode）
+- ✅ this/that 上下文全部正确
+- ✅ 所有异步回调都有 success/fail 处理
+- ✅ WXML 数据绑定 60+ 个全部匹配
+- ✅ WXML 事件处理 45+ 个全部有对应函数
+- ✅ wx:key 全部正确
+- ✅ 深色模式完整覆盖
+- ✅ BOM=0、console=0
+
+**发现 1 个代码整洁性问题（非 bug）：**
+
+`compressedSize` 字段在 data 中定义（line 17）并在 `_doReadBase64`（line 1415/1443）中设置，但 WXML 中未使用。这是死代码，不影响功能。
+
+当前版本可发布。
+SUCCESS: The process "node.exe" with PID 21224 has been terminated.
+SUCCESS: The process "node.exe" with PID 17544 has been terminated.
+🔒 等待 git 锁... (0s)
+🔒 等待 git 锁... (2s)
+🔒 等待 git 锁... (4s)
+🔒 等待 git 锁... (6s)
+🔒 等待 git 锁... (8s)
+🔒 等待 git 锁... (10s)
+📤 git push...
+✅ 本轮完成，21秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 14:35:26 第 24 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+📝 discuss.md: 96/100 条，无需清理

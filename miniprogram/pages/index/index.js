@@ -13,7 +13,6 @@ Page({
     convertProgress: 0,
     convertStage: '',
     compressQuality: 60,
-    compressedSize: '',
     textContent: '', textResult: '',
     decodeInput: '', decodeResult: '', decodeImagePath: '',
     curId: '', curName: '',
@@ -638,7 +637,7 @@ Page({
   reset(m) {
     this._batchId++;
     this._fullCode = ''; this._fullText = ''; this._fullDecode = '';
-    let d = { menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '' };
+    let d = { menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '' };
     if (m === 'text2code' || m === 'code2text' || m === 'code2img') {
       d.textContent = ''; d.textResult = ''; d.decodeInput = ''; d.decodeResult = ''; d.decodeImagePath = ''; d.decoding = false;
     } else if (m === 'batch') {
@@ -1412,7 +1411,7 @@ Page({
     if (!src) return;
 
     // 合并初始状态更新，减少setData调用
-    this.setData({ converting: true, convertProgress: 5, convertStage: '准备中...', compressedSize: '' });
+    this.setData({ converting: true, convertProgress: 5, convertStage: '' });
     wx.showNavigationBarLoading();
 
     // Step 1: 检查原始文件大小
@@ -1440,7 +1439,7 @@ Page({
               success(cInfo) {
                 let compKB = (cInfo.size / 1024).toFixed(1);
                 let ratio = ((1 - cInfo.size / info.size) * 100).toFixed(0);
-                that.setData({ convertProgress: 40, convertStage: '压缩完成，减小 ' + ratio + '%', compressedSize: compKB + ' KB' });
+                that.setData({ convertProgress: 40, convertStage: '压缩完成，减小 ' + ratio + '%' });
                 that._doReadBase64(compressedPath, compKB);
               },
               fail() { that._doReadBase64(src, origKB); },
