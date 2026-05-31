@@ -123,6 +123,7 @@ Page({
           wx.shareFileMessage({ filePath: f.path, fileName: f.name, fail: () => wx.showToast({ title: '分享失败', icon: 'none' }) });
         }
       },
+      fail() {},
     });
   },
   closeFiles() { this.setData({ filesShow: false, filesLoading: false }); },

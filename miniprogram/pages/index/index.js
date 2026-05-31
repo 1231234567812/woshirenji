@@ -740,8 +740,8 @@ Page({
         that.setData({ compressProgress: 40, compressStage: '压缩完成，获取信息...' });
         let compressedPath = res.tempFilePath;
         // 同时获取压缩后和原始文件信息，减少嵌套
-        let getInfo = (path) => new Promise((resolve) => {
-          wx.getFileInfo({ filePath: path, success: resolve, fail: () => resolve({ size: 0 }) });
+        let getInfo = (path) => new Promise((resolve, reject) => {
+          wx.getFileInfo({ filePath: path, success: resolve, fail: () => reject(new Error('getFileInfo failed')) });
         });
         Promise.all([getInfo(compressedPath), getInfo(src)]).then(([compInfo, origInfo]) => {
           let newKB = compInfo.size;
@@ -1775,7 +1775,8 @@ Page({
       itemList: ['用其他应用打开', '转发给朋友'],
       success: (r) => {
         if (r.tapIndex === 0) {
-          let ext = f.name.split('.').pop().toLowerCase();
+          let parts = f.name.split('.');
+          let ext = parts.length > 1 ? parts.pop().toLowerCase() : '';
           if (['jpg', 'jpeg', 'png', 'webp', 'gif'].indexOf(ext) >= 0) {
             wx.previewImage({ urls: [f.path], fail: () => wx.showToast({ title: '预览失败', icon: 'none' }) });
           } else {
