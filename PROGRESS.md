@@ -9,12 +9,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百四十五轮审查通过（功能开发者），当前版本可发布
+2026-05-31 - 第一百四十七轮审查通过（功能开发者），当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中，等待新任务 -->
 
 ## 最近改动
+- 功能开发者修复 4 个 UX 不一致问题（第一百四十六轮审查）
+  - `delProject` 存储失败提示从 `'操作失败'` 改为 `'存储空间不足'`，与其他 3 处 setStorageSync catch 块保持一致
+  - `convertImage` 添加空图片 toast 提示 `'请先选择图片'`，与其他 7 个图片处理函数保持一致
+  - `addWatermark` 成功提示从 `'水印添加成功'` 改为 `'水印添加完成'`，与其他图片处理函数的 "XX完成" 模式保持一致
+  - `chooseResizeImg` 的 `getImageInfo` fail 回调添加 toast `'获取图片尺寸失败'`，与 `chooseCropImg` 保持一致
 - 功能开发者修复 6 个图片处理函数空输入提示不一致的 UX 问题（第一百四十五轮审查）
   - doCompress/doFmtConvert/doRotate/doMosaic/addWatermark 添加 toast "请先选择图片"
   - doResize 拆分检查条件，分别提示"请先选择图片"和"请输入有效的尺寸"
@@ -674,6 +679,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+功能开发者 | 第一百四十七轮审查（UX 一致性修复）| 全量扫描 index.js（1839行）发现 4 个 UX 不一致问题并修复：① `delProject` 存储失败提示 `'操作失败'` → `'存储空间不足'`（与其他 3 处一致）；② `convertImage` 缺少空图片 toast 提示 → 添加 `'请先选择图片'`（与其他 7 个图片处理函数一致）；③ `addWatermark` 成功提示 `'水印添加成功'` → `'水印添加完成'`（与其他 "XX完成" 模式一致）；④ `chooseResizeImg` 的 `getImageInfo` fail 缺少 toast → 添加 `'获取图片尺寸失败'`（与 `chooseCropImg` 一致）。**BOM=0✅、console=0✅。** 当前版本可发布 | 审查通过（已修复 4 个 UX 不一致）
+
+代码审查员 | 第一百四十六轮审查（全量 bug 审查）| 全量审查 index.js（1839行）+ project.js（179行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 12 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅。**验证最近提交：** 最近3次提交（e323ada/e9a7b36/e040d95）全部是文档更新，无功能性代码变更。**发现 2 个 UX 改善机会（非 bug）：** 1. decodeToText 解码结果截断为 500 字符但未提示总长度（line 1676）；2. convertText 编码结果截断为 300 字符但未提示总长度（line 1642）。**自上次审查以来无功能性代码变更。** **无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
 UI设计师 | 第一百四十六轮审查（全量 bug 审查）| 全量审查 index.js（1838行）+ project.js（179行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 12 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅。**WXML 验证：** 所有 bindtap + catchtap 全部有对应 JS 函数✅、所有数据绑定与 data 定义一致✅、7 个 wx:for 全有 wx:key✅。**逐项深度检查：** convertImage 的 getInfo fail 回调使用独立变量 `''` 而非引用外层 `origKB`（正确避免了作用域问题）✅、doCompress Promise.all+catch 链正确✅、_batchConvertParallel 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫 + 双 slice(0,20)）✅、doRotate 旋转变换矩阵正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、quickAction 自动创建/复用项目逻辑正确✅、loadHistory 三种类型均正确✅、copyHistoryCode subtype 判断正确✅、_clusterColors 加权平均+透明像素过滤+RGB 距离合并正确✅、project.js 所有函数逻辑正确✅、缓存一致性正确（copy-before-mutation + catch return）✅。**空输入一致性验证：** convertText/decodeToText/decodeToImage/generateQR/addWatermark/doCompress/doFmtConvert/doResize/doRotate/doMosaic 10 个函数全部检查空输入并 toast 提示✅。**自上次审查以来无功能性代码变更。** **无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
