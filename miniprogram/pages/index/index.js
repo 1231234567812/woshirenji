@@ -64,7 +64,7 @@ Page({
     cropImg: '',
     cropW: 0,
     cropH: 0,
-    cropRatio: 'free',
+    cropRatio: '1:1',
     cropResult: '',
     cropSize: '',
     cropping: false,
@@ -210,10 +210,11 @@ Page({
   // 选择图片（公共方法）
   _chooseImage(count, sizeType, onSuccess) {
     let st = Array.isArray(sizeType) ? sizeType : [sizeType];
+    let onFail = (err) => { if (err && err.errMsg && err.errMsg.indexOf('cancel') < 0) wx.showToast({ title: '选择图片失败', icon: 'none' }); };
     if (wx.chooseMedia) {
-      wx.chooseMedia({ count: count, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: st, success: onSuccess, fail: () => {} });
+      wx.chooseMedia({ count: count, mediaType: ['image'], sourceType: ['album', 'camera'], sizeType: st, success: onSuccess, fail: onFail });
     } else {
-      wx.chooseImage({ count: count, sourceType: ['album', 'camera'], sizeType: st, success: onSuccess, fail: () => {} });
+      wx.chooseImage({ count: count, sourceType: ['album', 'camera'], sizeType: st, success: onSuccess, fail: onFail });
     }
   },
 
@@ -345,7 +346,13 @@ Page({
     let idx = e.currentTarget.dataset.index;
     let item = this.data.batchItems[idx];
     if (!item || !item.fullCode) return;
-    wx.setClipboardData({ data: item.fullCode.slice(0, 80000), success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
+    let data = item.fullCode;
+    if (data.length <= 80000) {
+      wx.setClipboardData({ data: data, success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
+    } else {
+      let wan = (data.length / 10000).toFixed(1);
+      wx.setClipboardData({ data: data.slice(0, 80000), success: () => wx.showToast({ title: '数据过长（约' + wan + '万字符），已复制前8万字符', icon: 'none', duration: 3000 }) });
+    }
   },
 
   copyAllBatch() {
@@ -638,7 +645,7 @@ Page({
     } else if (m === 'resize') {
       d.resizeImg = ''; d.resizeW = 0; d.resizeH = 0; d.resizeNewW = 0; d.resizeNewH = 0; d.resizeRatio = true; d.resizeResult = ''; d.resizeSize = ''; d.resizing = false;
     } else if (m === 'crop') {
-      d.cropImg = ''; d.cropW = 0; d.cropH = 0; d.cropRatio = 'free'; d.cropResult = ''; d.cropSize = ''; d.cropping = false;
+      d.cropImg = ''; d.cropW = 0; d.cropH = 0; d.cropRatio = '1:1'; d.cropResult = ''; d.cropSize = ''; d.cropping = false;
     } else if (m === 'rotate') {
       d.rotImg = ''; d.rotDeg = 0; d.rotFlipH = false; d.rotFlipV = false; d.rotResult = ''; d.rotSize = ''; d.rotating = false;
     } else if (m === 'color') {
@@ -1022,9 +1029,7 @@ Page({
 
     // 计算裁剪区域（居中裁剪）
     let sx = 0, sy = 0, sw = cropW, sh = cropH;
-    if (cropRatio === 'free') {
-      wx.showToast({ title: '请选择裁剪比例', icon: 'none' }); return;
-    } else if (cropRatio === '1:1') {
+    if (cropRatio === '1:1') {
       let side = Math.min(cropW, cropH);
       sx = Math.floor((cropW - side) / 2);
       sy = Math.floor((cropH - side) / 2);
@@ -1589,15 +1594,15 @@ Page({
     try {
       let bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
       let r = typeof TextDecoder !== 'undefined' ? new TextDecoder().decode(bytes) : String.fromCharCode.apply(null, bytes);
-      let itemMeta = { id: Date.now(), type: 'text', path: '', size: r.length + ' 字', preview: r.slice(0, 30) };
-      this._imageCache = [{ base64: r, textContent: r }].concat(this._imageCache).slice(0, 20);
+      let itemMeta = { id: Date.now(), type: 'text', subtype: 'decode', path: '', size: r.length + ' 字', preview: r.slice(0, 30) };
+      this._imageCache = [{ base64: b64, textContent: r }].concat(this._imageCache).slice(0, 20);
       let list = [itemMeta].concat(this.data.images).slice(0, 20);
       // 合并更新
       this.setData({ decodeResult: r.length > 500 ? r.slice(0, 500) + '...' : r, images: list });
       this.saveImages(list);
     } catch (e) { wx.showToast({ title: '格式错误，请检查输入', icon: 'none' }); }
   },
-  copyDecode() { wx.setClipboardData({ data: this.data.decodeResult, success: () => wx.showToast({ title: '已复制', icon: 'success' }) }); },
+  copyDecode() { if (!this.data.decodeResult) return; wx.setClipboardData({ data: this.data.decodeResult, success: () => wx.showToast({ title: '已复制', icon: 'success' }) }); },
 
   decodeToImage() {
     let b64 = this.data.decodeInput.trim();
@@ -1621,7 +1626,7 @@ Page({
           success(fi) {
             let kb = (fi.size / 1024).toFixed(1);
             let itemMeta = { id: Date.now(), type: 'image', path: fname, size: kb + ' KB', preview: '' };
-            that._imageCache = [{ base64: b64, path: fname }].concat(that._imageCache).slice(0, 20);
+            that._imageCache = [{ base64: b64, textContent: '' }].concat(that._imageCache).slice(0, 20);
             let list = [itemMeta].concat(that.data.images).slice(0, 20);
             that.setData({ decodeImagePath: fname, images: list });
             that.saveImages(list);
@@ -1629,7 +1634,7 @@ Page({
           },
           fail() {
             let itemMeta = { id: Date.now(), type: 'image', path: fname, size: '', preview: '' };
-            that._imageCache = [{ base64: b64, path: fname }].concat(that._imageCache).slice(0, 20);
+            that._imageCache = [{ base64: b64, textContent: '' }].concat(that._imageCache).slice(0, 20);
             let list = [itemMeta].concat(that.data.images).slice(0, 20);
             that.setData({ decodeImagePath: fname, images: list });
             that.saveImages(list);
@@ -1710,8 +1715,14 @@ Page({
       this.setData({ mode: 'img2code', imagePath: item.path, codeShow: b64.slice(0, 200) + (b64.length > 200 ? '...' : ''), size: item.size || '' });
     } else {
       let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
-      this._fullText = full ? (full.base64 || '') : '';
-      this.setData({ mode: 'text2code', textContent: full ? (full.textContent || '') : '', textResult: this._fullText.slice(0, 200) + (this._fullText.length > 200 ? '...' : '') });
+      if (item.subtype === 'decode') {
+        let b64 = full ? (full.base64 || '') : '';
+        let txt = full ? (full.textContent || '') : '';
+        this.setData({ mode: 'code2text', decodeInput: b64, decodeResult: txt.length > 500 ? txt.slice(0, 500) + '...' : txt });
+      } else {
+        this._fullText = full ? (full.base64 || '') : '';
+        this.setData({ mode: 'text2code', textContent: full ? (full.textContent || '') : '', textResult: this._fullText.slice(0, 200) + (this._fullText.length > 200 ? '...' : '') });
+      }
     }
   },
 });
