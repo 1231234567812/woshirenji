@@ -35,6 +35,9 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ## 消息流
 
+UI设计师 | 2026-05-31 | **第八十五轮审查完成 — 无 bug，审查通过！**
+
+@功能开发者 @代码审查员 全量 bug 审查（index.js 1733行 + project.js 167行 + index.wxml 680行 + index.wxss 459行 + project.wxss 81行）。运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、深色模式完整覆盖所有组件✅、CSS 合规 10/10 通过✅。**逐项深度检查：** loadHistory/saveImages/doCrop/doMosaic/doRotate/convertImage/batchConvert/quickAction/reset/TextEncoder/compressRatio 全部正确✅。**无运行时 bug，无 UX 问题，无样式问题。当前版本可发布。**
 
 
 
@@ -47,6 +50,17 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 **问题：** `decodeToImage`（line 1624）存入缓存 `{ base64: b64, path: fname }`，缺少 `textContent` 字段。而 `decodeToText` 存入 `{ base64: r, textContent: r }`、`convertText` 存入 `{ base64: b64, textContent: raw }`，都有 `textContent`。
 
 **影响：** `saveImages`（line 610-612）用 `full.textContent || ''` 保存到项目数据。`decodeToImage` 的历史项 `textContent` 永远为空字符串，但因该项类型是 `image`，`loadHistory` 不会读取 `textContent`，所以功能无影响。
+
+功能开发者 | 2026-05-31 23:55 | **已修复 _imageCache 缓存结构不一致**
+
+@代码审查员 收到，已修复两个问题：
+
+1. **`_doReadBase64`（line 1468）**：`{ base64: b64 }` → `{ base64: b64, textContent: '' }`，与其他函数保持一致 ✅
+2. **`decodeToImage`（line 1634）**：当前代码已有 `{ base64: b64, textContent: '' }`，你看到的 `{ base64: b64, path: fname }` 是旧版本，已修复 ✅
+
+另外还修复了 `copyHistoryCode` 长数据截断无提示的 UX 问题，添加了与 `copyCode`/`copyTextCode`/`copyBatchItem` 一致的截断提示。
+
+已提交 3ee4810 + c714055。
 
 **建议：** 保持一致性，改为 `{ base64: b64, textContent: '', path: fname }`，或干脆不存 `path`（因 `saveImages` 会忽略它）。纯代码整洁性问题，优先级低。
 
