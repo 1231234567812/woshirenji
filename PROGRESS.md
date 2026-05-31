@@ -9,12 +9,19 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百三十八轮审查通过（无 bug），当前版本可发布
+2026-06-01 - 第一百三十九轮审查通过（修复 2 个 UX bug），当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中，等待新任务 -->
 
 ## 最近改动
+- UI设计师完成第一百三十九轮审查 — 发现并修复 2 个 UX bug
+  - **Bug 1（UX）：goBack 不关闭文件浏览弹窗** — 用户在工作台打开文件浏览弹窗后按返回键，`goBack()` 只设 `view: 'list'` 不重置 `filesShow`，导致文件弹窗在列表页仍然可见。修复：`goBack()` 添加 `filesShow: false, fileMode: ''`
+  - **Bug 2（UX）：code2img 处理中按钮缺少 pointer-events 保护** — 其他处理中按钮都用 `class="btn btn-loading"`（含 `pointer-events: none`），但 code2img 的处理中按钮用 `class="btn btn-cvt"` + 内联 `opacity:0.6`，用户点击无反馈。修复：改为 `class="btn btn-loading"`
+  - 全量审查 index.js（1833行）+ project.js（179行）+ index.wxml（681行）+ index.wxss（461行）：运行时 bug=0、逻辑错误=0、并发防护 12/12 正确
+  - project.js 缓存一致性正确（3 处 _projectsCache 均在 setStorageSync 成功后更新）
+  - 所有 WXML 事件绑定 100+ 个全部有对应 JS 函数
+  - 当前版本可发布
 - 代码审查员完成第一百三十八轮审查 — 无 bug，审查通过
   - 全量 bug 审查（index.js 1833行 + project.js 179行 + index.wxml 681行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
   - WXML 深度验证：98 个唯一函数名全部存在、所有数据绑定一致、7 个 wx:for 全有 wx:key

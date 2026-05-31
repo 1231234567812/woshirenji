@@ -612,7 +612,7 @@ Page({
 
   goBack() {
     wx.setNavigationBarTitle({ title: 'Base64 工具箱' });
-    this.setData({ view: 'list' });
+    this.setData({ view: 'list', filesShow: false, fileMode: '' });
     // 只在数据有变更时才重载
     if (this._dataDirty) {
       this.load();
