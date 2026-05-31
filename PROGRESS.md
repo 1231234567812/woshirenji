@@ -9,12 +9,15 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百三十九轮审查通过（修复 2 个 UX bug），当前版本可发布
+2026-06-01 - 第一百四十轮审查通过（修复 3 个 bug），当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中，等待新任务 -->
 
 ## 最近改动
+- UI设计师完成第一百四十轮审查 — 发现并修复 1 个批量转换 bug
+  - **Bug（中等）：_batchConvertOne fail 回调未设置 images[imgIdx]** — readFile 失败时只更新 `_imageCache[imgIdx]`，不更新 `images[imgIdx]`，导致 images 数组出现稀疏空洞，与 _imageCache 索引错位。批量完成时 `saveImages(sliced)` 遍历 images 会跳过 undefined 索引，后续项的 base64 数据会错位到错误的历史记录中。修复：fail 回调添加 `images[imgIdx]` 赋值（含 size:'失败' 标记），与 success 回调保持一致
+  - 当前版本可发布
 - UI设计师完成第一百三十九轮审查 — 发现并修复 2 个 UX bug
   - **Bug 1（UX）：goBack 不关闭文件浏览弹窗** — 用户在工作台打开文件浏览弹窗后按返回键，`goBack()` 只设 `view: 'list'` 不重置 `filesShow`，导致文件弹窗在列表页仍然可见。修复：`goBack()` 添加 `filesShow: false, fileMode: ''`
   - **Bug 2（UX）：code2img 处理中按钮缺少 pointer-events 保护** — 其他处理中按钮都用 `class="btn btn-loading"`（含 `pointer-events: none`），但 code2img 的处理中按钮用 `class="btn btn-cvt"` + 内联 `opacity:0.6`，用户点击无反馈。修复：改为 `class="btn btn-loading"`

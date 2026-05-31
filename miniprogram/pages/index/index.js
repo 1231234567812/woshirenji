@@ -335,10 +335,13 @@ Page({
         if (that._batchId !== myBatchId) return;
         let slot = that._batchNextSlot++;
         let imgIdx = that._batchImgStart + idx;
-        if (imgIdx < 20) that._imageCache[imgIdx] = { base64: '', textContent: '' };
-        that.setData({
-          ['batchItems[' + slot + ']']: { id: Date.now() + idx, path: paths[idx], size: '失败', code: '读取失败', fullCode: '' }
-        });
+        let failItem = { id: Date.now() + idx, path: paths[idx], size: '失败', code: '读取失败', fullCode: '' };
+        let failData = { ['batchItems[' + slot + ']']: failItem };
+        if (imgIdx < 20) {
+          that._imageCache[imgIdx] = { base64: '', textContent: '' };
+          failData['images[' + imgIdx + ']'] = { id: failItem.id, type: 'image', path: paths[idx], size: '失败', preview: '' };
+        }
+        that.setData(failData);
         onDone();
       },
     });
