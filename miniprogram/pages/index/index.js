@@ -73,7 +73,6 @@ Page({
     rotFlipH: false,
     rotFlipV: false,
     rotResult: '',
-    rotSize: '',
     rotating: false,
     // 颜色提取
     colorImg: '',
@@ -83,7 +82,6 @@ Page({
     mosaicImg: '',
     mosaicLevel: 8,
     mosaicResult: '',
-    mosaicSize: '',
     mosaicing: false,
     decoding: false,
   },
@@ -655,11 +653,11 @@ Page({
     } else if (m === 'crop') {
       d.cropImg = ''; d.cropW = 0; d.cropH = 0; d.cropRatio = '1:1'; d.cropResult = ''; d.cropSize = ''; d.cropping = false;
     } else if (m === 'rotate') {
-      d.rotImg = ''; d.rotDeg = 0; d.rotFlipH = false; d.rotFlipV = false; d.rotResult = ''; d.rotSize = ''; d.rotating = false;
+      d.rotImg = ''; d.rotDeg = 0; d.rotFlipH = false; d.rotFlipV = false; d.rotResult = ''; d.rotating = false;
     } else if (m === 'color') {
       d.colorImg = ''; d.colorList = []; d.colorPicking = false;
     } else if (m === 'mosaic') {
-      d.mosaicImg = ''; d.mosaicLevel = 8; d.mosaicResult = ''; d.mosaicSize = ''; d.mosaicing = false;
+      d.mosaicImg = ''; d.mosaicLevel = 8; d.mosaicResult = ''; d.mosaicing = false;
     }
     this.setData(d);
   },
@@ -1111,7 +1109,7 @@ Page({
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that._saveToTempFile(p, 'rot', (dest) => {
         if (!dest) return;
-        that.setData({ rotImg: dest, rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '', rotSize: '' });
+        that.setData({ rotImg: dest, rotDeg: 0, rotFlipH: false, rotFlipV: false, rotResult: '' });
       });
     });
   },
@@ -1164,7 +1162,7 @@ Page({
           if (err) {
             wx.showToast({ title: err, icon: 'none' });
           } else {
-            that.setData({ rotResult: result.path, rotSize: result.size });
+            that.setData({ rotResult: result.path });
             wx.showToast({ title: '旋转完成', icon: 'success' });
           }
         });
@@ -1295,7 +1293,7 @@ Page({
       if (!p) { wx.showToast({ title: '获取图片失败', icon: 'none' }); return; }
       that._saveToTempFile(p, 'mosaic', (dest) => {
         if (!dest) return;
-        that.setData({ mosaicImg: dest, mosaicResult: '', mosaicSize: '' });
+        that.setData({ mosaicImg: dest, mosaicResult: '' });
       });
     });
   },
@@ -1331,7 +1329,7 @@ Page({
       if (err) {
         wx.showToast({ title: err, icon: 'none' });
       } else {
-        that.setData({ mosaicResult: result.path, mosaicSize: result.size });
+        that.setData({ mosaicResult: result.path });
         wx.showToast({ title: '马赛克完成', icon: 'success' });
       }
     });
