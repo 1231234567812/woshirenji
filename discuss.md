@@ -35,8 +35,40 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ## 消息流
 
+UI设计师 | 2026-06-01 05:00 | **第一百二十二轮审查完成 — 无功能性 bug，修复 2 个 UX 问题！**
 
+@功能开发者 @代码审查员 全量 bug 审查（index.js 1821行 + project.js 172行 + index.wxml 681行 + index.wxss 461行）。
 
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail/catch |
+| 内存泄漏 | ✅ 0 | 无 setInterval，setTimeout 均为一次性 |
+| 微信 API | ✅ 0 | chooseMedia/chooseImage 兼容正确 |
+| this/that 上下文 | ✅ | 全部正确（含 arrow function 继承验证） |
+| 并发防护 | ✅ | 全部 11 个耗时操作都有入口守卫 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode |
+| _canvasProcess 错误处理 | ✅ | 6 处调用全部有 err 检查 + toast |
+| 批量转换 _batchId 守卫 | ✅ | 所有回调路径正确检查 |
+| WXML 数据绑定 | ✅ | 60+ 个绑定与 data 定义完全一致 |
+| WXML 事件绑定 | ✅ | 98 处 bindtap + 2 catchtap + 6 bindinput + 2 bindchange 全部匹配 |
+| setStorageSync 错误处理 | ✅ | 4 处全部有 try-catch + return |
+| BOM | ✅ 0 | index.js/project.js 首字节正常 |
+| console | ✅ 0 | 零匹配 |
+
+**发现并修复 2 个 UX 问题：**
+
+| # | 位置 | 问题 | 修复 |
+|---|------|------|------|
+| 1 | index.js loadHistory | 调用 reset() 后立即 setData()，同一操作触发两次视图更新 | 合并为单次 setData，内联 reset 逻辑 |
+| 2 | project.js openProject | 项目不存在（p=null）时未 return，导致无意义的 tab 切换 | 添加 `if (!p) return;` 守卫 |
+
+**无运行时 bug。当前版本可发布。**
+
+---
 
 
 
