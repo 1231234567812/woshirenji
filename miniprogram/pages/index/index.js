@@ -1295,9 +1295,9 @@ Page({
       for (let j = 0; j < merged.length; j++) {
         let dr = cr - merged[j].r, dg = cg - merged[j].g, db = cb - merged[j].b;
         if (dr * dr + dg * dg + db * db < 900) { // RGB距离 < 30
-          merged[j].r = Math.round((merged[j].r * merged[j].count + c.r) / (merged[j].count + c.count));
-          merged[j].g = Math.round((merged[j].g * merged[j].count + c.g) / (merged[j].count + c.count));
-          merged[j].b = Math.round((merged[j].b * merged[j].count + c.b) / (merged[j].count + c.count));
+          merged[j].r = Math.round((merged[j].r * merged[j].count + cr * c.count) / (merged[j].count + c.count));
+          merged[j].g = Math.round((merged[j].g * merged[j].count + cg * c.count) / (merged[j].count + c.count));
+          merged[j].b = Math.round((merged[j].b * merged[j].count + cb * c.count) / (merged[j].count + c.count));
           merged[j].count += c.count;
           similar = true;
           break;
