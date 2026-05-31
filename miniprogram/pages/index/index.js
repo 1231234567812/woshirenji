@@ -86,10 +86,12 @@ Page({
     mosaicResult: '',
     mosaicSize: '',
     mosaicing: false,
+    decoding: false,
   },
 
   _fullCode: '',
   _fullText: '',
+  _fullDecode: '',
   _imageCache: [],
   _batchCodes: [],
   _projectsCache: null,
@@ -633,10 +635,10 @@ Page({
   hideMenu() { this.setData({ menuShow: false }); },
   reset(m) {
     this._batchId++;
-    this._fullCode = ''; this._fullText = '';
+    this._fullCode = ''; this._fullText = ''; this._fullDecode = '';
     let d = { menuShow: false, mode: m, imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '', compressedSize: '' };
     if (m === 'text2code' || m === 'code2text' || m === 'code2img') {
-      d.textContent = ''; d.textResult = ''; d.decodeInput = ''; d.decodeResult = ''; d.decodeImagePath = '';
+      d.textContent = ''; d.textResult = ''; d.decodeInput = ''; d.decodeResult = ''; d.decodeImagePath = ''; d.decoding = false;
     } else if (m === 'batch') {
       d.batchItems = []; d.batchConverting = false; d.batchProgress = ''; d.batchTotal = 0;
     } else if (m === 'qrcode') {
@@ -1601,6 +1603,7 @@ Page({
     try {
       let bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
       let r = typeof TextDecoder !== 'undefined' ? new TextDecoder().decode(bytes) : String.fromCharCode.apply(null, bytes);
+      this._fullDecode = r;
       let itemMeta = { id: Date.now(), type: 'text', subtype: 'decode', path: '', size: r.length + ' 字', preview: r.slice(0, 30) };
       this._imageCache = [{ base64: b64, textContent: r }].concat(this._imageCache).slice(0, 20);
       let list = [itemMeta].concat(this.data.images).slice(0, 20);
@@ -1609,9 +1612,19 @@ Page({
       this.saveImages(list);
     } catch (e) { wx.showToast({ title: '格式错误，请检查输入', icon: 'none' }); }
   },
-  copyDecode() { if (!this.data.decodeResult) return; wx.setClipboardData({ data: this.data.decodeResult, success: () => wx.showToast({ title: '已复制', icon: 'success' }) }); },
+  copyDecode() {
+    if (!this._fullDecode) return;
+    let data = this._fullDecode;
+    if (data.length <= 80000) {
+      wx.setClipboardData({ data: data, success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
+    } else {
+      let wan = (data.length / 10000).toFixed(1);
+      wx.setClipboardData({ data: data.slice(0, 80000), success: () => wx.showToast({ title: '数据过长（约' + wan + '万字符），已复制前8万字符', icon: 'none', duration: 3000 }) });
+    }
+  },
 
   decodeToImage() {
+    if (this.data.decoding) return;
     let b64 = this.data.decodeInput.trim();
     if (!b64) { wx.showToast({ title: '请输入 Base64 代码', icon: 'none' }); return; }
     let idx = b64.indexOf('base64,');
@@ -1625,12 +1638,14 @@ Page({
     let ext = mimeMatch ? (mimeMatch[1].split('/')[1] === 'jpeg' ? 'jpg' : mimeMatch[1].split('/')[1]) : 'png';
     let fname = wx.env.USER_DATA_PATH + '/dc' + Date.now() + '.' + ext;
     let that = this;
+    this.setData({ decoding: true });
     this._getFs().writeFile({
       filePath: fname, data: raw, encoding: 'base64',
       success: () => {
         wx.getFileInfo({
           filePath: fname,
           success(fi) {
+            that.setData({ decoding: false });
             let kb = (fi.size / 1024).toFixed(1);
             let itemMeta = { id: Date.now(), type: 'image', path: fname, size: kb + ' KB', preview: '' };
             that._imageCache = [{ base64: b64, textContent: '' }].concat(that._imageCache).slice(0, 20);
@@ -1640,6 +1655,7 @@ Page({
             wx.showToast({ title: '已显示', icon: 'success' });
           },
           fail() {
+            that.setData({ decoding: false });
             let itemMeta = { id: Date.now(), type: 'image', path: fname, size: '', preview: '' };
             that._imageCache = [{ base64: b64, textContent: '' }].concat(that._imageCache).slice(0, 20);
             let list = [itemMeta].concat(that.data.images).slice(0, 20);
@@ -1649,7 +1665,7 @@ Page({
           },
         });
       },
-      fail: () => wx.showToast({ title: '写入失败', icon: 'none' }),
+      fail: () => { that.setData({ decoding: false }); wx.showToast({ title: '写入失败', icon: 'none' }); },
     });
   },
   previewDecodeImg() { this._previewImage(this.data.decodeImagePath); },
@@ -1725,6 +1741,7 @@ Page({
       if (full && full.subtype === 'decode') {
         let b64 = full ? (full.base64 || '') : '';
         let txt = full ? (full.textContent || '') : '';
+        this._fullDecode = txt;
         this.setData({ mode: 'code2text', decodeInput: b64, decodeResult: txt.length > 500 ? txt.slice(0, 500) + '...' : txt });
       } else {
         this._fullText = full ? (full.base64 || '') : '';

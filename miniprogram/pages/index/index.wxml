@@ -158,7 +158,8 @@
     <block wx:if="{{mode === 'code2img'}}">
       <view class="file-pick" bindtap="pickFileForMode" data-mode="code2img"><text>选择文件</text></view>
       <textarea class="text-in" placeholder="粘贴图片 Base64 代码..." value="{{decodeInput}}" bindinput="onDecodeInput" />
-      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{decodeInput}}" bindtap="decodeToImage">转为图片</view>
+      <view class="btn btn-cvt" hover-class="btn-press" wx:if="{{decodeInput && !decoding}}" bindtap="decodeToImage">转为图片</view>
+      <view class="btn btn-cvt" wx:if="{{decoding}}" style="opacity:0.6">处理中...</view>
       <view class="preview" wx:if="{{decodeImagePath}}" bindtap="previewDecodeImg">
         <image class="preview-img" src="{{decodeImagePath}}" mode="aspectFit" />
         <text class="preview-tip">点击预览大图</text>
