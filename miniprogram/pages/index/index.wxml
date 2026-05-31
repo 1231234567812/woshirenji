@@ -488,6 +488,7 @@
           </view>
           <text class="clr-pct">{{item.pct}}%</text>
         </view>
+        <view class="clr-copy-all" hover-class="btn-press" bindtap="copyAllColors">复制全部</view>
       </view>
 
       <canvas type="2d" id="colorCanvas" class="clr-canvas"></canvas>

@@ -1283,6 +1283,13 @@ Page({
     wx.setClipboardData({ data: hex, success: () => wx.showToast({ title: '已复制 ' + hex, icon: 'success' }) });
   },
 
+  copyAllColors() {
+    let list = this.data.colorList;
+    if (!list || !list.length) return;
+    let all = list.map(c => c.hex).join(', ');
+    wx.setClipboardData({ data: all, success: () => wx.showToast({ title: '已复制 ' + list.length + ' 个颜色', icon: 'success' }) });
+  },
+
   previewColorImg() { this._previewImage(this.data.colorImg); },
 
   // ========== 图片马赛克 ==========
