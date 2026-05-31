@@ -9,12 +9,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百二十八轮审查通过，当前版本可发布
+2026-06-01 - 第一百二十九轮审查通过（修复 doCompress getInfo reject bug），当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员完成第一百二十九轮审查 — 发现并修复 1 个运行时 bug
+  - 全量 bug 审查（index.js 1833行 + project.js 179行）：运行时 bug=1（已修复）、逻辑错误=0、异步问题=0、内存泄漏=0
+  - **修复 doCompress getInfo reject bug**：commit 6a01bf9 将 `getInfo` 的 fail 回调从 `resolve({size:0})` 改为 `reject(Error)`，导致 `getFileInfo` 失败时压缩成功但结果不保存。已恢复为 `resolve({size:0})` 优雅降级
+  - 验证最近 3 次提交代码改动：缓存 copy-before-mutation（5处）正确、showActionSheet fail 补齐（4处）正确、openFile ext 提取正确
+  - BOM=0、console=0、setInterval=0、并发防护全部 11 个耗时操作正确
 - UI设计师完成第一百二十八轮审查 — 无 bug，修复 2 个 UX 问题
   - 全量 bug 审查（index.js 1833行 + project.js 179行 + index.wxml 681行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
   - WXML 事件绑定 139 个 bindtap + 5 个 catchtap 全部有对应 JS 函数
