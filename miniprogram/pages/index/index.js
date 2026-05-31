@@ -809,7 +809,7 @@ Page({
     let that = this;
     let { wmImagePath, wmText, wmPosition, wmColor, wmOpacity, wmFontSize } = this.data;
     if (!wmImagePath) return;
-    if (!wmText) { wx.showToast({ title: '请输入水印文字', icon: 'none' }); return; }
+    if (!wmText || !wmText.trim()) { wx.showToast({ title: '请输入水印文字', icon: 'none' }); return; }
 
     this.setData({ wmProcessing: true });
     wx.showNavigationBarLoading();
