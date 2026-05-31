@@ -326,7 +326,7 @@ Page({
         let setDataObj = { ['batchItems[' + slot + ']']: item };
         if (imgIdx < 20) {
           setDataObj['images[' + imgIdx + ']'] = itemMeta;
-          that._imageCache[imgIdx] = { base64: b64 };
+          that._imageCache[imgIdx] = { base64: b64, textContent: '' };
         }
         that.setData(setDataObj);
         onDone();

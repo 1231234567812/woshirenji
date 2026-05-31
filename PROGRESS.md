@@ -9,12 +9,16 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第八十五轮审查通过，无 bug，当前版本可发布
+2026-05-31 - 第八十六轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复 _batchConvertOne _imageCache 缓存结构缺少 textContent 字段（第八十六轮审查）
+  - 问题：`_batchConvertOne`（line 329）存入缓存 `{ base64: b64 }`，缺少 `textContent` 字段，与 commit 3ee4810 修复的 `_doReadBase64` 同一问题
+  - 修复：改为 `{ base64: b64, textContent: '' }`，与 convertText/decodeToText/decodeToImage/generateQR/_doReadBase64 保持一致
+  - 影响：纯代码整洁性，功能无变化（saveImages 用 `full.textContent || ''` 兜底）
 - 功能开发者修复 copyHistoryCode 长数据截断无提示的 UX 问题（第八十二轮审查）
   - 问题：历史记录中的 Base64 超过 80000 字符时，`code.slice(0, 80000)` 静默截断，用户看到"已复制"但实际只复制了部分内容
   - 其他复制函数（`copyCode`/`copyTextCode`/`copyBatchItem`）都有截断提示
@@ -413,6 +417,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第八十六轮审查（HEAD 全量 bug 审查）| 逐函数审查 index.js（1733行）+ project.js（167行）+ index.wxml（680行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、BOM=0✅（首字节 63=con）、console=0✅（grep 零匹配）、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、catch 参数无遮蔽✅。**发现并修复 1 个代码不一致问题：** `_batchConvertOne`（line 329）`_imageCache[imgIdx] = { base64: b64 }` 缺少 `textContent` 字段，与 commit 3ee4810 修复的 `_doReadBase64` 同一问题。改为 `{ base64: b64, textContent: '' }`，与其他 5 处缓存结构保持一致。功能无影响（saveImages 用 `full.textContent || ''` 兜底），纯代码整洁性。**逐项深度检查：** loadHistory 文本/图片两种类型均正确✅、saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅（concurrency=3 + setTimeout 递归 + batchId 守卫 + slot/imgIdx 双索引）、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、project.js 所有函数逻辑正确✅、TextEncoder/TextDecoder 回退方案正确✅。**无其他运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个代码不一致问题）
 
 UI设计师 | 第八十五轮审查（dcb10c8 HEAD 全量 bug 审查）| 逐函数审查 index.js（1733行）+ project.js（167行）+ index.wxml（680行）+ index.wxss（459行）+ project.wxss（81行）+ project.wxml（44行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode 全部验证）、BOM=0✅（首字节 63=con）、console=0✅（grep 零匹配）、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、catch 参数无遮蔽✅、深色模式完整覆盖所有组件✅、CSS 合规 10/10 通过✅（transition≤0.2s、box-shadow alpha≤0.08、font-size 仅 24/28/32rpx、border-radius 仅 12/24rpx/50%）。**逐项深度检查：** loadHistory 文本/图片两种类型均正确✅、saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、custom-tab-bar 组件逻辑正确✅、project.js 所有函数逻辑正确✅、TextEncoder/TextDecoder 回退方案正确✅、compressRatio 正负数显示逻辑正确✅。**无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
