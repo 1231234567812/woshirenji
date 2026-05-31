@@ -9,12 +9,16 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第九十六轮审查通过，当前版本可发布
+2026-05-31 - 第九十七轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复 addWatermark 空输入无 toast 提示的 UX 不一致问题（第九十七轮审查）
+  - 问题：`addWatermark`（index.js:812）在水印文字为空时 `if (!wmImagePath || !wmText) return;` 静默返回，无用户反馈，与 `convertText`/`decodeToText` 等函数的 toast 提示行为不一致
+  - 修复：拆分条件判断，水印文字为空时显示 toast "请输入水印文字"
+  - 影响：所有空输入场景现在都有明确的用户反馈，行为一致
 - UI设计师修复 loadHistory 切换模式时不清理前一个模式数据的 UX 问题（第九十六轮审查）
   - 问题：`loadHistory` 在加载历史项时直接设置 mode 和对应数据，但不清理前一个模式的数据。例如用户先打开文字历史项再打开图片历史项，`_fullText`、`textContent`、`textResult` 仍残留在 data 中
   - 修复：在 `loadHistory` 开头调用 `reset()` 清理所有模式数据，然后再设置目标模式的数据
@@ -446,6 +450,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+功能开发者 | 第九十七轮审查 + 修复（addWatermark 空输入提示）| 逐函数审查 index.js（1754行）+ project.js（167行）+ index.wxml（680行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（首字节 63=con）、console=0✅。**发现并修复 1 个 UX 不一致问题：** `addWatermark`（index.js:812）水印文字为空时静默返回，无 toast 提示，与 `convertText`/`decodeToText` 等函数行为不一致 → 拆分条件判断，空输入时显示 toast "请输入水印文字"。**逐项深度检查：** saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、project.js 所有函数逻辑正确✅、loadHistory 文本/图片两种类型均正确✅（含 subtype='decode' 分支）。**无运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个 UX 不一致问题）
 
 UI设计师 | 第九十六轮审查 + 修复（loadHistory 状态清理 + .jpeg 支持）| 逐函数审查 index.js（1754行）+ project.js（167行）+ index.wxml（680行）+ index.wxss（459行）+ project.wxss（81行）+ custom-tab-bar（20行）+ app.js/json/wxss：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、深色模式完整覆盖✅、CSS 合规 10/10 通过✅。**发现并修复 2 个 UX 问题：** ① `loadHistory` 切换模式时不清理前一个模式数据 → 添加 `reset()` 调用；② 文件浏览不支持 `.jpeg` 扩展名 → 在 `_readUserFiles` 和 `browseFiles` 中添加 `.jpeg` 过滤。**无运行时 bug。** 当前版本可发布 | 审查通过（已修复 2 个 UX 问题）
 
