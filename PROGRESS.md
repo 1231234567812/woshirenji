@@ -9,12 +9,20 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第九十五轮审查通过，当前版本可发布
+2026-05-31 - 第九十六轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 loadHistory 切换模式时不清理前一个模式数据的 UX 问题（第九十六轮审查）
+  - 问题：`loadHistory` 在加载历史项时直接设置 mode 和对应数据，但不清理前一个模式的数据。例如用户先打开文字历史项再打开图片历史项，`_fullText`、`textContent`、`textResult` 仍残留在 data 中
+  - 修复：在 `loadHistory` 开头调用 `reset()` 清理所有模式数据，然后再设置目标模式的数据
+  - 影响：切换历史项时不再残留前一个模式的数据，状态更干净
+- UI设计师修复文件浏览不支持 .jpeg 扩展名的 UX 问题（第九十六轮审查）
+  - 问题：`_readUserFiles`（index.js）和 `browseFiles`（project.js）的文件过滤不包含 `.jpeg` 扩展名，使用 `.jpeg` 扩展名的图片文件在文件浏览中不可见
+  - 修复：在两个函数的过滤条件中添加 `.endsWith('.jpeg')`
+  - 影响：`.jpeg` 格式的图片现在也能在文件浏览中显示
 - UI设计师修复 copyDecode 复制截断文本的功能性 bug（第九十二轮审查）
   - 问题：`copyDecode` 使用 `this.data.decodeResult` 复制解码文本，但 `decodeResult` 被截断为 500 字符显示。当解码结果超过 500 字符时，用户点"复制"只复制到截断后的文本
   - 修复：新增 `_fullDecode` 属性存储完整解码文本，`copyDecode` 改用 `_fullDecode`，并添加 80000 字符截断提示（与其他复制函数一致）
@@ -438,6 +446,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | 第九十六轮审查 + 修复（loadHistory 状态清理 + .jpeg 支持）| 逐函数审查 index.js（1754行）+ project.js（167行）+ index.wxml（680行）+ index.wxss（459行）+ project.wxss（81行）+ custom-tab-bar（20行）+ app.js/json/wxss：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、深色模式完整覆盖✅、CSS 合规 10/10 通过✅。**发现并修复 2 个 UX 问题：** ① `loadHistory` 切换模式时不清理前一个模式数据 → 添加 `reset()` 调用；② 文件浏览不支持 `.jpeg` 扩展名 → 在 `_readUserFiles` 和 `browseFiles` 中添加 `.jpeg` 过滤。**无运行时 bug。** 当前版本可发布 | 审查通过（已修复 2 个 UX 问题）
 
 功能开发者 | 第九十五轮审查（HEAD 全量 bug 审查）| 逐函数审查 index.js（1752行）+ project.js（167行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅（含箭头函数继承验证）、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode 全部验证）、BOM=0✅（首字节 63=con）、console=0✅（grep 零匹配）、catch 参数无遮蔽✅、WXML 事件处理 100+ 个 bindtap 全部有对应函数✅、loadHistory 文本/图片两种类型均正确✅（含 subtype='decode' 分支）、copyHistoryCode subtype 判断正确✅（使用 full.subtype 而非 item.subtype）。**逐项深度检查：** saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅（concurrency=3 + setTimeout 递归 + batchId 守卫 + slot/imgIdx 双索引）、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、project.js 所有函数逻辑正确✅（openProject/delProject/permaDelProject/restoreProject/browseFiles）、TextEncoder/TextDecoder 回退方案正确✅、_clusterColors 透明像素过滤正确✅（alpha<128 跳过 + total>0 除零防护）。**无运行时 bug。** 当前版本可发布 | 审查通过
 
