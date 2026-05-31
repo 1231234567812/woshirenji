@@ -505,3 +505,35 @@ SUCCESS: The process "node.exe" with PID 10076 has been terminated.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔄 git sync (pull + push)...
 📝 discuss.md: 98/100 条，无需清理
+---
+
+## 第一百轮审查总结
+
+**审查范围：** `efbfc04` 提交（fix: 修复4个运行时bug）+ 全量代码抽查
+
+**逐项验证：**
+
+| # | 修复内容 | 验证结果 | 说明 |
+|---|---------|---------|------|
+| 1 | `_projectsCache` 移到 setStorageSync 成功后 | ⚠️ **已修复** | 3/4 处 catch 缺少 `return`，已补齐 |
+| 2 | `decodeToText` TextDecoder 回退分块 | ✅ 正确 | 按 8192 分块，防止栈溢出 |
+| 3 | `doResize` 4096 尺寸上限 | ✅ 正确 | 防止超大尺寸 OOM |
+| 4 | 批量转换 fail 路径填充 `_imageCache` | ✅ 正确 | 防止缓存空洞 |
+
+**修复的 bug：** `createProject`/`delProject`/`saveImages` 3 处 `setStorageSync` catch 块缺少 `return;`，导致存储失败时缓存仍被更新、UI 仍显示成功。已修复为存储失败时提前返回，用户看到错误提示。
+
+**全量代码抽查结果：**
+- 所有 `setStorageSync` 调用（index.js 4处 + project.js 3处）均有 try-catch + return ✅
+- Promise 链有 `.catch` 处理 ✅
+- 所有 `_saveToTempFile` 调用方检查 null ✅
+- 所有并发操作有入口守卫 ✅
+- `_canvasProcess` 错误处理完整 ✅
+
+**当前版本可发布。**
+SUCCESS: The process "node.exe" with PID 22080 has been terminated.
+SUCCESS: The process "node.exe" with PID 22524 has been terminated.
+SUCCESS: The process "node.exe" with PID 18148 has been terminated.
+SUCCESS: The process "node.exe" with PID 20564 has been terminated.
+SUCCESS: The process "node.exe" with PID 20276 has been terminated.
+SUCCESS: The process "node.exe" with PID 19016 has been terminated.
+SUCCESS: The process "node.exe" with PID 7356 has been terminated.
