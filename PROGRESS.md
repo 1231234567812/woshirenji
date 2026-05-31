@@ -9,12 +9,20 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第七十七轮审查通过，修复 5 个 UX/错误处理问题，当前版本可发布
+2026-05-31 - 第七十八轮审查通过，修复 copyHistoryCode decode 项复制内容错误 + doCrop 死变量，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复 copyHistoryCode 对 decode 历史项复制 Base64 输入而非解码文本（第七十八轮审查）
+  - 问题：`decodeToText` 缓存改为 `{ base64: b64, textContent: r }` 后，`copyHistoryCode` 仍复制 `full.base64`（原始 Base64 输入），但用户在历史列表看到解码文本预览，点"复制"应得到解码文本
+  - 修复：`copyHistoryCode` 检查 `item.subtype === 'decode'` 时复制 `full.textContent`（解码结果）
+  - 影响：decode 历史项的"复制"按钮现在复制解码后的文本，与用户预期一致
+- 代码审查员修复 doCrop 中 outExt 死变量（第七十八轮审查）
+  - 问题：`fileType: outExt === 'png' ? 'png' : 'jpg'` 重新做了与 `outExt` 完全相同的判断
+  - 修复：直接用 `fileType: outExt`
+  - 影响：纯代码整洁性，功能无变化
 - 功能开发者修复 5 个 UX/错误处理问题（第七十六轮审查发现）
   - 裁剪"自由"选项 UX 矛盾：`cropRatio` 默认值 `'free'`，但 `doCrop` 直接拒绝并 toast"请选择裁剪比例"，用户看到已选中却不可用 → 移除"自由"选项，默认值改为 `'1:1'`
   - `decodeToText` 历史记录恢复状态错误：缓存 `{ base64: r, textContent: r }` 丢失原始 Base64 输入，加载历史后进入"文字转代码"模式显示解码文字 → 改为 `{ base64: b64, textContent: r }`，添加 `subtype: 'decode'`，`loadHistory` 根据 subtype 恢复到正确模式
