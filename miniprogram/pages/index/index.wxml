@@ -575,7 +575,7 @@
       </view>
     </block>
 
-    <view class="fab" hover-class="fab-press" bindtap="showMenu" wx:if="{{!menuShow}}">
+    <view class="fab" hover-class="fab-press" bindtap="showMenu" wx:if="{{!menuShow && !filesShow}}">
       <text class="fab-txt">+</text>
     </view>
     <view class="mask" wx:if="{{menuShow}}" bindtap="hideMenu"></view>
