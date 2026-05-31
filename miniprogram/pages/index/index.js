@@ -336,6 +336,8 @@ Page({
       fail() {
         if (that._batchId !== myBatchId) return;
         let slot = that._batchNextSlot++;
+        let imgIdx = that._batchImgStart + idx;
+        if (imgIdx < 20) that._imageCache[imgIdx] = { base64: '', textContent: '' };
         that.setData({
           ['batchItems[' + slot + ']']: { id: Date.now() + idx, path: paths[idx], size: '失败', code: '读取失败', fullCode: '' }
         });
@@ -559,8 +561,8 @@ Page({
           let ps = this._getPs();
           let newProj = { id: 'p_' + Date.now(), name: res.content, date: new Date().toLocaleString(), items: [] };
           ps.unshift(newProj);
-          this._projectsCache = ps;
           try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+          this._projectsCache = ps; // 存储成功后才更新缓存
           // 局部更新，prepend到列表头部
           let newList = [{ id: newProj.id, name: newProj.name, date: newProj.date, items: [] }].concat(this.data.projects);
           this.setData({ projects: newList });
@@ -595,8 +597,8 @@ Page({
           let i = ps.findIndex(p => p.id === id);
           if (i >= 0) {
             ps[i].deleted = true;
-            this._projectsCache = ps;
             try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '操作失败', icon: 'none' }); }
+            this._projectsCache = ps; // 存储成功后才更新缓存
             // 局部更新，避免全量重载
             let newList = this.data.projects.filter(item => item.id !== id);
             this.setData({ projects: newList });
@@ -625,9 +627,9 @@ Page({
         let full = (this._imageCache && this._imageCache[idx]) ? this._imageCache[idx] : {};
         return { ...img, base64: full.base64 || '', textContent: full.textContent || '' };
       });
-      this._projectsCache = ps;
       this._dataDirty = true;
       try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+      this._projectsCache = ps; // 存储成功后才更新缓存
     }
   },
 
@@ -972,6 +974,7 @@ Page({
     let that = this;
     let { resizeImg, resizeNewW, resizeNewH } = this.data;
     if (!resizeImg || resizeNewW <= 0 || resizeNewH <= 0) return;
+    if (resizeNewW > 4096 || resizeNewH > 4096) { wx.showToast({ title: '尺寸不能超过4096像素', icon: 'none' }); return; }
     this.setData({ resizing: true });
     wx.showNavigationBarLoading();
 
@@ -1351,8 +1354,8 @@ Page({
       let ps = this._getPs();
       let p = { id: 'p_' + Date.now(), name: '快速项目', date: new Date().toLocaleString(), items: [] };
       ps.unshift(p);
-      this._projectsCache = ps; // 更新缓存
       try { wx.setStorageSync('projects', ps); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
+      this._projectsCache = ps; // 存储成功后才更新缓存
       this.setData({ view: 'work', curId: p.id, curName: p.name, images: [] });
     } else {
       this.setData({ view: 'work' });
@@ -1603,7 +1606,14 @@ Page({
     if (!b64) { wx.showToast({ title: '请输入 Base64 代码', icon: 'none' }); return; }
     try {
       let bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-      let r = typeof TextDecoder !== 'undefined' ? new TextDecoder().decode(bytes) : String.fromCharCode.apply(null, bytes);
+      let r;
+      if (typeof TextDecoder !== 'undefined') {
+        r = new TextDecoder().decode(bytes);
+      } else {
+        let chunks = [];
+        for (let i = 0; i < bytes.length; i += 8192) chunks.push(String.fromCharCode.apply(null, bytes.subarray(i, i + 8192)));
+        r = chunks.join('');
+      }
       this._fullDecode = r;
       let itemMeta = { id: Date.now(), type: 'text', subtype: 'decode', path: '', size: r.length + ' 字', preview: r.slice(0, 30) };
       this._imageCache = [{ base64: b64, textContent: r }].concat(this._imageCache).slice(0, 20);
