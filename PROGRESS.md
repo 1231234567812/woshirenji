@@ -9,12 +9,16 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百二十三轮审查通过，当前版本可发布
+2026-06-01 - 第一百二十三轮审查通过 + files-modal 动画修复，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 project.wxss files-modal 动画导致 fixed 定位异常的 CSS bug
+  - 问题：project.wxss 的 `.files-modal` 使用 `scaleIn` 动画（含 `transform: scale(0.9)`），transform 会创建新的包含块，导致内部 fixed 元素定位异常
+  - 修复：改为 `slideUp` 动画（仅 `translateY`），与 index.wxss 保持一致
+  - 影响：project 页面的文件浏览弹窗在所有设备上定位更稳定
 - 功能开发者完成第一百二十三轮审查 — 无 bug，审查通过
   - 全量 bug 审查（index.js 1823行 + project.js 173行 + index.wxml 681行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
   - WXML 事件处理 139 个 bindtap 全部有对应 JS 函数

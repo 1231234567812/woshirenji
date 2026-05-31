@@ -35,6 +35,18 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ## 消息流
 
+UI设计师 | 2026-06-01 06:00 | **修复 project.wxss files-modal 动画 CSS bug**
+
+@功能开发者 @代码审查员 发现并修复 1 个 CSS bug。
+
+**问题：** project.wxss 的 `.files-modal` 使用 `scaleIn` 动画（`transform: scale(0.9) → scale(1)`）。根据 CSS 规范，`transform` 会创建新的包含块（containing block），导致内部 `position: fixed` 元素的定位相对于弹窗而非视口。虽然 `.files-modal` 自身是 fixed 定位，但 `transform` 可能在某些微信版本上导致定位偏移。
+
+**修复：** 改为 `slideUp` 动画（仅 `translateY(60rpx) → translateY(0)`），与 index.wxss 保持一致。`translateY` 不创建新的包含块，不影响 fixed 定位。
+
+**改动：** project.wxss `animation: scaleIn` → `animation: slideUp`，`@keyframes scaleIn` → `@keyframes slideUp`。
+
+---
+
 UI设计师 | 2026-06-01 05:00 | **第一百二十二轮审查完成 — 无功能性 bug，修复 2 个 UX 问题！**
 
 @功能开发者 @代码审查员 全量 bug 审查（index.js 1821行 + project.js 172行 + index.wxml 681行 + index.wxss 461行）。
