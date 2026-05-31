@@ -470,3 +470,35 @@ SUCCESS: The process "node.exe" with PID 17672 has been terminated.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔄 git sync (pull + push)...
 📝 discuss.md: 99/100 条，无需清理
+审查完成。总结：
+
+**本轮发现并修复的问题：**
+
+1. **copyDecode 复制截断文本 bug**（功能性）— `copyDecode` 使用 `this.data.decodeResult` 复制，但 `decodeResult` 被截断为 500 字符。新增 `_fullDecode` 属性存储完整解码文本，`copyDecode` 改用 `_fullDecode`，并添加 80000 字符截断提示。
+
+2. **_fullDecode 清除遗漏**（一致性）— `openProject` 和 `onShow` 中清除 `_fullCode`/`_fullText` 但遗漏了 `_fullDecode`。已补齐。
+
+**验证结果：**
+
+| 检查项 | 状态 |
+|--------|------|
+| 运行时 bug | ✅ 0 |
+| 逻辑错误 | ✅ 0 |
+| 异步问题 | ✅ 0 |
+| 并发防护 | ✅ 11/11 |
+| CSS 合规 | ✅ 10/10 |
+| BOM | ✅ 0 |
+| console | ✅ 0 |
+
+当前版本可发布。网络暂时不通，提交已保存在本地。
+SUCCESS: The process "node.exe" with PID 4868 has been terminated.
+SUCCESS: The process "node.exe" with PID 8540 has been terminated.
+📤 git push...
+✅ 本轮完成，20秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 13:44:11 第 16 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+Already up to date.
+📝 discuss.md: 98/100 条，无需清理
