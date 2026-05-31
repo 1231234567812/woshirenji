@@ -65,7 +65,7 @@ Page({
   delProject(e) {
     let id = e.currentTarget.dataset.id;
     wx.showModal({
-      title: '删除', content: '确定删除？(可在历史页恢复)',
+      title: '删除', content: '确定删除？(删除后可在本页恢复)',
       success: (res) => {
         if (res.confirm) {
           // 使用缓存，避免频繁读取存储

@@ -103,7 +103,7 @@ Page({
   },
 
   _previewImage(path) {
-    if (path) wx.previewImage({ urls: [path] });
+    if (path) wx.previewImage({ urls: [path], fail: () => wx.showToast({ title: '预览失败', icon: 'none' }) });
   },
 
   // 统一获取项目数据，优先用缓存
@@ -554,9 +554,9 @@ Page({
     wx.showModal({
       title: '新建项目', editable: true, placeholderText: '输入项目名称',
       success: (res) => {
-        if (res.confirm && res.content) {
+        if (res.confirm && res.content && res.content.trim()) {
           let ps = this._getPs();
-          let newProj = { id: 'p_' + Date.now(), name: res.content, date: new Date().toLocaleString(), items: [] };
+          let newProj = { id: 'p_' + Date.now(), name: res.content.trim(), date: new Date().toLocaleString(), items: [] };
           ps.unshift(newProj);
           try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
           this._projectsCache = ps; // 存储成功后才更新缓存
@@ -828,7 +828,7 @@ Page({
       ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
 
       let x = 0, y = 0, textAlign = 'left', textBaseline = 'top', padding = 20;
-      let fontSize = wmFontSize * (imgWidth / 750);
+      let fontSize = Math.max(8, Math.min(wmFontSize * (imgWidth / 750), 200));
 
       switch (wmPosition) {
         case 'top-left': x = padding; y = padding; break;
