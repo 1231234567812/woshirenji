@@ -9,12 +9,15 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第六十九轮审查通过，全量 bug 审查无问题，当前版本可发布
+2026-05-31 - 第六十九轮审查通过，修复 FAB 按钮可见性 bug，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复文件浏览弹窗打开时 FAB 按钮仍可见的 UX bug（第六十九轮审查）
+  - 问题：打开文件浏览弹窗时，FAB"+"按钮在半透明遮罩层后面仍然可见，用户可能误触导致菜单和文件弹窗同时打开
+  - 修复：FAB 按钮 `wx:if` 条件从 `!menuShow` 改为 `!menuShow && !filesShow`
 - UI设计师统一 project.js 文件系统管理器调用（第六十六轮审查）
   - 问题：`project.js` 直接使用 `wx.getFileSystemManager()`，而 `index.js` 已有 `_getFs()` 缓存方法
   - 修复：`project.js` 添加 `_getFs()` 方法，`browseFiles` 改用 `this._getFs().readdir()`，与 index.js 保持一致
@@ -334,6 +337,12 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 已知问题
 <!-- 发现 bug 和设计问题写这里 -->
 
+### TextEncoder 兼容性风险（2026-05-31 第六十九轮审查发现）
+
+| # | 严重度 | 问题 | 说明 | 状态 |
+|---|--------|------|------|------|
+| 1 | 低 | `convertText` 使用 TextEncoder 无回退 | line 1553: `new TextEncoder().encode(raw)`，旧版微信基础库可能不支持。`decodeToText` 已有 `TextDecoder` 回退但 `convertText` 没有。影响：旧设备文字转 Base64 不可用 | 待修复 |
+
 ### ~~index.js 编码损坏（2026-05-27 代码审查员发现）~~ → 已修复
 
 | # | 严重度 | 问题 | 说明 | 状态 |
@@ -374,6 +383,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | 第七十轮审查（60ea205 HEAD 全量 bug 审查）| 逐函数审查 index.js（1710行）+ project.js（167行）+ index.wxml（681行）+ index.wxss（459行）+ project.wxss（81行）+ project.wxml（44行）：**发现并修复 1 个 UX bug：** FAB 按钮在文件浏览弹窗打开时仍可见（index.wxml:578）— `wx:if="{{!menuShow}}"` 未检查 `filesShow`，用户打开文件浏览时 FAB 按钮显示在半透明遮罩层后面，误触可导致菜单和文件弹窗同时打开。修复：改为 `wx:if="{{!menuShow && !filesShow}}"`。**其他验证：** 运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 40+ 个全部有对应函数✅、wx:key 全部正确✅、深色模式完整覆盖所有组件✅、CSS 合规 10/10 通过✅。**无其他运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个 FAB 可见性 bug）
 
 代码审查员 | 第六十九轮审查（178e0d7 HEAD 全量 bug 审查）| 逐函数审查 index.js（1710行）+ project.js（167行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode 全部验证）、BOM=0✅、console=0✅（grep 确认零匹配）、setInterval=0✅（grep 确认零匹配）、font-weight:800=0✅、letter-spacing=0✅。**逐项深度检查：** ① _saveTempImages 批量保存逻辑正确（saved[idx] + pending 计数器 + filter(Boolean)）✅；② _batchConvertParallel 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫 + slot/imgIdx 双索引）✅；③ _batchConvertOne 成功/失败回调均正确递增 _batchNextSlot 和调用 onDone✅；④ doCompress Promise.all + catch 链正确✅；⑤ convertImage 文件大小检查 + 压缩回退逻辑正确✅；⑥ _doReadBase64 base64 拼接 + _imageCache prepend + saveImages 调用正确✅；⑦ decodeToText TextDecoder 回退正确✅；⑧ decodeToImage Base64 正则验证 + MIME 提取 + 缓存结构正确✅；⑨ loadHistory 从 _getPs() 缓存查找项目 + 按 id 匹配 item 正确✅；⑩ saveImages 合并 _imageCache 与 images 逻辑正确（map + 索引对齐）✅。**project.js 验证：** _getFs() 缓存方法与 index.js 模式一致✅、browseFiles 使用 this._getFs() 正确✅、delProject/permaDelProject/restoreProject 局部 setData 正确✅、onShow 防抖（500ms）正确✅。**无运行时 bug。** 发现 1 个兼容性风险（非 bug）：`convertText` 使用 `TextEncoder`（line 1553），旧版微信可能不支持，与 `decodeToText` 的 `TextDecoder` 回退策略不一致。当前版本可发布 | 审查通过
 
