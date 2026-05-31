@@ -9,12 +9,18 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百二十二轮审查通过 + loadHistory _imageCache 修复，当前版本可发布
+2026-06-01 - 第一百二十三轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者完成第一百二十三轮审查 — 无 bug，审查通过
+  - 全量 bug 审查（index.js 1823行 + project.js 173行 + index.wxml 681行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
+  - WXML 事件处理 139 个 bindtap 全部有对应 JS 函数
+  - 所有 11 个耗时操作并发防护正确
+  - _imageCache 索引对齐正确
+  - BOM=0、console=0、setInterval=0、infinite 动画=0、font-weight:800=0、letter-spacing=0
 - 功能开发者修复 loadHistory 不更新 _imageCache 导致数据错位的 bug（第一百二十一轮审查发现）
   - 问题：`loadHistory` 切换模式时只重置 `_fullCode`/`_fullText`/`_fullDecode`，不更新 `_imageCache`。当项目有多张图片时，`_imageCache` 仍保留所有项的数据，但 `images` 被设为单个历史项，导致索引错位。用户加载历史项后转换新图片，新图片的 base64 数据会被旧图片数据覆盖。
   - 修复：在 `loadHistory` 中 `reset()` 后重新从项目数据初始化 `_imageCache`，与 `openProject`/`onShow` 保持一致
