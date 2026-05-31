@@ -750,15 +750,25 @@ Page({
           let newKB = compInfo.size;
           let origKB = origInfo.size;
           let ratio = origKB > 0 ? ((1 - newKB / origKB) * 100).toFixed(0) : '0';
-          let newSizeStr = newKB > 1024 * 1024 ? (newKB / 1024 / 1024).toFixed(2) + ' MB' : (newKB / 1024).toFixed(1) + ' KB';
           let ratioNum = Number(ratio);
-          let stageText = ratioNum >= 0 ? '完成！减小 ' + ratio + '%' : '完成！增大 ' + (-ratioNum) + '%';
+          // 压缩后更大则回退使用原图
+          let useOriginal = newKB >= origKB && origKB > 0;
+          let finalPath = useOriginal ? src : compressedPath;
+          let finalSize = useOriginal ? origKB : newKB;
+          let finalSizeStr = finalSize > 1024 * 1024 ? (finalSize / 1024 / 1024).toFixed(2) + ' MB' : (finalSize / 1024).toFixed(1) + ' KB';
+          let stageText = useOriginal ? '原图已最小，无需压缩' : '完成！减小 ' + ratio + '%';
 
           that.setData({ compressProgress: 70, compressStage: '保存中...' });
-          // 保存压缩结果
           let fs = that._getFs();
           let dest = wx.env.USER_DATA_PATH + '/compressed_' + Date.now() + '.jpg';
-          let doneData = { compressing: false, compressProgress: 100, compressStage: stageText, compressNewSize: newSizeStr, compressRatio: ratio };
+          let doneData = { compressing: false, compressProgress: 100, compressStage: stageText, compressNewSize: finalSizeStr, compressRatio: useOriginal ? '0' : ratio };
+          if (useOriginal) {
+            that.setData({ ...doneData, compressResultPath: src });
+            wx.hideNavigationBarLoading();
+            wx.showToast({ title: '原图已最小', icon: 'none' });
+            setTimeout(() => { that.setData({ compressProgress: 0, compressStage: '' }); }, 800);
+            return;
+          }
           fs.copyFile({
             srcPath: compressedPath, destPath: dest,
             success() {
@@ -1831,7 +1841,7 @@ Page({
         this._fullText = b64;
         let d = { menuShow: false, mode: 'text2code', textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '', decoding: false };
         d.textContent = txt;
-        d.textResult = b64.slice(0, 200) + (b64.length > 200 ? '...' : '');
+        d.textResult = b64.length > 300 ? b64.slice(0, 300) + '...（共' + b64.length + '字符）' : b64;
         this.setData(d);
       }
     }

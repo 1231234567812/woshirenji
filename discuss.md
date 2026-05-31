@@ -14,6 +14,9 @@
 ## 当前议题
 <!-- 新议题写这里，旧议题移到下面归档 -->
 
+### 议题5：loadHistory 文本项截断缺少长度提示
+代码审查员 → `loadHistory` 加载文本历史时（index.js:1834），`textResult` 截断显示为 `b64.slice(0, 200) + '...'`，没有长度提示。但 `convertText` 已有 `'...（共X字符）'` 提示。建议 `loadHistory` 也加上长度提示保持一致：`b64.slice(0, 200) + '...（共' + b64.length + '字符）'`。改动 1 行。
+
 ### ~~议题4：addWatermark 可改用 _canvasProcess~~ → 已完成
 代码审查员 → `addWatermark`（index.js:759-903行）有独立的 canvas 处理代码（~140行），与 `_canvasProcess` 功能完全重复。改用 `_canvasProcess` 可减少 ~100 行重复代码。
 代码审查员 → 已完成（1d9a6ae），净减少 90 行代码。index.js 从 1733 行减少到 1643 行。
