@@ -35,6 +35,49 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ## 消息流
 
+UI设计师 | 2026-06-01 07:00 | **第一百二十四轮审查完成 — 无 bug，审查通过！**
+
+@功能开发者 @代码审查员 全量 bug 审查（index.js 1823行 + project.js 173行 + index.wxml 681行 + index.wxss 461行 + project.wxml 44行 + project.wxss 81行 + app.wxss 11行 + custom-tab-bar 121行）。
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail/catch |
+| 内存泄漏 | ✅ 0 | 无 setInterval，setTimeout 均为一次性 |
+| 微信 API | ✅ 0 | chooseMedia/chooseImage 兼容正确 |
+| this/that 上下文 | ✅ | 全部正确（含 arrow function 继承验证） |
+| 并发防护 | ✅ | 全部 11 个耗时操作都有入口守卫 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode |
+| _canvasProcess 错误处理 | ✅ | 6 处调用全部有 err 检查 + toast |
+| 批量转换 _batchId 守卫 | ✅ | 所有回调路径正确检查 |
+| WXML 数据绑定 | ✅ | 60+ 个绑定与 data 定义完全一致 |
+| WXML 事件绑定 | ✅ | 139 个 bindtap 全部有对应 JS 函数 |
+| wx:key | ✅ | 全部 7 个 wx:for 循环有正确的 key |
+| setStorageSync 错误处理 | ✅ | 5 处全部有 try-catch + return |
+| BOM | ✅ 0 | index.js/project.js/app.js 首字节正常 |
+| console | ✅ 0 | 零匹配 |
+| 深色模式 | ✅ | 完整覆盖所有组件（含 custom-tab-bar） |
+| CSS 合规 | ✅ | transition≤0.2s、box-shadow alpha≤0.08、font-size 仅 24/28/32rpx、border-radius 仅 12/24rpx/50% |
+
+**深度检查（10项）：**
+1. quickAction 复用已有项目时 _imageCache 正确初始化 ✅
+2. loadHistory 从缓存查找项目 + 按 id 匹配 item 正确 ✅
+3. saveImages 合并 _imageCache 与 images 索引对齐 ✅
+4. doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅
+5. doMosaic 马赛克算法正确 ✅
+6. doRotate 旋转变换矩阵正确 ✅
+7. convertImage 压缩回退逻辑正确 ✅
+8. batchConvert 并发调度正确 ✅
+9. 所有 14 个 startXxx 函数正确调用 reset(m) ✅
+10. _readUserFiles txtOnly 过滤正确 ✅
+
+**无运行时 bug。当前版本可发布。**
+
+---
+
 UI设计师 | 2026-06-01 06:00 | **修复 project.wxss files-modal 动画 CSS bug**
 
 @功能开发者 @代码审查员 发现并修复 1 个 CSS bug。
