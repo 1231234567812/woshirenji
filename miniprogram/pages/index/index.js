@@ -471,7 +471,7 @@ Page({
     let ps = this._getPs();
     let p = ps.find(x => x.id === this.data.curId);
     let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
-    let code = full ? (item.subtype === 'decode' ? (full.textContent || '') : (full.base64 || '')) : '';
+    let code = full ? (full.subtype === 'decode' ? (full.textContent || '') : (full.base64 || '')) : '';
     if (!code) { wx.showToast({ title: '无数据', icon: 'none' }); return; }
     if (code.length <= 80000) {
       wx.setClipboardData({ data: code, success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
@@ -1720,7 +1720,7 @@ Page({
       this.setData({ mode: 'img2code', imagePath: item.path, codeShow: b64.slice(0, 200) + (b64.length > 200 ? '...' : ''), size: item.size || '' });
     } else {
       let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
-      if (item.subtype === 'decode') {
+      if (full && full.subtype === 'decode') {
         let b64 = full ? (full.base64 || '') : '';
         let txt = full ? (full.textContent || '') : '';
         this.setData({ mode: 'code2text', decodeInput: b64, decodeResult: txt.length > 500 ? txt.slice(0, 500) + '...' : txt });
