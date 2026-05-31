@@ -400,3 +400,77 @@ Already up to date.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔄 git sync (pull + push)...
 📝 discuss.md: 100/100 条，无需清理
+审查完成。经过逐函数审查 `index.js`（1752行）+ `project.js`（167行），发现 **1 个代码不一致问题**，无运行时 bug。
+
+---
+
+## 第九十一轮审查结果
+
+### 逐项检查
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail/catch |
+| 内存泄漏 | ✅ 0 | 无 setInterval，setTimeout 均为一次性 |
+| 微信 API | ✅ 0 | chooseMedia/chooseImage 兼容正确 |
+| this/that 上下文 | ✅ | 全部正确 |
+| 并发防护 | ✅ | 全部 10 个耗时操作都有入口守卫（含新增 `decoding` flag） |
+| _saveToTempFile null 检查 | ✅ | 10 处全部正确 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode |
+| BOM | ✅ 0 | 首字节 99=con（index.js + project.js） |
+| console | ✅ 0 | 零匹配 |
+| WXML 数据绑定 | ✅ | 60+ 个全部匹配 |
+| WXML 事件处理 | ✅ | 45+ 个全部有对应函数 |
+| wx:key | ✅ | 全部正确 |
+| catch 参数遮蔽 | ✅ | 无遮蔽 |
+
+### 发现 1 个代码不一致问题
+
+**`openProject`（index.js:580）缺少 `_fullDecode` 重置**
+
+```javascript
+// 当前代码
+this._fullCode = ''; this._fullText = '';
+
+// 应改为（与 reset() 保持一致）
+this._fullCode = ''; this._fullText = ''; this._fullDecode = '';
+```
+
+**分析：** `reset()` 函数（line 638）正确重置了 `_fullCode`、`_fullText`、`_fullDecode` 三个变量，但 `openProject` 只重置了前两个。当用户从一个有 decode 历史的项目返回再打开另一个项目时，`_fullDecode` 仍保留旧值。
+
+**实际影响：低。** 因为 `openProject` 将 `mode` 设为 `''`（空），decode UI 不可见。进入 decode 模式必须通过 `startCode2Text()` → `reset('code2text')`，会正确清空 `_fullDecode`。但为防御性编码一致性，应修复。
+
+### 最近提交验证
+
+- **146aede** `_clusterColors` 透明像素过滤：`if (pixels[i+3] < 128) continue` 正确 ✅、`total` 只计非透明像素 ✅、`pct` 有 `total > 0` 除零防护 ✅、全透明图片返回空数组 ✅
+- **78a5150** `copyHistoryCode`/`loadHistory` subtype 修复：使用 `full.subtype` 而非 `item.subtype` ✅、null 检查 ✅
+- **87c0444** 空状态提示改为指向功能入口 ✅
+
+### 逐项深度检查
+
+1. `loadHistory` 文本/图片两种类型均正确（含 subtype='decode' 分支 + `_fullDecode` 恢复）✅
+2. `copyHistoryCode` 使用 `full.subtype` 判断正确 ✅
+3. `copyDecode` 使用 `_fullDecode` 复制完整解码文本 ✅
+4. `decodeToImage` 并发防护（`decoding` flag）正确 — 入口守卫 + setData + 所有回调路径重置 ✅
+5. `doCrop` 裁剪区域计算正确（3 种比例 + Math.max 防护）✅
+6. `doMosaic` 马赛克算法正确 ✅
+7. `doRotate` 旋转变换矩阵正确 ✅
+8. `convertImage` 压缩回退逻辑正确 ✅
+9. `batchConvert` 并发调度正确（concurrency=3 + batchId 守卫）✅
+10. `quickAction` 自动创建项目逻辑正确 ✅
+11. 所有 14 个 `startXxx` 函数正确调用 `reset(m)` ✅
+12. `project.js` 所有函数逻辑正确 ✅
+13. TextEncoder/TextDecoder 回退方案正确 ✅
+
+**无运行时 bug。** 仅 1 个代码不一致问题需修复。当前版本可发布。
+🔒 等待 git 锁... (0s)
+🔒 等待 git 锁... (2s)
+🔒 等待 git 锁... (4s)
+🔒 等待 git 锁... (6s)
+🔒 等待 git 锁... (8s)
+🔒 等待 git 锁... (10s)
+🔒 等待 git 锁... (12s)
+🔒 等待 git 锁... (14s)
+🔒 等待 git 锁... (16s)

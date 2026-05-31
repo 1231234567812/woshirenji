@@ -9,12 +9,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第九十一轮审查通过，当前版本可发布
+2026-05-31 - 第九十二轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 copyDecode 复制截断文本的功能性 bug（第九十二轮审查）
+  - 问题：`copyDecode` 使用 `this.data.decodeResult` 复制解码文本，但 `decodeResult` 被截断为 500 字符显示。当解码结果超过 500 字符时，用户点"复制"只复制到截断后的文本
+  - 修复：新增 `_fullDecode` 属性存储完整解码文本，`copyDecode` 改用 `_fullDecode`，并添加 80000 字符截断提示（与其他复制函数一致）
+  - 同步修复：`loadHistory` 加载 decode 历史项时恢复 `_fullDecode`，`reset()` 清除 `_fullDecode`
+  - 影响：decode 历史项的"复制"按钮现在复制完整解码文本，与用户预期一致
 - 功能开发者修复 decodeToImage 缺少 processing 防护的 UX 问题（第九十一轮审查）
   - 问题：`decodeToImage` 是唯一没有 `xxxing` flag + 入口守卫的异步函数，用户快速双击"转为图片"按钮会写入两个文件、创建两条重复历史记录
   - 修复：添加 `decoding` flag + 入口守卫 + WXML 按钮条件 + reset() 重置，与其他 10 个耗时操作保持一致
@@ -435,6 +440,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
 
 功能开发者 | 第九十一轮审查 + 修复（decodeToImage 并发防护）| **发现并修复 1 个 UX 问题：** `decodeToImage` 是唯一没有 processing 防护的异步函数（代码审查员第九十轮审查指出）。用户快速双击"转为图片"按钮会写入两个文件、创建两条重复历史记录。修复：① data 添加 `decoding: false`；② `decodeToImage` 入口添加 `if (this.data.decoding) return;`；③ 异步操作前 `setData({ decoding: true })`，所有 3 个回调路径设置 `decoding: false`；④ WXML 按钮条件添加 `!decoding`，处理中显示"处理中..."；⑤ `reset()` 的 code2img 分支重置 `decoding`。现在全部 11 个耗时操作都有并发防护入口守卫。BOM=0✅（首字节 63=con）、console=0✅。当前版本可发布 | 审查通过（已修复 1 个 UX 问题）
+
+UI设计师 | 第九十二轮审查 + 修复（copyDecode 截断 bug）| **发现并修复 1 个功能性 bug：** `copyDecode`（line 1615）使用 `this.data.decodeResult` 复制解码文本，但 `decodeResult` 在 `decodeToText` 中被截断为 500 字符显示（`r.slice(0, 500) + '...'`）。当解码结果超过 500 字符时，用户点"复制"只复制到截断后的文本。对比 `copyCode` 使用 `_fullCode`、`copyTextCode` 使用 `_fullText`，`copyDecode` 缺少完整数据存储。修复：① 新增 `_fullDecode` 属性存储完整解码文本；② `decodeToText` 中 `this._fullDecode = r`；③ `copyDecode` 改用 `this._fullDecode`，并添加与其他复制函数一致的 80000 字符截断提示；④ `loadHistory` 加载 decode 历史项时恢复 `_fullDecode = txt`；⑤ `reset()` 清除 `_fullDecode`。其他验证：`decoding` 并发防护正确✅（3 个回调路径都清除 flag）、`_fullDecode` 初始化/清除/恢复路径完整✅、BOM=0✅、console=0✅。当前版本可发布 | 审查通过（已修复 1 个功能性 bug）
 
 功能开发者 | 第九十轮审查（HEAD 全量 bug 审查）| 逐函数审查 index.js（1735行）+ project.js（167行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅（含箭头函数继承验证）、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode 全部验证）、BOM=0✅（首字节 99=con）、console=0✅（grep 零匹配）、catch 参数无遮蔽✅、WXML 事件处理 100+ 个 bindtap 全部有对应函数✅、loadHistory 文本/图片两种类型均正确✅（含 subtype='decode' 分支）、copyHistoryCode subtype 判断正确✅（使用 full.subtype 而非 item.subtype）。**逐项深度检查：** saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅（concurrency=3 + setTimeout 递归 + batchId 守卫 + slot/imgIdx 双索引）、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、project.js 所有函数逻辑正确✅（openProject/delProject/permaDelProject/restoreProject/browseFiles）、TextEncoder/TextDecoder 回退方案正确✅、_clusterColors 透明像素过滤正确✅（alpha<128 跳过 + total>0 除零防护）。**无运行时 bug。** 当前版本可发布 | 审查通过
 

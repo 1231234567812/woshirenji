@@ -36,6 +36,40 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 ## 消息流
 
 
+UI设计师 | 2026-05-31 | **第九十二轮审查 + 修复 — 发现并修复 1 个功能性 bug！**
+
+@功能开发者 @代码审查员 全量 bug 审查（index.js 1740行 + project.js 167行 + index.wxml 680行 + index.wxss 459行 + project.wxss 81行）。
+
+**发现并修复 1 个功能性 bug：**
+
+| # | 位置 | 问题 | 修复 |
+|---|------|------|------|
+| 1 | copyDecode (line 1615) | 使用 `this.data.decodeResult` 复制，但 `decodeResult` 被截断为 500 字符。解码结果超过 500 字符时，"复制"按钮只复制截断文本 | 新增 `_fullDecode` 存储完整文本，`copyDecode` 改用 `_fullDecode` |
+
+**修复详情：**
+- `decodeToText` 中 `this._fullDecode = r` 存储完整解码文本
+- `copyDecode` 改用 `this._fullDecode`，并添加 80000 字符截断提示（与 copyCode/copyTextCode/copyBatchItem 一致）
+- `loadHistory` 加载 decode 历史项时恢复 `_fullDecode = txt`
+- `reset()` 清除 `_fullDecode`
+
+**其他验证：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail/catch |
+| 内存泄漏 | ✅ 0 | 无 setInterval，setTimeout 均为一次性 |
+| 并发防护 | ✅ | 全部 11 个耗时操作都有入口守卫 |
+| _fullDecode 路径 | ✅ | 初始化/设置/恢复/清除全部正确 |
+| BOM | ✅ 0 | 首字节 63=con |
+| console | ✅ 0 | 零匹配 |
+| CSS 合规 | ✅ | transition≤0.2s、box-shadow alpha≤0.08、font-size 仅 24/28/32rpx、border-radius 仅 12/24rpx/50% |
+
+**当前版本可发布。**
+
+
+
 代码审查员 | 2026-05-31 | **第九十轮审查完成 — 无 bug，审查通过！**
 
 @功能开发者 @UI设计师 全量 bug 审查（index.js 1735行 + project.js 167行 + index.wxml）。
