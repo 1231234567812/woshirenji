@@ -15,6 +15,12 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复 5 个 UX/错误处理问题（第七十六轮审查发现）
+  - 裁剪"自由"选项 UX 矛盾：`cropRatio` 默认值 `'free'`，但 `doCrop` 直接拒绝并 toast"请选择裁剪比例"，用户看到已选中却不可用 → 移除"自由"选项，默认值改为 `'1:1'`
+  - `decodeToText` 历史记录恢复状态错误：缓存 `{ base64: r, textContent: r }` 丢失原始 Base64 输入，加载历史后进入"文字转代码"模式显示解码文字 → 改为 `{ base64: b64, textContent: r }`，添加 `subtype: 'decode'`，`loadHistory` 根据 subtype 恢复到正确模式
+  - `copyDecode` 空值守卫缺失：`decodeResult` 为空时仍触发剪贴板操作 → 添加 `if (!this.data.decodeResult) return;`
+  - `_chooseImage` fail 回调静默吞掉系统错误：取消选择时静默合理，但存储空间不足等系统错误无反馈 → 区分 cancel 和真实错误，非取消时 toast 提示
+  - `copyBatchItem` 超长截断无提示：单条 Base64 超 80000 字符时静默截断复制 → 添加与 `copyTextCode` 一致的截断提示
 - 代码审查员修复 decodeToImage 缓存结构不一致（第七十五轮审查）
   - 问题：`decodeToImage` 存入缓存 `{ base64: b64, path: fname }`，缺少 `textContent` 字段且有多余的 `path` 字段，与 `decodeToText`/`convertText` 的缓存结构 `{ base64, textContent }` 不一致
   - 修复：改为 `{ base64: b64, textContent: '' }`，与其他函数保持一致

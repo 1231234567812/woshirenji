@@ -471,7 +471,7 @@ Page({
     let ps = this._getPs();
     let p = ps.find(x => x.id === this.data.curId);
     let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
-    let code = full ? (full.base64 || '') : '';
+    let code = full ? (item.subtype === 'decode' ? (full.textContent || '') : (full.base64 || '')) : '';
     if (!code) { wx.showToast({ title: '无数据', icon: 'none' }); return; }
     wx.setClipboardData({ data: code.slice(0, 80000), success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
   },
