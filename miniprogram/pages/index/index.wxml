@@ -480,7 +480,7 @@
 
       <view class="clr-palette" wx:if="{{colorList.length > 0}}">
         <text class="clr-title">主色调色板</text>
-        <view wx:for="{{colorList}}" wx:key="id" class="clr-item" bindtap="copyColorHex" data-hex="{{item.hex}}">
+        <view wx:for="{{colorList}}" wx:key="id" class="clr-item" hover-class="btn-press" bindtap="copyColorHex" data-hex="{{item.hex}}">
           <view class="clr-swatch" style="background: {{item.hex}};"></view>
           <view class="clr-info">
             <text class="clr-hex">{{item.hex}}</text>
