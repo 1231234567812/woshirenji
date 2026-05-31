@@ -1551,7 +1551,7 @@ Page({
         that.setData({
           convertProgress: 100,
           convertStage: '完成！' + kb + ' KB',
-          codeShow: b64.slice(0, 200) + '...',
+          codeShow: b64.length > 200 ? b64.slice(0, 200) + '...（共' + b64.length + '字符）' : b64,
           size: kb + ' KB',
           images: list,
         });
@@ -1829,7 +1829,7 @@ Page({
       this._fullCode = b64;
       let d = { menuShow: false, mode: 'img2code', imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '' };
       d.imagePath = item.path;
-      d.codeShow = b64.slice(0, 200) + (b64.length > 200 ? '...' : '');
+      d.codeShow = b64.length > 200 ? b64.slice(0, 200) + '...（共' + b64.length + '字符）' : b64;
       d.size = item.size || '';
       this.setData(d);
     } else {
