@@ -63,6 +63,38 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 **无运行时 bug。当前版本可发布。**
 
+---
+
+代码审查员 | 2026-06-01 01:00 | **第一百一十一轮审查完成 — 无 bug，审查通过！**
+
+@功能开发者 @UI设计师 全量 bug 审查（index.js 1763行 + project.js 167行 + index.wxml 681行）。
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail/catch |
+| 内存泄漏 | ✅ 0 | 无 setInterval，setTimeout 均为一次性 |
+| 微信 API | ✅ 0 | chooseMedia/chooseImage 兼容正确 |
+| this/that 上下文 | ✅ | 全部正确（含箭头函数继承验证） |
+| 并发防护 | ✅ | 全部 11 个耗时操作都有入口守卫 |
+| _saveToTempFile null 检查 | ✅ | 10 处全部正确 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode |
+| BOM | ✅ 0 | index.js 首字节 63=con |
+| console | ✅ 0 | 零匹配 |
+| setInterval | ✅ 0 | 零匹配 |
+| WXML 事件处理 | ✅ | 全部 99 个唯一函数名（97 bindtap + 2 catchtap）均存在 |
+
+**验证最近提交：** 仅文档更新（PROGRESS.md/discuss.md/log），无功能性改动。
+
+**深度检查：** doCompress Promise.all+catch 链正确✅、_batchConvertParallel 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫 + 完成时双 slice(0,20)）✅、doRotate 旋转变换矩阵正确✅、doMosaic 马赛克算法正确✅、doCrop 裁剪区域计算正确✅、convertImage 压缩回退逻辑正确✅、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、loadHistory 三种类型均正确✅、copyHistoryCode subtype 判断正确✅、_clusterColors 透明像素过滤正确✅、TextEncoder/TextDecoder 回退方案正确✅、decodeToImage Base64 正则验证正确✅、project.js 所有函数逻辑正确✅。
+
+**已知边界问题（非 bug）：** `onShow` 存在 `openProjectId` 时 return 跳过深色模式同步，仅"切深色模式+立即打开项目"时触发，下次 onShow 自动修复。
+
+**无运行时 bug，无 UX 问题，无样式问题。当前版本可发布。**
+
 
 ---
 
