@@ -1465,7 +1465,7 @@ Page({
         let kb = fileSizeKB || (res.data.length * 0.75 / 1024).toFixed(1);
         that._fullCode = b64;
         let itemMeta = { id: Date.now(), type: 'image', path: that.data.imagePath, size: kb + ' KB', preview: '' };
-        that._imageCache = [{ base64: b64 }].concat(that._imageCache).slice(0, 20);
+        that._imageCache = [{ base64: b64, textContent: '' }].concat(that._imageCache).slice(0, 20);
         let list = [itemMeta].concat(that.data.images).slice(0, 20);
 
         // 合并所有更新到一次setData
