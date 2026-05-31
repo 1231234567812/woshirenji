@@ -9,7 +9,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第一百零二轮审查通过，当前版本可发布
+2026-05-31 - 第一百零三轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
@@ -463,6 +463,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第一百零三轮审查（HEAD 全量 bug 审查）| 全量审查 index.js（1767行）+ project.js（167行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅（含箭头函数继承验证）、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode 全部验证）、BOM=0✅（index.js/project.js 无 BOM）、console=0✅（grep 零匹配）。**验证最近3次提交（acd870b/60ac713/6729b7a）：** project.js `delProject`/`permaDelProject`/`restoreProject` 3处 `_projectsCache` 赋值移到 `setStorageSync` 成功后✅、3处 catch 块添加 `return` 防止存储失败时缓存不一致✅。**逐项深度检查：** doCompress Promise.all+catch 链正确✅、_batchConvertParallel 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫 + slot/imgIdx 双索引）✅、doRotate 旋转变换矩阵正确（save/translate/rotate/scale/restore）✅、doMosaic 马赛克算法正确（缩小+imageSmoothingEnabled=false+放大）✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、convertImage 压缩回退逻辑正确✅、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、loadHistory 文本/图片/decode 三种类型均正确✅（含 subtype='decode' 分支）、copyHistoryCode subtype 判断正确✅（使用 full.subtype）、_clusterColors 透明像素过滤正确✅（alpha<128 跳过 + total>0 除零防护）、TextEncoder/TextDecoder 回退方案正确✅、project.js 所有函数逻辑正确✅（openProject/delProject/permaDelProject/restoreProject/browseFiles）。**发现 1 个代码整洁性问题（非 bug）：** `compressedSize` 字段在 data 中定义（line 16）并在 `_doReadBase64` 中设置（line 1443），但 WXML 中未使用（死代码）。**无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
 UI设计师 | 第一百零二轮审查 + 修复（project.js 缓存一致性 bug）| 全量审查 index.js（1767行）+ project.js（167行）+ index.wxml（681行）+ index.wxss（459行）+ project.wxss（81行）+ custom-tab-bar + app.js/json/wxss：运行时 bug=0✅（index.js）、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、深色模式完整覆盖✅、CSS 合规 10/10 通过✅（无 infinite 动画、无 font-weight:800、无 letter-spacing、transition≤0.2s、box-shadow alpha≤0.08、font-size 仅 24/28/32rpx、border-radius 仅 12/24rpx/50%）。**发现并修复 3 个 project.js 缓存一致性 bug：** ① `delProject`（line 76）：`_projectsCache = ps` 在 `setStorageSync` 之前赋值，catch 块无 `return`，存储失败时缓存被更新但持久层未写入 → 移到存储成功后，catch 添加 `return;`。② `permaDelProject`（line 142）：同上。③ `restoreProject`（line 160）：同上。与 index.js commit efbfc04 保持一致。**其他验证：** 最近3次提交（779eb9c）的修复验证通过✅（catch 块 return + chooseCropImg/doCrop toast）。BOM=0✅、console=0✅。**无其他运行时 bug。** 当前版本可发布 | 审查通过（已修复 3 个缓存一致性 bug）
 
