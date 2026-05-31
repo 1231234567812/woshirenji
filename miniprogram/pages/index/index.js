@@ -1024,6 +1024,7 @@ Page({
           },
           fail() {
             that.setData({ cropImg: dest, cropW: 0, cropH: 0, cropResult: '', cropSize: '' });
+            wx.showToast({ title: '获取图片尺寸失败', icon: 'none' });
           },
         });
       });
@@ -1036,7 +1037,7 @@ Page({
     if (this.data.cropping) return;
     let that = this;
     let { cropImg, cropW, cropH, cropRatio } = this.data;
-    if (!cropImg || cropW <= 0 || cropH <= 0) return;
+    if (!cropImg || cropW <= 0 || cropH <= 0) { wx.showToast({ title: '请先选择图片', icon: 'none' }); return; }
 
     // 计算裁剪区域（居中裁剪）
     let sx = 0, sy = 0, sw = cropW, sh = cropH;
