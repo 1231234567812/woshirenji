@@ -1303,7 +1303,7 @@ Page({
     this._canvasProcess({
       canvasId: 'mosaicCanvas',
       imgSrc: mosaicImg,
-      fileType: outExt === 'png' ? 'png' : 'jpg',
+      fileType: outExt,
       destPrefix: 'mosaic',
     }, function(ctx, canvas, img, info) {
       let iw = info.width, ih = info.height;
