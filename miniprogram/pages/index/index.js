@@ -1207,6 +1207,7 @@ Page({
 
   // ========== 颜色提取 ==========
   chooseColorImg() {
+    if (this.data.colorPicking) return;
     let that = this;
     this._chooseImage(1, 'compressed', (res) => {
       let p = this._getTempPath(res);
