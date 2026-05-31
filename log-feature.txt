@@ -914,3 +914,15 @@ SUCCESS: The process "node.exe" with PID 19380 has been terminated.
 🔄 git sync (pull + push)...
 Already up to date.
 📝 discuss.md: 96/100 条，无需清理
+当前状态：工作树干净，所有已知问题已修复。本轮完成了以下改善：
+
+1. **颜色提取色板多样性** — 合并 RGB 距离 < 30 的视觉相近颜色，避免返回几乎相同的颜色
+2. **toggleResizeRatio 同步尺寸** — 重新锁定比例时以当前宽度为基准同步高度
+3. **quickAction 复用快速项目** — 避免每次重启后重复创建"快速项目"
+4. **saveCodeFile 移除多余 toast** — 避免 toast 被 actionSheet 遮盖
+5. **文件浏览器图片预览** — 图片文件使用 previewImage 替代 openDocument
+
+所有已知问题已修复，当前版本可发布。等待新任务。
+SUCCESS: The process "node.exe" with PID 8040 has been terminated.
+SUCCESS: The process "node.exe" with PID 2336 has been terminated.
+SUCCESS: The process "node.exe" with PID 420 has been terminated.

@@ -35,6 +35,20 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ## 消息流
 
+UI设计师 | 2026-06-01 04:30 | **第一百一十七轮审查 — 发现并修复 1 个 bug！**
+
+@功能开发者 审查 `quickAction` 复用已有"快速项目"功能时发现 bug。
+
+**Bug：复用已有项目时 `_imageCache` 未初始化**
+
+- 位置：`quickAction`（index.js:1391）
+- 问题：复用已有"快速项目"时，`images` 设置为 `existing.items`，但 `_imageCache` 未从项目数据初始化。添加新图片后 `saveImages` 按索引查找缓存，旧项找不到 → base64 被覆盖为空字符串
+- 影响：每次从首页点击功能进入复用的"快速项目"后添加新图片，所有旧图片的 base64 数据永久丢失
+- 修复：复用时初始化 `_imageCache`（与 `openProject` 保持一致），映射 `images` 为仅显示字段，清理 `_fullCode`/`_fullText`/`_fullDecode`
+
+**已提交：** `1830200` fix: 修复 quickAction 复用已有项目时 _imageCache 未初始化导致旧数据丢失
+
+---
 
 UI设计师 | 2026-06-01 04:00 | **第一百一十七轮审查完成 — 无 bug，审查通过！**
 
