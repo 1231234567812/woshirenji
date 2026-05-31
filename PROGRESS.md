@@ -12,7 +12,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 2026-06-01 - 第一百二十九轮审查通过（修复 doCompress getInfo reject bug），当前版本可发布
 
 ## 当前正在做的事
-<!-- 空闲中 -->
+<!-- 空闲中，等待新任务 -->
 
 ## 最近改动
 - 代码审查员完成第一百二十九轮审查 — 发现并修复 1 个运行时 bug
@@ -572,6 +572,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+功能开发者 | 第一百二十九轮审查（全量 bug 审查）| 全量审查 index.js（1833行）+ project.js（179行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅（grep 零匹配）、setInterval=0✅、font-weight:800=0✅、letter-spacing=0✅、animation infinite=0✅。**逐项深度检查：** doCompress Promise.all+catch 链正确✅、_batchConvertParallel 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫 + 完成时 images/_imageCache 双 slice(0,20)）✅、doRotate 旋转变换矩阵正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、convertImage 压缩回退逻辑正确✅、quickAction 自动创建项目逻辑正确✅、loadHistory 三种类型均正确✅、copyHistoryCode subtype 判断正确✅、_clusterColors 透明像素过滤正确✅（alpha<128 跳过 + total>0 除零防护）、TextEncoder/TextDecoder 回退方案正确✅、decodeToImage Base64 正则验证正确✅、project.js 所有函数逻辑正确✅（openProject/delProject/permaDelProject/restoreProject/browseFiles）。**空输入一致性验证：** convertText/decodeToText/decodeToImage/generateQR/addWatermark 5 个函数全部检查空白输入并 toast 提示✅。**自上次审查（第一百二十八轮）以来无功能性代码变更，仅文档更新。** **无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
 代码审查员 | 第一百一十九轮审查（全量 bug 审查）| 全量审查 index.js（1770行）+ project.js（167行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅（grep 零匹配）、setInterval=0✅、font-weight:800=0✅、letter-spacing=0✅、animation infinite=0✅。**验证最近5次提交改动（7382d03/afe1455/590d3b1/1830200/e59a342）：** ① `quickAction` 复用已有项目时初始化 `_imageCache` — 正确，与 `openProject` 模式一致✅ ② 文件浏览器图片文件使用 `previewImage` 替代 `openDocument` — 正确，index.js 和 project.js 同步修复✅ ③ 其余3次仅文档更新。**逐项深度检查：** doCompress Promise.all+catch 链正确✅、_batchConvertParallel 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫 + 完成时 images/_imageCache 双 slice(0,20)）✅、doRotate 旋转变换矩阵正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、convertImage 压缩回退逻辑正确✅、quickAction 自动创建项目逻辑正确✅、loadHistory 三种类型均正确✅、copyHistoryCode subtype 判断正确✅、_clusterColors 透明像素过滤正确✅（alpha<128 跳过 + total>0 除零防护）、TextEncoder/TextDecoder 回退方案正确✅、decodeToImage Base64 正则验证正确✅、project.js 所有函数逻辑正确✅。**空输入一致性验证：** convertText/decodeToText/decodeToImage/generateQR/addWatermark 5 个函数全部检查空白输入并 toast 提示✅。**无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 

@@ -1225,3 +1225,34 @@ SUCCESS: The process "node.exe" with PID 11776 has been terminated.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔄 git sync (pull + push)...
 🧹 discuss.md: 102 → 101 条（保留最近 100 条）
+菜单图标文字已全部唯一化（图/转/文/解/批/码/压/水/格/尺/裁/旋/色/马），UX 问题已由 UI设计师 修复。
+
+审查总结：
+
+**第一百二十九轮审查结果：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ⚠️→✅ 1处已修复 | doCompress getInfo reject → 恢复为 resolve 优雅降级 |
+| 逻辑错误 | ✅ 0 | |
+| 异步问题 | ✅ 0 | |
+| 内存泄漏 | ✅ 0 | |
+| 并发防护 | ✅ 11/11 | |
+| 缓存一致性 | ✅ | 5 处 copy-before-mutation 正确 |
+| BOM | ✅ 0 | |
+| console | ✅ 0 | |
+
+**修复内容：** `doCompress` 中 `getInfo` 的 fail 回调从 `reject(Error)` 恢复为 `resolve({size:0})`，防止 `getFileInfo` 失败时压缩结果丢失。
+
+当前版本可发布。
+SUCCESS: The process "node.exe" with PID 6572 has been terminated.
+SUCCESS: The process "node.exe" with PID 4320 has been terminated.
+SUCCESS: The process "node.exe" with PID 4868 has been terminated.
+📤 git push...
+✅ 本轮完成，23秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 17:04:07 第 35 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+🧹 discuss.md: 102 → 101 条（保留最近 100 条）
