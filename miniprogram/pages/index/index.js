@@ -1642,11 +1642,11 @@ Page({
   },
   previewDecodeImg() { this._previewImage(this.data.decodeImagePath); },
 
-  _readUserFiles(callback) {
+  _readUserFiles(callback, txtOnly) {
     this._getFs().readdir({
       dirPath: wx.env.USER_DATA_PATH,
       success: (res) => {
-        let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png') || f.endsWith('.webp') || f.endsWith('.gif'));
+        let files = (res.files || []).filter(f => txtOnly ? f.endsWith('.txt') : (f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png') || f.endsWith('.webp') || f.endsWith('.gif')));
         if (files.length === 0) { callback([]); wx.showToast({ title: '暂无文件', icon: 'none' }); return; }
         callback(files.map(f => ({ name: f, path: wx.env.USER_DATA_PATH + '/' + f })));
       },
@@ -1659,7 +1659,7 @@ Page({
   },
   pickFileForMode(e) {
     this.setData({ fileMode: e.currentTarget.dataset.mode, filesShow: true, filesList: [], filesLoading: true });
-    this._readUserFiles(list => this.setData({ filesList: list, filesLoading: false }));
+    this._readUserFiles(list => this.setData({ filesList: list, filesLoading: false }), true);
   },
   openFile(e) {
     let idx = e.currentTarget.dataset.index;

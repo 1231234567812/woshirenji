@@ -9,12 +9,15 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第六十九轮审查通过，修复 FAB 按钮可见性 bug，当前版本可发布
+2026-05-31 - 第七十一轮审查通过，修复文件选择器 UX 问题，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复 pickFileForMode 文件选择器显示图片文件的 UX 问题（第七十一轮审查）
+  - 问题：text2code/code2text/code2img 模式下的"选择文件"打开的文件浏览器显示所有文件类型（含图片），但 fileMode 下文件用 utf8 编码读取，选择图片文件会产生乱码
+  - 修复：`_readUserFiles` 添加 `txtOnly` 参数，`pickFileForMode` 传入 `true` 限制只显示 .txt 文件
 - UI设计师修复 convertText TextEncoder 兼容性问题（第七十轮审查）
   - 问题：`convertText` 使用 `new TextEncoder().encode(raw)` 无回退，旧版微信基础库可能不支持
   - 修复：添加回退方案，使用 `encodeURIComponent` + `unescape` 手动编码 UTF-8 字节
@@ -387,6 +390,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第七十一轮审查（a84ef95 HEAD 全量 bug 审查）| 逐函数审查 index.js（1716行）+ project.js（167行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（index.js/project.js 首字节 99=con）、console=0✅（grep 确认零匹配）。**验证最近提交：** TextEncoder 回退方案正确（encodeURIComponent+unescape）✅、FAB wx:if="{{!menuShow && !filesShow}}" 正确✅。**发现并修复 1 个 UX 问题：** `pickFileForMode`（text2code/code2text/code2img 模式下的"选择文件"）打开的文件浏览器显示所有文件类型（含图片），但在 fileMode 下文件用 `encoding: 'utf8'` 读取，选择图片文件会产生乱码。修复：`_readUserFiles` 添加 `txtOnly` 参数，`pickFileForMode` 传入 `true` 限制只显示 .txt 文件。**无运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个 UX 问题）
 
 UI设计师 | 第七十轮审查（0a8b60e HEAD 全量 bug 审查）| 逐函数审查 index.js（1716行）+ project.js（167行）+ index.wxml（681行）+ index.wxss（459行）+ project.wxss（81行）+ project.wxml（44行）：**发现并修复 2 个问题：** ① FAB 按钮在文件浏览弹窗打开时仍可见（index.wxml:578）— `wx:if="{{!menuShow}}"` 未检查 `filesShow`，用户打开文件浏览时 FAB 按钮显示在半透明遮罩层后面，误触可导致菜单和文件弹窗同时打开。修复：改为 `wx:if="{{!menuShow && !filesShow}}"`。② `convertText` 使用 `TextEncoder` 无回退（index.js:1553）— 旧版微信基础库可能不支持 `TextEncoder`，而 `decodeToText` 已有 `TextDecoder` 回退。修复：添加回退方案，使用 `encodeURIComponent` + `unescape` 手动编码 UTF-8 字节。**其他验证：** 运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 40+ 个全部有对应函数✅、wx:key 全部正确✅、深色模式完整覆盖所有组件✅、CSS 合规 10/10 通过✅。**无其他运行时 bug。** 当前版本可发布 | 审查通过（已修复 2 个问题）
 
