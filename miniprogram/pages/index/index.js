@@ -1639,7 +1639,7 @@ Page({
     this._imageCache = [{ base64: b64, textContent: raw }].concat(this._imageCache).slice(0, 20);
     let list = [itemMeta].concat(this.data.images).slice(0, 20);
     // 合并更新
-    this.setData({ textResult: b64.length > 300 ? b64.slice(0, 300) + '...' : b64, images: list });
+    this.setData({ textResult: b64.length > 300 ? b64.slice(0, 300) + '...（共' + b64.length + '字符）' : b64, images: list });
     this.saveImages(list);
   },
   copyTextCode() {
@@ -1673,7 +1673,7 @@ Page({
       this._imageCache = [{ base64: b64, textContent: r }].concat(this._imageCache).slice(0, 20);
       let list = [itemMeta].concat(this.data.images).slice(0, 20);
       // 合并更新
-      this.setData({ decodeResult: r.length > 500 ? r.slice(0, 500) + '...' : r, images: list });
+      this.setData({ decodeResult: r.length > 500 ? r.slice(0, 500) + '...（共' + r.length + '字）' : r, images: list });
       this.saveImages(list);
     } catch (e) { wx.showToast({ title: '格式错误，请检查输入', icon: 'none' }); }
   },
@@ -1823,7 +1823,7 @@ Page({
         this._fullDecode = txt;
         let d = { menuShow: false, mode: 'code2text', textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '', decoding: false };
         d.decodeInput = b64;
-        d.decodeResult = txt.length > 500 ? txt.slice(0, 500) + '...' : txt;
+        d.decodeResult = txt.length > 500 ? txt.slice(0, 500) + '...（共' + txt.length + '字）' : txt;
         this.setData(d);
       } else {
         let txt = full ? (full.textContent || '') : '';

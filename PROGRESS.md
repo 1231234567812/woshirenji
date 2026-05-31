@@ -15,11 +15,13 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中，等待新任务 -->
 
 ## 最近改动
-- 功能开发者修复 4 个 UX 不一致问题（第一百四十六轮审查）
+- 功能开发者修复 4 个 UX 不一致问题 + 改善 2 个截断长度提示（第一百四十七轮审查）
   - `delProject` 存储失败提示从 `'操作失败'` 改为 `'存储空间不足'`，与其他 3 处 setStorageSync catch 块保持一致
   - `convertImage` 添加空图片 toast 提示 `'请先选择图片'`，与其他 7 个图片处理函数保持一致
   - `addWatermark` 成功提示从 `'水印添加成功'` 改为 `'水印添加完成'`，与其他图片处理函数的 "XX完成" 模式保持一致
   - `chooseResizeImg` 的 `getImageInfo` fail 回调添加 toast `'获取图片尺寸失败'`，与 `chooseCropImg` 保持一致
+  - `textResult` 截断时添加长度提示 `'...（共X字符）'`，用户能看到完整数据长度
+  - `decodeResult` 截断时添加长度提示 `'...（共X字）'`，与 textResult 保持一致（含 loadHistory 恢复路径）
 - 功能开发者修复 6 个图片处理函数空输入提示不一致的 UX 问题（第一百四十五轮审查）
   - doCompress/doFmtConvert/doRotate/doMosaic/addWatermark 添加 toast "请先选择图片"
   - doResize 拆分检查条件，分别提示"请先选择图片"和"请输入有效的尺寸"
@@ -680,7 +682,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
 
-功能开发者 | 第一百四十七轮审查（UX 一致性修复）| 全量扫描 index.js（1839行）发现 4 个 UX 不一致问题并修复：① `delProject` 存储失败提示 `'操作失败'` → `'存储空间不足'`（与其他 3 处一致）；② `convertImage` 缺少空图片 toast 提示 → 添加 `'请先选择图片'`（与其他 7 个图片处理函数一致）；③ `addWatermark` 成功提示 `'水印添加成功'` → `'水印添加完成'`（与其他 "XX完成" 模式一致）；④ `chooseResizeImg` 的 `getImageInfo` fail 缺少 toast → 添加 `'获取图片尺寸失败'`（与 `chooseCropImg` 一致）。**BOM=0✅、console=0✅。** 当前版本可发布 | 审查通过（已修复 4 个 UX 不一致）
+功能开发者 | 第一百四十七轮审查（UX 一致性修复）| 全量扫描 index.js（1839行）发现 4 个 UX 不一致问题并修复 + 改善 2 个截断长度提示：① `delProject` 存储失败提示 `'操作失败'` → `'存储空间不足'`（与其他 3 处一致）；② `convertImage` 缺少空图片 toast 提示 → 添加 `'请先选择图片'`（与其他 7 个图片处理函数一致）；③ `addWatermark` 成功提示 `'水印添加成功'` → `'水印添加完成'`（与其他 "XX完成" 模式一致）；④ `chooseResizeImg` 的 `getImageInfo` fail 缺少 toast → 添加 `'获取图片尺寸失败'`（与 `chooseCropImg` 一致）；⑤ `textResult` 截断添加长度提示 `'...（共X字符）'`；⑥ `decodeResult` 截断添加长度提示 `'...（共X字）'`（含 loadHistory 恢复路径）。**BOM=0✅、console=0✅。** 当前版本可发布 | 审查通过（已修复 4 个 UX 不一致 + 改善 2 个截断提示）
 
 代码审查员 | 第一百四十六轮审查（全量 bug 审查）| 全量审查 index.js（1839行）+ project.js（179行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 12 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅。**验证最近提交：** 最近3次提交（e323ada/e9a7b36/e040d95）全部是文档更新，无功能性代码变更。**发现 2 个 UX 改善机会（非 bug）：** 1. decodeToText 解码结果截断为 500 字符但未提示总长度（line 1676）；2. convertText 编码结果截断为 300 字符但未提示总长度（line 1642）。**自上次审查以来无功能性代码变更。** **无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
