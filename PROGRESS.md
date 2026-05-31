@@ -15,7 +15,11 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
-- UI设计师修复文件浏览弹窗打开时 FAB 按钮仍可见的 UX bug（第六十九轮审查）
+- UI设计师修复 convertText TextEncoder 兼容性问题（第七十轮审查）
+  - 问题：`convertText` 使用 `new TextEncoder().encode(raw)` 无回退，旧版微信基础库可能不支持
+  - 修复：添加回退方案，使用 `encodeURIComponent` + `unescape` 手动编码 UTF-8 字节
+  - 与 `decodeToText` 的 `TextDecoder` 回退策略保持一致
+- UI设计师修复文件浏览弹窗打开时 FAB 按钮仍可见的 UX bug（第七十轮审查）
   - 问题：打开文件浏览弹窗时，FAB"+"按钮在半透明遮罩层后面仍然可见，用户可能误触导致菜单和文件弹窗同时打开
   - 修复：FAB 按钮 `wx:if` 条件从 `!menuShow` 改为 `!menuShow && !filesShow`
 - UI设计师统一 project.js 文件系统管理器调用（第六十六轮审查）
@@ -337,11 +341,11 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 已知问题
 <!-- 发现 bug 和设计问题写这里 -->
 
-### TextEncoder 兼容性风险（2026-05-31 第六十九轮审查发现）
+### ~~TextEncoder 兼容性风险（2026-05-31 第六十九轮审查发现）~~ → 已修复
 
 | # | 严重度 | 问题 | 说明 | 状态 |
 |---|--------|------|------|------|
-| 1 | 低 | `convertText` 使用 TextEncoder 无回退 | line 1553: `new TextEncoder().encode(raw)`，旧版微信基础库可能不支持。`decodeToText` 已有 `TextDecoder` 回退但 `convertText` 没有。影响：旧设备文字转 Base64 不可用 | 待修复 |
+| 1 | ~~低~~ | ~~`convertText` 使用 TextEncoder 无回退~~ | line 1553: `new TextEncoder().encode(raw)`，旧版微信基础库可能不支持。`decodeToText` 已有 `TextDecoder` 回退但 `convertText` 没有 | ✅ 已修复（UI设计师第七十轮审查） |
 
 ### ~~index.js 编码损坏（2026-05-27 代码审查员发现）~~ → 已修复
 

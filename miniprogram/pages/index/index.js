@@ -1550,7 +1550,14 @@ Page({
     let raw = this.data.textContent; if (!raw) { wx.showToast({ title: '请输入文字', icon: 'none' }); return; }
     let b64 = '';
     try {
-      let bytes = new TextEncoder().encode(raw);
+      let bytes;
+      if (typeof TextEncoder !== 'undefined') {
+        bytes = new TextEncoder().encode(raw);
+      } else {
+        let utf8 = unescape(encodeURIComponent(raw));
+        bytes = new Uint8Array(utf8.length);
+        for (let i = 0; i < utf8.length; i++) bytes[i] = utf8.charCodeAt(i);
+      }
       let str = '';
       for (let i = 0; i < bytes.length; i += 8192) str += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
       b64 = btoa(str);
