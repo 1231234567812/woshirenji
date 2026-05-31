@@ -15,7 +15,7 @@
         <text class="func-label">图片转代码</text>
       </view>
       <view class="func-item" hover-class="func-press" bindtap="quickAction" data-mode="code2img">
-        <view class="func-icon"><text>码</text></view>
+        <view class="func-icon"><text>转</text></view>
         <text class="func-label">代码转图片</text>
       </view>
       <view class="func-item" hover-class="func-press" bindtap="quickAction" data-mode="text2code">
@@ -590,7 +590,7 @@
           <text class="menu-card-label">图片转代码</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startCode2Img">
-          <view class="menu-card-icon"><text>码</text></view>
+          <view class="menu-card-icon"><text>转</text></view>
           <text class="menu-card-label">代码转图片</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startText2Code">
@@ -598,7 +598,7 @@
           <text class="menu-card-label">文字转代码</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startCode2Text">
-          <view class="menu-card-icon"><text>码</text></view>
+          <view class="menu-card-icon"><text>解</text></view>
           <text class="menu-card-label">代码转文字</text>
         </view>
         <view class="menu-card" hover-class="menu-card-press" bindtap="startBatchImg">
