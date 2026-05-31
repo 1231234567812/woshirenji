@@ -1066,7 +1066,7 @@ Page({
       imgSrc: cropImg,
       imgInfo: { width: cropW, height: cropH },
       drawW: sw, drawH: sh,
-      fileType: outExt === 'png' ? 'png' : 'jpg',
+      fileType: outExt,
       destPrefix: 'crop',
     }, function(ctx, canvas, img) {
       ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
