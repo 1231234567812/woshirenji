@@ -1322,7 +1322,7 @@ Page({
     let list = this.data.colorList;
     if (!list || !list.length) return;
     let all = list.map(c => c.hex).join(', ');
-    wx.setClipboardData({ data: all, success: () => wx.showToast({ title: '已复制 ' + list.length + ' 个颜色', icon: 'success' }) });
+    wx.setClipboardData({ data: all, success: () => wx.showToast({ title: '已复制全部 ' + list.length + ' 种颜色', icon: 'success' }) });
   },
 
   previewColorImg() { this._previewImage(this.data.colorImg); },

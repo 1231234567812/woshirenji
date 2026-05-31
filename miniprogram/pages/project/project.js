@@ -113,7 +113,8 @@ Page({
       itemList: ['用其他应用打开', '转发给朋友'],
       success: (r) => {
         if (r.tapIndex === 0) {
-          let ext = f.name.split('.').pop().toLowerCase();
+          let parts = f.name.split('.');
+          let ext = parts.length > 1 ? parts.pop().toLowerCase() : '';
           if (['jpg', 'jpeg', 'png', 'webp', 'gif'].indexOf(ext) >= 0) {
             wx.previewImage({ urls: [f.path], fail: () => wx.showToast({ title: '预览失败', icon: 'none' }) });
           } else {
