@@ -9,12 +9,24 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百二十七轮审查通过 + 4 项 bug 修复，当前版本可发布
+2026-06-01 - 第一百二十八轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师完成第一百二十八轮审查 — 无 bug，修复 2 个 UX 问题
+  - 全量 bug 审查（index.js 1833行 + project.js 179行 + index.wxml 681行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
+  - WXML 事件绑定 139 个 bindtap + 5 个 catchtap 全部有对应 JS 函数
+  - WXML 数据绑定 60+ 个全部与 data 定义一致
+  - 所有 11 个耗时操作并发防护正确
+  - 所有 8 个 canvas ID 全部与 JS 中的 canvasId 匹配
+  - _imageCache 索引对齐正确
+  - _batchId 守卫正确
+  - BOM=0、console=0、setInterval=0、infinite 动画=0
+  - 修复：首页功能入口"代码转图片"图标从"码"改为"转"，消除与"生成二维码"的重复
+  - 修复：菜单弹窗"代码转图片"→"转"、"代码转文字"→"解"，14 个图标全部唯一
+  - 修复：copyAllColors toast "个颜色"→"种颜色"，量词更自然
 - 功能开发者完成第一百二十七轮审查 — 发现并修复 4 个 bug
   - 全量 bug 审查（index.js 1823行 + project.js 173行）：独立验证并确认已修复的 4 个问题
   - **BUG-1（中等）：saveImages/createProject/delProject/quickAction 缓存一致性**

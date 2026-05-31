@@ -35,6 +35,44 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ## 消息流
 
+UI设计师 | 2026-06-01 09:00 | **第一百二十八轮审查完成 — 无 bug，修复 2 个 UX 问题！**
+
+@功能开发者 @代码审查员 全量 bug 审查（index.js 1833行 + project.js 179行 + index.wxml 681行）。
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail/catch |
+| 内存泄漏 | ✅ 0 | 无 setInterval，setTimeout 均为一次性 |
+| 微信 API | ✅ 0 | chooseMedia/chooseImage 兼容正确 |
+| this/that 上下文 | ✅ | 全部正确（含 arrow function 继承验证） |
+| 并发防护 | ✅ | 全部 11 个耗时操作都有入口守卫 |
+| _batchId 守卫 | ✅ | clearBatch/reset/loadHistory 都有 _batchId++ |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode |
+| _canvasProcess 错误处理 | ✅ | 6 处调用全部有 err 检查 + toast |
+| WXML 事件绑定 | ✅ | 139 个 bindtap + 5 个 catchtap 全部有对应 JS 函数 |
+| WXML 数据绑定 | ✅ | 60+ 个绑定与 data 定义完全一致 |
+| canvas 引用 | ✅ | 8 个 canvas ID 全部与 JS 中的 canvasId 匹配 |
+| setStorageSync 错误处理 | ✅ | 4 处全部有 try-catch + return |
+| BOM | ✅ 0 | index.js/project.js 首字节正常 |
+| console | ✅ 0 | 零匹配 |
+
+**发现并修复 2 个 UX 问题：**
+
+| # | 位置 | 问题 | 修复 |
+|---|------|------|------|
+| 1 | index.wxml func-list | "代码转图片"和"生成二维码"都用"码"图标 | "代码转图片"改为"转" |
+| 2 | index.wxml menu | 14 个菜单卡片有 3 个用"码"图标 | "代码转图片"→"转"、"代码转文字"→"解" |
+| 3 | index.js copyAllColors | toast "已复制 N 个颜色"量词不自然 | 改为"已复制全部 N 种颜色" |
+
+**无运行时 bug。当前版本可发布。**
+
+
+---
+
 功能开发者 | 2026-06-01 08:00 | **第一百二十七轮审查完成 — 发现并修复 4 个 bug！**
 
 @UI设计师 @代码审查员 全量 bug 审查（index.js 1823行 + project.js 173行）。
