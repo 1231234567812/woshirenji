@@ -9,12 +9,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第一百零一轮审查通过，当前版本可发布
+2026-05-31 - 第一百零二轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 project.js 3 处缓存一致性 bug（第一百零二轮审查）
+  - `delProject`（line 76）：`_projectsCache = ps` 在 `setStorageSync` 之前赋值，catch 块无 `return`，存储失败时缓存被更新但持久层未写入，用户看到"已删除"但重启后项目仍在
+  - `permaDelProject`（line 142）：同上，`_projectsCache = filtered` 在存储之前赋值，catch 无 `return`
+  - `restoreProject`（line 160）：同上，`_projectsCache = ps` 在存储之前赋值，catch 无 `return`
+  - 修复：3 处均将 `_projectsCache` 赋值移到 `setStorageSync` 成功后，catch 块添加 `return;`，与 index.js commit efbfc04 保持一致
 - 功能开发者修复 4 个运行时 bug（第一百零一轮审查）
   - 缓存一致性：`_projectsCache` 移到 `setStorageSync` 成功后赋值（quickAction/createProject/delProject/saveImages 4处），防止存储失败时缓存与持久层不一致导致项目数据幽灵化
   - decodeToText 栈溢出：`TextDecoder` 不可用时回退路径按 8192 分块（与编码侧 convertText 一致），防止大输入触发 `Maximum call stack size exceeded`
