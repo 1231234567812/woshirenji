@@ -4,6 +4,12 @@ Page({
   data: { list: [], darkMode: false, filesShow: false, filesList: [], filesLoading: false },
   _projectsCache: null, // 缓存项目数据
   _lastLoadTime: 0, // 上次加载时间戳
+  _fs: null,
+
+  _getFs() {
+    if (!this._fs) this._fs = wx.getFileSystemManager();
+    return this._fs;
+  },
 
   onLoad() {
     let dm = app.globalData.darkMode;
@@ -80,7 +86,7 @@ Page({
   browseFiles() {
     let that = this;
     this.setData({ filesShow: true, filesList: [], filesLoading: true });
-    wx.getFileSystemManager().readdir({
+    this._getFs().readdir({
       dirPath: wx.env.USER_DATA_PATH,
       success: (res) => {
         let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png') || f.endsWith('.webp') || f.endsWith('.gif'));
