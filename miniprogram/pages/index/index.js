@@ -1388,7 +1388,9 @@ Page({
       // 复用已有的未删除"快速项目"，避免重复创建
       let existing = ps.find(p => p.name === '快速项目' && !p.deleted);
       if (existing) {
-        this.setData({ view: 'work', curId: existing.id, curName: existing.name, images: existing.items || [] });
+        this._imageCache = (existing.items || []).map(item => ({ base64: item.base64 || '', textContent: item.textContent || '' }));
+        this._fullCode = ''; this._fullText = ''; this._fullDecode = '';
+        this.setData({ view: 'work', curId: existing.id, curName: existing.name, images: (existing.items || []).map(img => ({ id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview })) });
       } else {
         let p = { id: 'p_' + Date.now(), name: '快速项目', date: new Date().toLocaleString(), items: [] };
         ps.unshift(p);
