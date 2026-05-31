@@ -1267,14 +1267,32 @@ Page({
       buckets[key].b += pixels[i+2];
       buckets[key].count++;
     }
-    let arr = Object.values(buckets).sort((a, b) => b.count - a.count).slice(0, count);
-    return arr.map((c, i) => {
-      let r = Math.round(c.r / c.count);
-      let g = Math.round(c.g / c.count);
-      let b = Math.round(c.b / c.count);
-      let hex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+    let sorted = Object.values(buckets).sort((a, b) => b.count - a.count);
+    // 取更多候选，合并视觉上相近的颜色后返回 count 个
+    let candidates = sorted.slice(0, count * 3);
+    let merged = [];
+    for (let i = 0; i < candidates.length; i++) {
+      let c = candidates[i];
+      let cr = Math.round(c.r / c.count), cg = Math.round(c.g / c.count), cb = Math.round(c.b / c.count);
+      let similar = false;
+      for (let j = 0; j < merged.length; j++) {
+        let dr = cr - merged[j].r, dg = cg - merged[j].g, db = cb - merged[j].b;
+        if (dr * dr + dg * dg + db * db < 900) { // RGB距离 < 30
+          merged[j].r = Math.round((merged[j].r * merged[j].count + c.r) / (merged[j].count + c.count));
+          merged[j].g = Math.round((merged[j].g * merged[j].count + c.g) / (merged[j].count + c.count));
+          merged[j].b = Math.round((merged[j].b * merged[j].count + c.b) / (merged[j].count + c.count));
+          merged[j].count += c.count;
+          similar = true;
+          break;
+        }
+      }
+      if (!similar) merged.push({ r: cr, g: cg, b: cb, count: c.count });
+      if (merged.length >= count) break;
+    }
+    return merged.map((c, i) => {
+      let hex = '#' + ((1 << 24) + (c.r << 16) + (c.g << 8) + c.b).toString(16).slice(1).toUpperCase();
       let pct = total > 0 ? (c.count / total * 100).toFixed(1) : '0.0';
-      return { hex: hex, r: r, g: g, b: b, pct: pct, id: i };
+      return { hex: hex, r: c.r, g: c.g, b: c.b, pct: pct, id: i };
     });
   },
 
