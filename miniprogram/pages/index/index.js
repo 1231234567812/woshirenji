@@ -602,7 +602,7 @@ Page({
             // 拷贝数组，避免存储失败时污染缓存
             let psCopy = ps.slice();
             psCopy[i] = { ...ps[i], deleted: true };
-            try { wx.setStorageSync('projects', psCopy); } catch (e) { wx.showToast({ title: '操作失败', icon: 'none' }); return; }
+            try { wx.setStorageSync('projects', psCopy); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
             this._projectsCache = psCopy;
             // 局部更新，避免全量重载
             let newList = this.data.projects.filter(item => item.id !== id);
@@ -867,7 +867,7 @@ Page({
         wx.showToast({ title: err, icon: 'none' });
       } else {
         that.setData({ wmResultPath: result.path });
-        wx.showToast({ title: '水印添加成功', icon: 'success' });
+        wx.showToast({ title: '水印添加完成', icon: 'success' });
       }
     });
   },
@@ -950,6 +950,7 @@ Page({
           },
           fail() {
             that.setData({ resizeImg: dest, resizeW: 0, resizeH: 0, resizeNewW: 0, resizeNewH: 0, resizeResult: '', resizeSize: '' });
+            wx.showToast({ title: '获取图片尺寸失败', icon: 'none' });
           },
         });
       });
@@ -1462,7 +1463,7 @@ Page({
     if (this.data.converting) return;
     let that = this;
     let src = this.data.imagePath;
-    if (!src) return;
+    if (!src) { wx.showToast({ title: '请先选择图片', icon: 'none' }); return; }
 
     // 合并初始状态更新，减少setData调用
     this.setData({ converting: true, convertProgress: 5, convertStage: '' });
