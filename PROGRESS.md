@@ -15,6 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 代码审查员修复 decodeToImage 缓存结构不一致（第七十五轮审查）
+  - 问题：`decodeToImage` 存入缓存 `{ base64: b64, path: fname }`，缺少 `textContent` 字段且有多余的 `path` 字段，与 `decodeToText`/`convertText` 的缓存结构 `{ base64, textContent }` 不一致
+  - 修复：改为 `{ base64: b64, textContent: '' }`，与其他函数保持一致
+  - 影响：纯代码整洁性，功能无变化（`saveImages` 只读 `base64` 和 `textContent`，忽略 `path`）
 - 代码审查员修复 pickFileForMode 文件选择器显示图片文件的 UX 问题（第七十一轮审查）
   - 问题：text2code/code2text/code2img 模式下的"选择文件"打开的文件浏览器显示所有文件类型（含图片），但 fileMode 下文件用 utf8 编码读取，选择图片文件会产生乱码
   - 修复：`_readUserFiles` 添加 `txtOnly` 参数，`pickFileForMode` 传入 `true` 限制只显示 .txt 文件
