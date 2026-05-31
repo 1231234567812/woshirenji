@@ -1251,15 +1251,15 @@ Page({
   },
 
   _clusterColors(pixels, count) {
-    // 简单量化：将颜色空间划分为 count 个桶，取最常见的
+    // 简单量化：将颜色空间划分为桶，取最常见的
     let buckets = {};
     let total = 0;
     for (let i = 0; i < pixels.length; i += 4) {
       if (pixels[i+3] < 128) continue; // 跳过透明像素
       total++;
-      let r = Math.round(pixels[i] / 32) * 32;
-      let g = Math.round(pixels[i+1] / 32) * 32;
-      let b = Math.round(pixels[i+2] / 32) * 32;
+      let r = Math.round(pixels[i] / 16) * 16;
+      let g = Math.round(pixels[i+1] / 16) * 16;
+      let b = Math.round(pixels[i+2] / 16) * 16;
       let key = r + ',' + g + ',' + b;
       if (!buckets[key]) buckets[key] = { r: 0, g: 0, b: 0, count: 0 };
       buckets[key].r += pixels[i];
