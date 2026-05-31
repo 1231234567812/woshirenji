@@ -587,7 +587,7 @@ Page({
   delProject(e) {
     let id = e.currentTarget.dataset.id;
     wx.showModal({
-      title: '删除', content: '确定删除？',
+      title: '删除', content: '确定删除？(删除后可在项目页恢复)',
       success: (res) => {
         if (res.confirm) {
           let ps = this._getPs();
