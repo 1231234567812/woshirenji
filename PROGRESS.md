@@ -9,12 +9,16 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第一百零三轮审查通过，当前版本可发布
+2026-05-31 - 第一百零五轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- UI设计师修复 convertText 空白输入处理不一致的 UX 问题（第一百零五轮审查）
+  - 问题：`convertText`（line 1566）只检查 `if (!raw)` 不检查空白输入，而 `generateQR`/`decodeToText`/`decodeToImage` 都检查空白。用户输入纯空格时会编码空格字符串而非提示
+  - 修复：改为 `if (!raw || !raw.trim())`，与其他函数行为一致
+  - 影响：所有空/空白输入场景现在都有明确的用户反馈
 - UI设计师修复 project.js 3 处缓存一致性 bug（第一百零二轮审查）
   - `delProject`（line 76）：`_projectsCache = ps` 在 `setStorageSync` 之前赋值，catch 块无 `return`，存储失败时缓存被更新但持久层未写入，用户看到"已删除"但重启后项目仍在
   - `permaDelProject`（line 142）：同上，`_projectsCache = filtered` 在存储之前赋值，catch 无 `return`
@@ -463,6 +467,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | 第一百零五轮审查 + 修复（convertText 空白输入处理不一致）| 全量审查 index.js（1767行）+ project.js（167行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅。**发现并修复 1 个 UX 不一致问题：** `convertText`（line 1566）只检查 `if (!raw)` 不检查空白输入，而 `generateQR`/`decodeToText`/`decodeToImage` 都检查空白。用户输入纯空格时会编码空格字符串而非提示。修复：改为 `if (!raw || !raw.trim())`。**深度检查：** doCrop 空输入有 toast "请先选择图片"✅、addWatermark 空文字有 toast "请输入水印文字"✅、doRotate 无变换有 toast "未做任何变换"✅、doResize 超大尺寸有 toast "尺寸不能超过4096像素"✅、convertText/decodeToText/decodeToImage 空输入均有 toast 提示✅、copyCode/copyTextCode/copyDecode/copyBatchItem 空数据均有守卫✅。**project.js 验证：** openProject 已删除项目有 toast "项目已删除，请先恢复"✅、delProject/permaDelProject/restoreProject 缓存一致性正确✅、browseFiles 加载状态完整✅。**无运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个 UX 不一致问题）
 
 功能开发者 | 第一百零四轮审查（HEAD 全量 bug 审查）| 全量扫描 index.js（1767行）+ project.js（167行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅。**逐项检查：** 所有 wx.showToast 调用参数正确（title 非空、icon 合法）✅、所有 8 个 catch 块都有处理逻辑（无空 catch）✅、所有 WXML wx:if 绑定的 data 字段都在 data 对象中定义✅、所有按钮的 wx:if 条件正确保护（img2code/watermark/fmt/resize/crop/rotate/mosaic/compress 均需已选图片才显示）✅、废弃 API wx.chooseImage 已有 wx.chooseMedia 优先+兜底✅。**深度检查：** doCrop 空输入有 toast "请先选择图片"✅、addWatermark 空文字有 toast "请输入水印文字"✅、doRotate 无变换有 toast "未做任何变换"✅、doResize 超大尺寸有 toast "尺寸不能超过4096像素"✅、convertText/decodeToText/decodeToImage 空输入均有 toast 提示✅、copyCode/copyTextCode/copyDecode/copyBatchItem 空数据均有守卫✅。**project.js 验证：** openProject 已删除项目有 toast "项目已删除，请先恢复"✅、delProject/permaDelProject/restoreProject 缓存一致性正确✅、browseFiles 加载状态完整✅。**无运行时 bug，无 UX 问题。** 当前版本可发布 | 审查通过
 

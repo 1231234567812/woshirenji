@@ -1563,7 +1563,7 @@ Page({
 
   onTextInput(e) { this.setData({ textContent: e.detail.value }); },
   convertText() {
-    let raw = this.data.textContent; if (!raw) { wx.showToast({ title: '请输入文字', icon: 'none' }); return; }
+    let raw = this.data.textContent; if (!raw || !raw.trim()) { wx.showToast({ title: '请输入文字', icon: 'none' }); return; }
     let b64 = '';
     try {
       let bytes;
