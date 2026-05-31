@@ -1790,6 +1790,8 @@ Page({
     let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
     this._batchId++;
     this._fullCode = ''; this._fullText = ''; this._fullDecode = '';
+    // 重新初始化 _imageCache，与 openProject/onShow 保持一致，防止索引错位
+    if (p) this._imageCache = (p.items || []).map(it => ({ base64: it.base64 || '', textContent: it.textContent || '' }));
     if (item.type === 'image') {
       let b64 = full ? (full.base64 || '') : '';
       this._fullCode = b64;
