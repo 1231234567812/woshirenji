@@ -561,7 +561,7 @@ Page({
           let ps = this._getPs();
           let newProj = { id: 'p_' + Date.now(), name: res.content, date: new Date().toLocaleString(), items: [] };
           ps.unshift(newProj);
-          try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+          try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
           this._projectsCache = ps; // 存储成功后才更新缓存
           // 局部更新，prepend到列表头部
           let newList = [{ id: newProj.id, name: newProj.name, date: newProj.date, items: [] }].concat(this.data.projects);
@@ -597,7 +597,7 @@ Page({
           let i = ps.findIndex(p => p.id === id);
           if (i >= 0) {
             ps[i].deleted = true;
-            try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '操作失败', icon: 'none' }); }
+            try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '操作失败', icon: 'none' }); return; }
             this._projectsCache = ps; // 存储成功后才更新缓存
             // 局部更新，避免全量重载
             let newList = this.data.projects.filter(item => item.id !== id);
@@ -628,7 +628,7 @@ Page({
         return { ...img, base64: full.base64 || '', textContent: full.textContent || '' };
       });
       this._dataDirty = true;
-      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); }
+      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
       this._projectsCache = ps; // 存储成功后才更新缓存
     }
   },

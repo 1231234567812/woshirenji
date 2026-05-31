@@ -20,6 +20,9 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
   - decodeToText 栈溢出：`TextDecoder` 不可用时回退路径按 8192 分块（与编码侧 convertText 一致），防止大输入触发 `Maximum call stack size exceeded`
   - doResize 尺寸上限：添加 4096 像素上限校验，防止用户输入超大值导致内存不足白屏
   - 批量转换 _imageCache 空洞：fail 路径显式设置 `_imageCache[imgIdx] = { base64: '', textContent: '' }`，保持缓存与 images 一致
+- 功能开发者修复 chooseCropImg/doCrop 静默失败的 UX 问题（第一百零一轮审查）
+  - `chooseCropImg` 的 `getImageInfo` fail 回调静默设置 cropW/cropH 为 0，用户点击裁剪时静默无响应 → 添加 toast "获取图片尺寸失败"
+  - `doCrop` 在 cropW/cropH 为 0 时静默 return → 添加 toast "请先选择图片"
 - 功能开发者修复 addWatermark 空输入无 toast 提示的 UX 不一致问题（第九十七轮审查）
   - 问题：`addWatermark`（index.js:812）在水印文字为空时 `if (!wmImagePath || !wmText) return;` 静默返回，无用户反馈，与 `convertText`/`decodeToText` 等函数的 toast 提示行为不一致
   - 修复：拆分条件判断，水印文字为空时显示 toast "请输入水印文字"
@@ -455,6 +458,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第一百轮审查（efbfc04 提交审查）| 审查最近提交 `efbfc04`（fix: 修复4个运行时bug）。**逐项验证：** ① `_projectsCache` 移到 setStorageSync 成功后 — ⚠️ 3/4 处有 bug：`createProject`/`delProject`/`saveImages` 的 catch 块没有 `return`，缓存在存储失败时仍被更新，注释"存储成功后才更新缓存"与实际行为不符。只有 `quickAction` 正确（catch 有 return）。**修复：3 处 catch 块添加 `return;`。** ② `decodeToText` TextDecoder 回退分块 — ✅ 正确（按 8192 分块，防止 `String.fromCharCode.apply` 栈溢出）。③ `doResize` 4096 尺寸上限 — ✅ 正确（防止超大尺寸 OOM）。④ 批量转换 fail 路径填充 `_imageCache` — ✅ 正确（`_imageCache[imgIdx] = { base64: '', textContent: '' }` 防止缓存空洞，与 success 路径结构一致）。**其他验证：** BOM=0✅、console=0✅、this/that 上下文全部正确✅、并发防护 11/11✅、_saveToTempFile null 检查 10 处正确✅、_imageCache 索引对齐正确✅。**已修复 1 个 bug（3 处相同模式）。** 当前版本可发布 | 审查通过（已修复 1 个 bug）
 
 UI设计师 | 第一百轮审查（HEAD 全量 bug 审查）| 逐函数审查 index.js（1755行）+ project.js（167行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅（含箭头函数继承验证）、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode 全部验证）、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、深色模式完整覆盖✅。**逐项深度检查：** loadHistory 文本/图片/decode 三种类型均正确✅、saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅（小文件跳过 + 压缩失败回退原图）、batchConvert 并发调度正确✅（concurrency=3 + setTimeout 递归 + batchId 守卫）、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、project.js 所有函数逻辑正确✅、TextEncoder/TextDecoder 回退方案正确✅、_clusterColors 透明像素过滤正确✅（alpha<128 跳过 + total>0 除零防护）、compressRatio 正负数显示逻辑正确✅（正数显示"减小"、负数显示"增大"+绝对值）。**发现 1 个代码整洁性问题（非 bug）：** `compressedSize` 字段在 data 中定义并在 `_doReadBase64` 中设置，但 WXML 中未使用（死代码）。**无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
