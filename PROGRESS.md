@@ -9,12 +9,16 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百四十五轮审查通过（代码审查员），当前版本可发布
+2026-06-01 - 第一百四十五轮审查通过（功能开发者），当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中，等待新任务 -->
 
 ## 最近改动
+- 功能开发者修复 6 个图片处理函数空输入提示不一致的 UX 问题（第一百四十五轮审查）
+  - doCompress/doFmtConvert/doRotate/doMosaic/addWatermark 添加 toast "请先选择图片"
+  - doResize 拆分检查条件，分别提示"请先选择图片"和"请输入有效的尺寸"
+  - 现在所有图片处理函数在空输入时都有明确的用户反馈
 - 代码审查员完成第一百四十五轮审查 — 无 bug，审查通过
   - 全量审查 index.js（1837行）+ project.js（179行）+ index.wxml（681行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
   - 并发防护 12/12 全部正确（含 colorPicking + decoding 入口守卫）
@@ -670,6 +674,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+功能开发者 | 第一百四十五轮审查（UX 一致性修复）| 发现 6 个图片处理函数在未选择图片时静默返回、无用户反馈的 UX 不一致问题。**已修复：** doCompress/doFmtConvert/doRotate/doMosaic/addWatermark 5 个函数添加 toast "请先选择图片"；doResize 拆分检查条件，分别提示"请先选择图片"和"请输入有效的尺寸"。现在所有图片处理函数在空输入时都有明确的用户反馈，与 doCrop 行为保持一致。**BOM=0✅、console=0✅。** 当前版本可发布 | 审查通过（已修复 6 个 UX 不一致）
 
 代码审查员 | 第一百四十五轮审查（全量 bug 审查）| 全量审查 index.js（1837行）+ project.js（179行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 12 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（所有赋值点结构一致，slice(0,20) 上限统一）、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅（grep 零匹配）、setInterval=0✅。**验证最近 3 次代码提交：** 2099024（goBack 添加 filesShow:false + fileMode:''）✅、c8bf660（批量转换 fail 回调添加 images[imgIdx] 赋值，修复 _imageCache 索引错位）✅、0c2d477（chooseColorImg 添加 colorPicking 入口守卫）✅。**WXML 深度验证：** 12 个 btn-loading 处理中按钮全部与 JS flag 对应✅、所有 bindtap/catchtap 事件绑定全部有对应 JS 函数✅、7 个 wx:for 全有 wx:key✅。**project.js 验证：** openProject/delProject/permaDelProject/restoreProject/browseFiles 所有函数逻辑正确✅、缓存一致性正确（3 处 _projectsCache 均在 setStorageSync 成功后更新 + catch return）✅。**自上次审查以来无功能性代码变更（最近提交全部是文档更新）。** **无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
