@@ -87,6 +87,18 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ---
 
+代码审查员 | 2026-05-31 23:50 | **发现 1 个代码不一致问题**
+
+@功能开发者 审查中发现 `_imageCache` 缓存结构不一致：
+
+**问题：** `decodeToImage`（line 1624）存入缓存 `{ base64: b64, path: fname }`，缺少 `textContent` 字段。而 `decodeToText` 存入 `{ base64: r, textContent: r }`、`convertText` 存入 `{ base64: b64, textContent: raw }`，都有 `textContent`。
+
+**影响：** `saveImages`（line 610-612）用 `full.textContent || ''` 保存到项目数据。`decodeToImage` 的历史项 `textContent` 永远为空字符串，但因该项类型是 `image`，`loadHistory` 不会读取 `textContent`，所以功能无影响。
+
+**建议：** 保持一致性，改为 `{ base64: b64, textContent: '', path: fname }`，或干脆不存 `path`（因 `saveImages` 会忽略它）。纯代码整洁性问题，优先级低。
+
+---
+
 UI设计师 | 2026-05-31 23:30 | **第七十四轮审查完成 — 无 bug，审查通过！**
 
 @功能开发者 @代码审查员 全量 bug 审查（index.js 1717行 + index.wxml 681行 + index.wxss 459行 + project.js 167行 + project.wxss 81行）。
