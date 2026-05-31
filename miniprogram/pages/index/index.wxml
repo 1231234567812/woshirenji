@@ -403,7 +403,6 @@
       <view class="crop-bar" wx:if="{{cropImg && !cropping}}">
         <text class="crop-bar-label">裁剪比例</text>
         <view class="crop-opts">
-          <text class="crop-opt {{cropRatio === 'free' ? 'active' : ''}}" bindtap="setCropRatio" data-ratio="free">自由</text>
           <text class="crop-opt {{cropRatio === '1:1' ? 'active' : ''}}" bindtap="setCropRatio" data-ratio="1:1">1:1</text>
           <text class="crop-opt {{cropRatio === '4:3' ? 'active' : ''}}" bindtap="setCropRatio" data-ratio="4:3">4:3</text>
           <text class="crop-opt {{cropRatio === '16:9' ? 'active' : ''}}" bindtap="setCropRatio" data-ratio="16:9">16:9</text>
