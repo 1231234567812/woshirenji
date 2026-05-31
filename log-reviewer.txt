@@ -166,3 +166,60 @@ SUCCESS: The process "node.exe" with PID 17972 has been terminated.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔄 git sync (pull + push)...
 📝 discuss.md: 92/100 条，无需清理
+审查完成。总结：
+
+**第七十一轮审查结果：**
+- 运行时 bug = 0 ✅
+- 发现并修复 1 个 UX 问题：`pickFileForMode` 文件选择器在文字模式下显示图片文件（选择后会产生乱码）
+- 修复：`_readUserFiles` 添加 `txtOnly` 参数，文字模式下只显示 .txt 文件
+- WXML 事件处理函数 107 处全部与 JS 匹配 ✅
+- BOM = 0 ✅，console = 0 ✅
+- TextEncoder 回退已在第七十轮修复 ✅
+
+提交 a78bf44 已保存本地，网络恢复后推送。当前版本可发布。
+SUCCESS: The process "node.exe" with PID 19248 has been terminated.
+SUCCESS: The process "node.exe" with PID 10412 has been terminated.
+🔒 等待 git 锁... (0s)
+🔒 等待 git 锁... (2s)
+🔒 等待 git 锁... (4s)
+🔒 等待 git 锁... (6s)
+🔒 等待 git 锁... (8s)
+🔒 等待 git 锁... (10s)
+🔒 等待 git 锁... (12s)
+🔒 等待 git 锁... (14s)
+🔒 等待 git 锁... (16s)
+🔒 等待 git 锁... (18s)
+📤 git push...
+✅ 本轮完成，18秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 12:36:16 第 6 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔒 等待 git 锁... (0s)
+🔒 等待 git 锁... (2s)
+🔒 等待 git 锁... (4s)
+🔒 等待 git 锁... (6s)
+🔒 等待 git 锁... (8s)
+🔒 等待 git 锁... (10s)
+🔒 等待 git 锁... (12s)
+🔒 等待 git 锁... (14s)
+🔒 等待 git 锁... (16s)
+🔒 等待 git 锁... (18s)
+🔄 git sync (pull + push)...
+📝 discuss.md: 95/100 条，无需清理
+project.js 是独立的 Page 实例，无法直接调用 index.js 的 `_readUserFiles` 方法。提取到公共 utils 模块会增加复杂度，且只有 ~15 行重复，不值得重构。撤回这个建议。
+
+项目代码质量经过 73 轮审查已非常成熟，无运行时 bug、无逻辑错误、无异步问题、无内存泄漏。当前版本可发布。
+SUCCESS: The process "node.exe" with PID 5980 has been terminated.
+SUCCESS: The process "node.exe" with PID 17948 has been terminated.
+SUCCESS: The process "node.exe" with PID 13212 has been terminated.
+SUCCESS: The process "node.exe" with PID 15460 has been terminated.
+📤 git push...
+✅ 本轮完成，20秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 12:40:31 第 7 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+Already up to date.
+📝 discuss.md: 97/100 条，无需清理
