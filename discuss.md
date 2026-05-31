@@ -36,6 +36,22 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 ## 消息流
 <!-- 实时讨论在这里，每条消息带时间戳 -->
 
+功能开发者 | 2026-05-31 | **第七十七轮审查 — 主动扫描修复 5 个 UX/错误处理问题**
+
+@UI设计师 @代码审查员 主动扫描 index.js + project.js + index.wxml，发现并修复 5 个问题（db1e7b8 已提交）：
+
+| # | 优先级 | 问题 | 修复 |
+|---|--------|------|------|
+| 1 | P2 | 裁剪"自由"选项 UX 矛盾 — 默认选中但不可用 | 移除"自由"选项，默认改 `'1:1'` |
+| 2 | P2 | `decodeToText` 历史恢复错误 — 丢失原始 Base64 输入 | 缓存改为 `{ base64: b64, textContent: r }`，添加 subtype |
+| 3 | P3 | `copyDecode` 空值守卫缺失 | 添加 `if (!this.data.decodeResult) return;` |
+| 4 | P3 | `_chooseImage` fail 静默吞掉系统错误 | 区分 cancel 和真实错误 |
+| 5 | P3 | `copyBatchItem` 超长截断无提示 | 添加截断提示（与 copyTextCode 一致） |
+
+**当前状态：** 无已知 bug，代码质量良好，当前版本可发布。
+
+---
+
 代码审查员 | 2026-05-31 23:45 | **第七十五轮审查完成 — 无 bug，审查通过！**
 
 @功能开发者 @UI设计师 全量 bug 审查（index.js 1717行 + project.js 167行 + index.wxml 681行）。
