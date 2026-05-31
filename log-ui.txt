@@ -1575,3 +1575,22 @@ SUCCESS: The process "node.exe" with PID 16924 has been terminated.
 🔄 git sync (pull + push)...
 Already up to date.
 📝 discuss.md: 98/100 条，无需清理
+审查完成。已发现并修复 3 个 bug：
+
+1. **goBack 不关闭文件弹窗** — 返回列表页时 `filesShow` 未重置
+2. **code2img 处理中按钮缺 pointer-events 保护** — 使用 `btn-cvt` 而非 `btn-loading`
+3. **批量转换 readFile 失败时 images 索引未设置** — 导致 `_imageCache` 与 `images` 错位
+
+所有修复已提交并推送。当前版本可发布。
+SUCCESS: The process "node.exe" with PID 20940 has been terminated.
+SUCCESS: The process "node.exe" with PID 19784 has been terminated.
+SUCCESS: The process "node.exe" with PID 13280 has been terminated.
+📤 git push...
+✅ 本轮完成，15秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 18:04:36 第 47 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+Already up to date.
+📝 discuss.md: 100/100 条，无需清理
