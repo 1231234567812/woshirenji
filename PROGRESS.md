@@ -14,7 +14,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 当前正在做的事
 <!-- 空闲中，等待新任务 -->
 
+## 已修复的 UX 改善
+- ✅ 颜色列表项 `clr-item` 缺少 `hover-class` → 已在 73afa08 中修复
+
 ## 最近改动
+- 代码审查员完成第一百五十一轮审查 — 无运行时 bug，发现 1 个并发防护不一致
+  - 全量审查 index.js（1855行）+ project.js（179行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
+  - 验证最近3次提交（7bb63ce/27b391b/73afa08）全部为纯 CSS 改动，无 JS 逻辑变更
+  - 深度检查：doCrop/doMosaic/doRotate/convertImage/_batchConvertParallel/loadHistory/quickAction — 全部正确
+  - 发现 `chooseColorImg` 并发防护不一致：入口未设置 `colorPicking`，在 `_extractColors` 内部才设置
+  - 修复方案：入口添加 `this.setData({ colorPicking: true })`，约 2 行改动
+  - 当前版本可发布
 - 代码审查员完成第一百五十轮审查 — 无 bug，发现 1 个 UX 改善机会
   - 全量审查 index.js（1855行）+ project.js（179行）+ index.wxml：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
   - 验证 af4364c convertImage 压缩回退修复正确（闭包捕获、状态重置、与 doCompress 一致）
