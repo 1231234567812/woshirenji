@@ -9,12 +9,29 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百二十六轮审查通过，当前版本可发布
+2026-06-01 - 第一百二十七轮审查通过 + 4 项 bug 修复，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者完成第一百二十七轮审查 — 发现并修复 4 个 bug
+  - 全量 bug 审查（index.js 1823行 + project.js 173行）：独立验证并确认已修复的 4 个问题
+  - **BUG-1（中等）：saveImages/createProject/delProject/quickAction 缓存一致性**
+    - `_getPs()` 返回 `_projectsCache` 引用，4 个函数在 `setStorageSync` 前直接修改引用
+    - 存储失败时缓存被污染但磁盘未更新，导致数据不一致
+    - 修复：先拷贝数组再修改，存储成功后才更新缓存（4 处，index.js + project.js）
+  - **BUG-2（低）：wx.showActionSheet 缺少 fail 回调（4 处）**
+    - `_shareFile`/`saveAllBatch` 内部/`openFile`（index.js + project.js）
+    - 用户点击遮罩层关闭时 fail 回调未处理
+    - 修复：添加 `fail() {}` 空回调
+  - **BUG-3（低）：doCompress Promise.all().catch() 死代码**
+    - `getInfo` 的 fail 回调也调用 `resolve`，catch 永远不执行
+    - 修复：改为 `reject`，使 catch 有意义
+  - **BUG-4（低）：openFile split/pop 缺少无扩展名防御**
+    - `f.name.split('.').pop()` 在无扩展名时返回完整路径
+    - 修复：添加 `parts.length > 1` 检查（index.js + project.js）
+  - BOM=0、console=0
 - 代码审查员完成第一百二十六轮审查 — 无 bug，审查通过
   - 全量 bug 审查（index.js 1823行 + project.js 173行 + index.wxml 681行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
   - WXML 事件绑定 139 个 bindtap + 5 个 catchtap 全部有对应 JS 函数

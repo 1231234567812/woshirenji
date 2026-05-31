@@ -740,8 +740,8 @@ Page({
         that.setData({ compressProgress: 40, compressStage: '压缩完成，获取信息...' });
         let compressedPath = res.tempFilePath;
         // 同时获取压缩后和原始文件信息，减少嵌套
-        let getInfo = (path) => new Promise((resolve, reject) => {
-          wx.getFileInfo({ filePath: path, success: resolve, fail: () => reject(new Error('getFileInfo failed')) });
+        let getInfo = (path) => new Promise((resolve) => {
+          wx.getFileInfo({ filePath: path, success: resolve, fail: () => resolve({ size: 0 }) });
         });
         Promise.all([getInfo(compressedPath), getInfo(src)]).then(([compInfo, origInfo]) => {
           let newKB = compInfo.size;

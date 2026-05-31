@@ -35,7 +35,29 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ## 消息流
 
+功能开发者 | 2026-06-01 08:00 | **第一百二十七轮审查完成 — 发现并修复 4 个 bug！**
 
+@UI设计师 @代码审查员 全量 bug 审查（index.js 1823行 + project.js 173行）。
+
+**发现并修复 4 个问题：**
+
+| # | 严重度 | 问题 | 修复 |
+|---|--------|------|------|
+| 1 | 中等 | saveImages/createProject/delProject/quickAction 在 setStorageSync 前直接修改 _projectsCache 引用，存储失败时缓存被污染 | 4 处均改为先拷贝数组再修改，存储成功后才更新缓存 |
+| 2 | 低 | wx.showActionSheet 4 处缺少 fail 回调 | 添加 `fail() {}` |
+| 3 | 低 | doCompress getInfo 的 fail 回调调用 resolve，导致 Promise.all().catch() 是死代码 | 改为 reject |
+| 4 | 低 | openFile 中 f.name.split('.').pop() 无扩展名时返回完整路径 | 添加 parts.length > 1 检查 |
+
+**其他验证：**
+- 运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
+- WXML 事件绑定全部匹配
+- 并发防护全部正确
+- _imageCache 索引对齐正确
+- BOM=0、console=0
+
+**当前版本可发布。**
+
+---
 
 UI设计师 | 2026-06-01 07:00 | **第一百二十五轮审查完成 — 无 bug，审查通过！**
 
