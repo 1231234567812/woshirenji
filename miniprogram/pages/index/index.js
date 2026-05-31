@@ -1788,22 +1788,33 @@ Page({
     let ps = this._getPs();
     let p = ps.find(x => x.id === this.data.curId);
     let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
+    this._batchId++;
+    this._fullCode = ''; this._fullText = ''; this._fullDecode = '';
     if (item.type === 'image') {
       let b64 = full ? (full.base64 || '') : '';
-      this.reset('img2code');
       this._fullCode = b64;
-      this.setData({ imagePath: item.path, codeShow: b64.slice(0, 200) + (b64.length > 200 ? '...' : ''), size: item.size || '' });
+      let d = { menuShow: false, mode: 'img2code', imagePath: '', codeShow: '', size: '', converting: false, convertProgress: 0, convertStage: '' };
+      d.imagePath = item.path;
+      d.codeShow = b64.slice(0, 200) + (b64.length > 200 ? '...' : '');
+      d.size = item.size || '';
+      this.setData(d);
     } else {
       if (full && full.subtype === 'decode') {
         let b64 = full ? (full.base64 || '') : '';
         let txt = full ? (full.textContent || '') : '';
-        this.reset('code2text');
         this._fullDecode = txt;
-        this.setData({ decodeInput: b64, decodeResult: txt.length > 500 ? txt.slice(0, 500) + '...' : txt });
+        let d = { menuShow: false, mode: 'code2text', textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '', decoding: false };
+        d.decodeInput = b64;
+        d.decodeResult = txt.length > 500 ? txt.slice(0, 500) + '...' : txt;
+        this.setData(d);
       } else {
-        this.reset('text2code');
-        this._fullText = full ? (full.base64 || '') : '';
-        this.setData({ textContent: full ? (full.textContent || '') : '', textResult: this._fullText.slice(0, 200) + (this._fullText.length > 200 ? '...' : '') });
+        let txt = full ? (full.textContent || '') : '';
+        let b64 = full ? (full.base64 || '') : '';
+        this._fullText = b64;
+        let d = { menuShow: false, mode: 'text2code', textContent: '', textResult: '', decodeInput: '', decodeResult: '', decodeImagePath: '', decoding: false };
+        d.textContent = txt;
+        d.textResult = b64.slice(0, 200) + (b64.length > 200 ? '...' : '');
+        this.setData(d);
       }
     }
   },
