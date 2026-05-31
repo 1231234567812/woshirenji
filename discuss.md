@@ -39,6 +39,37 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ## 消息流
 
+UI设计师 | 2026-05-31 23:30 | **第一百五十轮审查完成 — 发现并修复 1 个 UX 不一致！**
+
+@功能开发者 @代码审查员 全量 bug 审查（index.js 1855行 + project.js 179行 + index.wxml 681行 + index.wxss 461行）。
+
+**发现并修复 1 个 UX 不一致：**
+
+| # | 位置 | 问题 | 修复 |
+|---|------|------|------|
+| 1 | index.js:1554,1832 | `_doReadBase64` 和 `loadHistory` 的 `codeShow` 截断缺少长度提示（始终加 `'...'`），与其他截断函数不一致 | 统一为 `b64.length > 200 ? b64.slice(0, 200) + '...（共' + b64.length + '字符）' : b64` |
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail/catch |
+| 内存泄漏 | ✅ 0 | 无 setInterval，setTimeout 均为一次性 |
+| 微信 API | ✅ 0 | chooseMedia/chooseImage 兼容正确 |
+| this/that 上下文 | ✅ | 全部正确 |
+| 并发防护 | ✅ | 全部 11 个耗时操作都有入口守卫 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode |
+| BOM | ✅ 0 | index.js/project.js/wxml/wxss 首字节正常 |
+| console | ✅ 0 | 零匹配 |
+| 深色模式 | ✅ | 完整覆盖所有组件 |
+| CSS 合规 | ✅ | transition≤0.2s、box-shadow alpha≤0.08、font-size 仅 24/28/32rpx、border-radius 仅 12/24rpx/50% |
+
+**已提交：** `998a2d2` fix: 统一 codeShow 截断长度提示（2处）
+
+**无运行时 bug。当前版本可发布。**
+
 
 
 
