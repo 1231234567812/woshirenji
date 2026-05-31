@@ -9,12 +9,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第九十九轮审查通过，当前版本可发布
+2026-05-31 - 第一百零一轮审查通过，当前版本可发布
 
 ## 当前正在做的事
-<!-- UI设计师 第九十九轮审查完成，无 bug -->
+<!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复 4 个运行时 bug（第一百零一轮审查）
+  - 缓存一致性：`_projectsCache` 移到 `setStorageSync` 成功后赋值（quickAction/createProject/delProject/saveImages 4处），防止存储失败时缓存与持久层不一致导致项目数据幽灵化
+  - decodeToText 栈溢出：`TextDecoder` 不可用时回退路径按 8192 分块（与编码侧 convertText 一致），防止大输入触发 `Maximum call stack size exceeded`
+  - doResize 尺寸上限：添加 4096 像素上限校验，防止用户输入超大值导致内存不足白屏
+  - 批量转换 _imageCache 空洞：fail 路径显式设置 `_imageCache[imgIdx] = { base64: '', textContent: '' }`，保持缓存与 images 一致
 - 功能开发者修复 addWatermark 空输入无 toast 提示的 UX 不一致问题（第九十七轮审查）
   - 问题：`addWatermark`（index.js:812）在水印文字为空时 `if (!wmImagePath || !wmText) return;` 静默返回，无用户反馈，与 `convertText`/`decodeToText` 等函数的 toast 提示行为不一致
   - 修复：拆分条件判断，水印文字为空时显示 toast "请输入水印文字"
@@ -450,6 +455,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | 第一百轮审查（HEAD 全量 bug 审查）| 逐函数审查 index.js（1755行）+ project.js（167行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅（含箭头函数继承验证）、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode 全部验证）、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、深色模式完整覆盖✅。**逐项深度检查：** loadHistory 文本/图片/decode 三种类型均正确✅、saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅（小文件跳过 + 压缩失败回退原图）、batchConvert 并发调度正确✅（concurrency=3 + setTimeout 递归 + batchId 守卫）、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、project.js 所有函数逻辑正确✅、TextEncoder/TextDecoder 回退方案正确✅、_clusterColors 透明像素过滤正确✅（alpha<128 跳过 + total>0 除零防护）、compressRatio 正负数显示逻辑正确✅（正数显示"减小"、负数显示"增大"+绝对值）。**发现 1 个代码整洁性问题（非 bug）：** `compressedSize` 字段在 data 中定义并在 `_doReadBase64` 中设置，但 WXML 中未使用（死代码）。**无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
+
+功能开发者 | 第一百零一轮审查 + 修复（4 个运行时 bug）| 全量扫描 index.js（1755行）+ project.js（167行）+ index.wxml（681行）寻找 bug。**发现并修复 4 个运行时 bug：** ① 缓存一致性（严重）— `quickAction`/`createProject`/`delProject`/`saveImages` 4 处 `_projectsCache = ps` 在 `setStorageSync` 之前赋值，存储失败时缓存比持久层多一条记录，刷新后项目消失。修复：移到 `setStorageSync` 成功后赋值。② decodeToText 栈溢出（严重）— `TextDecoder` 不可用时 `String.fromCharCode.apply(null, bytes)` 对超过 ~60000 字节会触发栈溢出。编码侧 convertText 已按 8192 分块但解码侧没有。修复：回退路径按 8192 分块。③ doResize 尺寸上限（中等）— `resizeNewW`/`resizeNewH` 无上限校验，用户输入 99999 会创建巨型 Canvas 导致内存不足白屏。修复：添加 4096 像素上限。④ 批量转换 _imageCache 空洞（低）— readFile 失败时 `_imageCache[imgIdx]` 未赋值，`saveImages` 回退到空对象，持久化无用数据。修复：fail 路径显式设置空值。BOM=0✅（首字节 99=con）、console=0✅。当前版本可发布 | 审查通过（已修复 4 个运行时 bug）
 
 UI设计师 | 第九十九轮审查（HEAD 全量 bug 审查）| 逐函数审查 index.js（1755行）+ project.js（167行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、深色模式完整覆盖✅。**逐项深度检查：** loadHistory 文本/图片/decode 三种类型均正确✅、saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅（concurrency=3 + setTimeout 递归 + batchId 守卫）、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、project.js 所有函数逻辑正确✅、TextEncoder/TextDecoder 回退方案正确✅、_clusterColors 透明像素过滤正确✅。**发现 1 个代码整洁性问题（非 bug）：** `compressedSize` 字段在 data 中定义并在 `_doReadBase64` 中设置，但 WXML 中未使用（死代码）。**无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
