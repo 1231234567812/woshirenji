@@ -1767,7 +1767,12 @@ Page({
       itemList: ['用其他应用打开', '转发给朋友'],
       success: (r) => {
         if (r.tapIndex === 0) {
-          wx.openDocument({ filePath: f.path, showMenu: true, fail: () => wx.showToast({ title: '打开失败', icon: 'none' }) });
+          let ext = f.name.split('.').pop().toLowerCase();
+          if (['jpg', 'jpeg', 'png', 'webp', 'gif'].indexOf(ext) >= 0) {
+            wx.previewImage({ urls: [f.path], fail: () => wx.showToast({ title: '预览失败', icon: 'none' }) });
+          } else {
+            wx.openDocument({ filePath: f.path, showMenu: true, fail: () => wx.showToast({ title: '打开失败', icon: 'none' }) });
+          }
         } else if (r.tapIndex === 1) {
           wx.shareFileMessage({ filePath: f.path, fileName: f.name, fail: () => wx.showToast({ title: '分享失败', icon: 'none' }) });
         }
