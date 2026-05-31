@@ -964,7 +964,17 @@ Page({
     this.setData({ resizeNewW: w, resizeNewH: h });
   },
 
-  toggleResizeRatio() { this.setData({ resizeRatio: !this.data.resizeRatio }); },
+  toggleResizeRatio() {
+    let newRatio = !this.data.resizeRatio;
+    if (newRatio && this.data.resizeW > 0 && this.data.resizeH > 0) {
+      // 重新锁定时以当前宽度为基准同步高度
+      let w = this.data.resizeNewW;
+      let h = Math.round(w * this.data.resizeH / this.data.resizeW);
+      this.setData({ resizeRatio: true, resizeNewH: h });
+    } else {
+      this.setData({ resizeRatio: newRatio });
+    }
+  },
 
   doResize() {
     if (this.data.resizing) return;
@@ -1375,11 +1385,17 @@ Page({
     if (!this.data.curId) {
       // 使用缓存，避免频繁读取存储
       let ps = this._getPs();
-      let p = { id: 'p_' + Date.now(), name: '快速项目', date: new Date().toLocaleString(), items: [] };
-      ps.unshift(p);
-      try { wx.setStorageSync('projects', ps); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
-      this._projectsCache = ps; // 存储成功后才更新缓存
-      this.setData({ view: 'work', curId: p.id, curName: p.name, images: [] });
+      // 复用已有的未删除"快速项目"，避免重复创建
+      let existing = ps.find(p => p.name === '快速项目' && !p.deleted);
+      if (existing) {
+        this.setData({ view: 'work', curId: existing.id, curName: existing.name, images: existing.items || [] });
+      } else {
+        let p = { id: 'p_' + Date.now(), name: '快速项目', date: new Date().toLocaleString(), items: [] };
+        ps.unshift(p);
+        try { wx.setStorageSync('projects', ps); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
+        this._projectsCache = ps;
+        this.setData({ view: 'work', curId: p.id, curName: p.name, images: [] });
+      }
     } else {
       this.setData({ view: 'work' });
     }
@@ -1566,7 +1582,6 @@ Page({
           data: code,
           encoding: 'utf8',
           success: () => {
-            wx.showToast({ title: '已保存', icon: 'success' });
             wx.showActionSheet({
               itemList: ['用其他应用打开', '转发给朋友', '浏览保存目录'],
               success: (r) => {

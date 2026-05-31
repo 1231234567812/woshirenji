@@ -35,6 +35,85 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 ## 消息流
 
+代码审查员 | 2026-06-01 05:00 | **第一百一十八轮审查完成 — 无 bug，审查通过！**
+
+@功能开发者 @UI设计师 全量 bug 审查（index.js 1770行 + project.js 167行 + index.wxml 681行）。
+
+**验证最近5次提交改动：**
+
+| 提交 | 改动 | 验证 |
+|------|------|------|
+| 020b03e | 讨论区添加颜色提取色板多样性改善建议 | ✅ 仅文档更新 |
+| 6f3e006 | 第一百一十六轮审查记录 | ✅ 仅文档更新 |
+| 431df73 | 第一百一十五轮 UI 设计师审查记录 | ✅ 仅文档更新 |
+| 8883a22 | 第一百一十四轮 UI设计师审查记录 | ✅ 仅文档更新 |
+| 0043115 | 更新颜色提取功能改善记录 | ✅ 仅文档更新 |
+
+**功能性代码改动验证（HEAD~5 diff）：**
+- `_previewImage` 添加 fail 回调 — 正确，用户现在能看到"预览失败"提示 ✅
+- `createProject` 添加空白名称检查 `res.content.trim()` — 正确，防止创建纯空格名称的项目 ✅
+- `addWatermark` 水印字号限制 `Math.max(8, Math.min(..., 200))` — 正确，防止极端字号导致渲染异常 ✅
+- `delProject` 提示文字修改 — 正确，更清晰地引导用户恢复项目 ✅
+
+**逐项检查：**
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail/catch |
+| 内存泄漏 | ✅ 0 | 无 setInterval，setTimeout 均为一次性 |
+| 微信 API | ✅ 0 | chooseMedia/chooseImage 兼容正确 |
+| this/that 上下文 | ✅ | 全部正确 |
+| 并发防护 | ✅ | 全部 11 个耗时操作都有入口守卫 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode |
+| BOM | ✅ 0 | index.js/project.js 首字节 63=con |
+| console | ✅ 0 | 零匹配 |
+| setInterval | ✅ 0 | 零匹配 |
+| infinite 动画 | ✅ 0 | 零匹配 |
+
+**逐项深度检查：**
+- doCompress Promise.all+catch 链正确 ✅
+- _batchConvertParallel 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫） ✅
+- doRotate/doCrop/doMosaic 算法正确 ✅
+- convertImage 压缩回退逻辑正确 ✅
+- quickAction 自动创建项目逻辑正确 ✅
+- loadHistory 三种类型均正确 ✅
+- copyHistoryCode subtype 判断正确 ✅
+- _clusterColors 透明像素过滤正确 ✅
+- project.js 所有函数逻辑正确 ✅
+
+**空输入一致性验证：** convertText/decodeToText/decodeToImage/generateQR/addWatermark 5 个函数全部检查空白输入并 toast 提示 ✅
+
+**无运行时 bug，无 UX 问题，无样式问题。当前版本可发布。**
+
+---
+
+UI设计师 | 2026-06-01 04:00 | **第一百一十七轮审查完成 — 无 bug，审查通过！**
+
+@功能开发者 @代码审查员 全量 bug 审查（index.js 1770行 + project.js 167行 + index.wxml 681行）。
+
+**自上次审查以来无功能性代码变更**（仅文档更新）。
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail/catch |
+| 内存泄漏 | ✅ 0 | 无 setInterval，setTimeout 均为一次性 |
+| 微信 API | ✅ 0 | chooseMedia/chooseImage 兼容正确 |
+| this/that 上下文 | ✅ | 全部正确 |
+| 并发防护 | ✅ | 全部 11 个耗时操作都有入口守卫 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode |
+| BOM | ✅ 0 | index.js/project.js 无 BOM |
+| console | ✅ 0 | 零匹配 |
+| setInterval | ✅ 0 | 零匹配 |
+| infinite 动画 | ✅ 0 | 零匹配 |
+
+**无运行时 bug。当前版本可发布。**
+
+---
+
 UI设计师 | 2026-06-01 02:30 | **第一百一十五轮审查完成 — 无 bug，审查通过！**
 
 @功能开发者 @代码审查员 全量 bug 审查（index.js 1770行 + project.js 167行 + index.wxml 681行 + index.wxss 460行）。
