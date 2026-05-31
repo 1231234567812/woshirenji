@@ -732,7 +732,7 @@ Page({
     if (this.data.compressing) return;
     let that = this;
     let src = this.data.compressImagePath;
-    if (!src) return;
+    if (!src) { wx.showToast({ title: '请先选择图片', icon: 'none' }); return; }
     this.setData({ compressing: true, compressProgress: 10, compressStage: '准备中...' });
     wx.showNavigationBarLoading();
 
@@ -818,7 +818,7 @@ Page({
     if (this.data.wmProcessing) return;
     let that = this;
     let { wmImagePath, wmText, wmPosition, wmColor, wmOpacity, wmFontSize } = this.data;
-    if (!wmImagePath) return;
+    if (!wmImagePath) { wx.showToast({ title: '请先选择图片', icon: 'none' }); return; }
     if (!wmText || !wmText.trim()) { wx.showToast({ title: '请输入水印文字', icon: 'none' }); return; }
 
     this.setData({ wmProcessing: true });
@@ -905,7 +905,7 @@ Page({
     if (this.data.fmtConverting) return;
     let that = this;
     let { fmtImg, fmtTo } = this.data;
-    if (!fmtImg) return;
+    if (!fmtImg) { wx.showToast({ title: '请先选择图片', icon: 'none' }); return; }
     this.setData({ fmtConverting: true });
     wx.showNavigationBarLoading();
 
@@ -990,7 +990,8 @@ Page({
     if (this.data.resizing) return;
     let that = this;
     let { resizeImg, resizeNewW, resizeNewH } = this.data;
-    if (!resizeImg || resizeNewW <= 0 || resizeNewH <= 0) return;
+    if (!resizeImg) { wx.showToast({ title: '请先选择图片', icon: 'none' }); return; }
+    if (resizeNewW <= 0 || resizeNewH <= 0) { wx.showToast({ title: '请输入有效的尺寸', icon: 'none' }); return; }
     if (resizeNewW > 4096 || resizeNewH > 4096) { wx.showToast({ title: '尺寸不能超过4096像素', icon: 'none' }); return; }
     this.setData({ resizing: true });
     wx.showNavigationBarLoading();
@@ -1143,7 +1144,7 @@ Page({
     if (this.data.rotating) return;
     let that = this;
     let { rotImg, rotDeg, rotFlipH, rotFlipV } = this.data;
-    if (!rotImg) return;
+    if (!rotImg) { wx.showToast({ title: '请先选择图片', icon: 'none' }); return; }
     if (rotDeg === 0 && !rotFlipH && !rotFlipV) { wx.showToast({ title: '未做任何变换', icon: 'none' }); return; }
 
     this.setData({ rotating: true });
@@ -1350,7 +1351,7 @@ Page({
     if (this.data.mosaicing) return;
     let that = this;
     let { mosaicImg, mosaicLevel } = this.data;
-    if (!mosaicImg) return;
+    if (!mosaicImg) { wx.showToast({ title: '请先选择图片', icon: 'none' }); return; }
 
     this.setData({ mosaicing: true });
     wx.showNavigationBarLoading();
