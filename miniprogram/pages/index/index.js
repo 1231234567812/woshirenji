@@ -1249,8 +1249,10 @@ Page({
   _clusterColors(pixels, count) {
     // 简单量化：将颜色空间划分为 count 个桶，取最常见的
     let buckets = {};
-    let total = pixels.length / 4;
+    let total = 0;
     for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i+3] < 128) continue; // 跳过透明像素
+      total++;
       let r = Math.round(pixels[i] / 32) * 32;
       let g = Math.round(pixels[i+1] / 32) * 32;
       let b = Math.round(pixels[i+2] / 32) * 32;
@@ -1267,7 +1269,7 @@ Page({
       let g = Math.round(c.g / c.count);
       let b = Math.round(c.b / c.count);
       let hex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
-      let pct = (c.count / total * 100).toFixed(1);
+      let pct = total > 0 ? (c.count / total * 100).toFixed(1) : '0.0';
       return { hex: hex, r: r, g: g, b: b, pct: pct, id: i };
     });
   },
