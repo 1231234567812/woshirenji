@@ -512,7 +512,7 @@ Page({
       if (p && !p.deleted) {
         wx.setNavigationBarTitle({ title: p.name });
         this._imageCache = (p.items || []).map(item => ({ base64: item.base64 || '', textContent: item.textContent || '' }));
-        this._fullCode = ''; this._fullText = '';
+        this._fullCode = ''; this._fullText = ''; this._fullDecode = '';
         this.setData({
           view: 'work', curId: pendingId, curName: p.name,
           images: (p.items || []).map(img => ({ id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview })),
@@ -577,7 +577,7 @@ Page({
     if (!p || p.deleted) return;
     wx.setNavigationBarTitle({ title: p.name });
     this._imageCache = (p.items || []).map(item => ({ base64: item.base64 || '', textContent: item.textContent || '' }));
-    this._fullCode = ''; this._fullText = '';
+    this._fullCode = ''; this._fullText = ''; this._fullDecode = '';
     this.setData({
       view: 'work', curId: id, curName: p.name,
       images: (p.items || []).map(img => ({ id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview })),
