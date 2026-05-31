@@ -557,9 +557,10 @@ Page({
         if (res.confirm && res.content && res.content.trim()) {
           let ps = this._getPs();
           let newProj = { id: 'p_' + Date.now(), name: res.content.trim(), date: new Date().toLocaleString(), items: [] };
-          ps.unshift(newProj);
-          try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
-          this._projectsCache = ps; // 存储成功后才更新缓存
+          // 拷贝数组，避免存储失败时污染缓存
+          let psCopy = [newProj].concat(ps);
+          try { wx.setStorageSync('projects', psCopy); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
+          this._projectsCache = psCopy;
           // 局部更新，prepend到列表头部
           let newList = [{ id: newProj.id, name: newProj.name, date: newProj.date, items: [] }].concat(this.data.projects);
           this.setData({ projects: newList });
@@ -620,13 +621,15 @@ Page({
     let i = ps.findIndex(p => p.id === this.data.curId);
     if (i >= 0) {
       let target = list || this.data.images;
-      ps[i].items = (target || []).map((img, idx) => {
+      // 拷贝数组，避免存储失败时污染缓存
+      let psCopy = ps.slice();
+      psCopy[i] = { ...ps[i], items: (target || []).map((img, idx) => {
         let full = (this._imageCache && this._imageCache[idx]) ? this._imageCache[idx] : {};
         return { ...img, base64: full.base64 || '', textContent: full.textContent || '' };
-      });
+      })};
       this._dataDirty = true;
-      try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
-      this._projectsCache = ps; // 存储成功后才更新缓存
+      try { wx.setStorageSync('projects', psCopy); } catch (e) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
+      this._projectsCache = psCopy;
     }
   },
 

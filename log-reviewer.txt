@@ -1124,3 +1124,71 @@ SUCCESS: The process "node.exe" with PID 6216 has been terminated.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⏰ 16:35:18 第 32 轮
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+📝 discuss.md: 100/100 条，无需清理
+经过全面审查 index.js（1823行）、project.js（173行）、index.wxml、project.wxss 等所有核心文件，结论如下：
+
+---
+
+## 第一百二十四轮审查结果
+
+### 逐项检查
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| 运行时 bug | ✅ 0 | 所有事件处理函数逻辑正确 |
+| 逻辑错误 | ✅ 0 | 条件判断正确，边界处理完整 |
+| 异步问题 | ✅ 0 | 所有回调都有 success/fail/catch |
+| 内存泄漏 | ✅ 0 | 无 setInterval，setTimeout 均为一次性 |
+| 微信 API | ✅ 0 | chooseMedia/chooseImage 兼容正确 |
+| this/that 上下文 | ✅ | 全部正确（含箭头函数继承验证） |
+| 并发防护 | ✅ | 全部 11 个耗时操作都有入口守卫 |
+| _saveToTempFile null 检查 | ✅ | 10 处全部正确 |
+| _imageCache 索引对齐 | ✅ | 单图 prepend + 批量索引赋值 + QR/text/decode + quickAction 复用 |
+| BOM | ✅ 0 | index.js/project.js 首字节 63=con |
+| console | ✅ 0 | 零匹配 |
+| setInterval | ✅ 0 | 零匹配 |
+| infinite 动画 | ✅ 0 | 零匹配 |
+
+### 验证最近提交
+
+| 提交 | 改动 | 验证 |
+|------|------|------|
+| 791abd8 | project.wxss files-modal 动画从 scaleIn 改为 slideUp | ✅ transform 创建新包含块导致 fixed 定位异常，改为 translateY 正确 |
+| ce65698 | loadHistory 重新初始化 _imageCache | ✅ 与 openProject/onShow 保持一致，防止索引错位 |
+| 8f347ea | openProject 添加项目不存在时的空值守卫 | ✅ p 为 null 时不再执行后续逻辑 |
+
+### 深度检查
+
+1. `doCrop` 裁剪区域计算正确（3 种比例 + Math.max 防护）✅
+2. `doMosaic` 马赛克算法正确（缩小 + imageSmoothingEnabled=false + 放大）✅
+3. `doRotate` 旋转变换矩阵正确（save/translate/rotate/scale/restore + 90°/270° 画布尺寸翻转）✅
+4. `_clusterColors` 颜色量化正确（透明像素过滤 + 16级分桶 + 贪心合并 + total>0 除零防护）✅
+5. `convertImage` 压缩回退逻辑正确（小文件跳过 + 压缩失败回退原图）✅
+6. `quickAction` 自动创建项目 + 复用已有项目逻辑正确 ✅
+7. `loadHistory` 三种类型（image/text/decode）处理正确 ✅
+8. `copyHistoryCode` subtype 判断正确（使用 full.subtype）✅
+9. `saveImages` 合并 _imageCache 与 images 索引对齐正确 ✅
+10. `decodeToImage` Base64 正则验证正确 ✅
+11. project.js 所有函数逻辑正确（delProject/permaDelProject/restoreProject 缓存一致性）✅
+12. TextEncoder/TextDecoder 回退方案正确 ✅
+
+**无运行时 bug，无 UX 问题。当前版本可发布。**
+
+### 审查后的 UX 观察（非 bug，低优先级）
+
+代码审查无 bug，按照工作流程，我找了一个可以改善的用户体验问题：
+
+**`decodeToImage` 的 writeFile success/fail 回调有 ~10 行重复代码**（index.js:1695-1717）。success 和 fail 回调中都执行了相同的逻辑：创建 itemMeta、更新 _imageCache、concat images、setData、saveImages、showToast。可以提取为公共逻辑减少重复。改动约 5 行，优先级极低。
+SUCCESS: The process "node.exe" with PID 19992 has been terminated.
+SUCCESS: The process "node.exe" with PID 19532 has been terminated.
+SUCCESS: The process "node.exe" with PID 21040 has been terminated.
+📤 git push...
+✅ 本轮完成，17秒后继续...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰ 16:43:32 第 33 轮
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 git sync (pull + push)...
+Already up to date.
+📝 discuss.md: 100/100 条，无需清理
