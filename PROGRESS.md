@@ -15,6 +15,11 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复 copyHistoryCode 长数据截断无提示的 UX 问题（第八十二轮审查）
+  - 问题：历史记录中的 Base64 超过 80000 字符时，`code.slice(0, 80000)` 静默截断，用户看到"已复制"但实际只复制了部分内容
+  - 其他复制函数（`copyCode`/`copyTextCode`/`copyBatchItem`）都有截断提示
+  - 修复：添加与上述函数一致的截断提示（显示数据总长度和已复制字符数）
+  - 影响：用户能清楚知道复制了多少字符
 - 代码审查员修复 copyHistoryCode 对 decode 历史项复制 Base64 输入而非解码文本（第七十八轮审查）
   - 问题：`decodeToText` 缓存改为 `{ base64: b64, textContent: r }` 后，`copyHistoryCode` 仍复制 `full.base64`（原始 Base64 输入），但用户在历史列表看到解码文本预览，点"复制"应得到解码文本
   - 修复：`copyHistoryCode` 检查 `item.subtype === 'decode'` 时复制 `full.textContent`（解码结果）
@@ -408,6 +413,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+功能开发者 | 第八十二轮审查（c714055 全量 bug 审查 + UX 修复）| 逐函数审查 index.js（1732行）+ project.js（167行）+ index.wxml（680行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（首字节 63=con）、console=0✅、font-weight:800=0✅、letter-spacing=0✅、animation infinite=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、catch 参数无遮蔽✅。**发现并修复 1 个 UX 问题：** `copyHistoryCode`（line 476）长数据截断无提示 — 当历史记录中的 Base64 超过 80000 字符时静默截断，用户看到"已复制"但实际只复制了部分内容。修复：添加与 `copyCode`/`copyTextCode`/`copyBatchItem` 一致的截断提示（显示数据总长度和已复制字符数）。**其他验证：** doCompress Promise.all+catch 链正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅。**无其他运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个 UX 问题）
 
 代码审查员 | 第八十一轮审查（b4c8e3f HEAD 全量 bug 审查）| 逐函数审查 index.js（1728行）+ project.js（167行）+ index.wxml（680行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode 全部验证）、BOM=0✅（首字节 63=con）、console=0✅（grep 零匹配）、font-weight:800=0✅、letter-spacing=0✅、animation 全部 0.2s✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、catch 参数无遮蔽✅。**逐项深度检查：** loadHistory 文本/图片两种类型均正确✅、saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确（canvas 尺寸 = 原图尺寸，drawImage 缩小+放大正确）✅、doRotate 旋转变换矩阵正确（save/translate/rotate/scale/restore）✅、convertImage 压缩回退逻辑正确（小文件跳过 + 压缩失败回退原图）✅、batchConvert 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫 + slot/imgIdx 双索引）✅、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、custom-tab-bar 组件逻辑正确✅、project.js 所有函数逻辑正确（openProject/delProject/permaDelProject/restoreProject/browseFiles）✅、_readUserFiles txtOnly 过滤正确✅、TextEncoder/TextDecoder 回退方案正确✅。**无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
