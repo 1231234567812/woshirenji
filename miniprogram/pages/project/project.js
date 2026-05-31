@@ -89,7 +89,7 @@ Page({
     this._getFs().readdir({
       dirPath: wx.env.USER_DATA_PATH,
       success: (res) => {
-        let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.png') || f.endsWith('.webp') || f.endsWith('.gif'));
+        let files = (res.files || []).filter(f => f.endsWith('.txt') || f.endsWith('.jpg') || f.endsWith('.jpeg') || f.endsWith('.png') || f.endsWith('.webp') || f.endsWith('.gif'));
         if (files.length === 0) {
           that.setData({ filesList: [], filesLoading: false });
           wx.showToast({ title: '暂无文件', icon: 'none' });
