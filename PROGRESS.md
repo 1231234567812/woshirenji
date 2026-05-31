@@ -9,12 +9,25 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百四十三轮审查通过（功能开发者），当前版本可发布
+2026-06-01 - 第一百四十四轮审查通过（功能开发者），当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中，等待新任务 -->
 
 ## 最近改动
+- 功能开发者完成第一百四十四轮审查 — 无 bug，审查通过
+  - 全量审查 index.js（1837行）+ project.js（179行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
+  - 并发防护 12/12 全部正确（含 colorPicking + decoding 入口守卫）
+  - _imageCache 索引对齐正确（单图 prepend + 批量索引赋值 + QR/text/decode）
+  - _clusterColors 加权平均公式正确（cr*count 合并 + 透明像素过滤 + RGB 距离 < 900 合并）
+  - _batchConvertParallel 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫 + 双 slice(0,20)）
+  - doCompress Promise.all+catch 链正确（getInfo fail 回调 resolve({size:0}) 优雅降级）
+  - loadHistory 三种类型均正确（含 subtype='decode' + null 安全 + _imageCache 重新初始化）
+  - copyHistoryCode subtype 判断正确（使用 full.subtype，decode 复制 textContent）
+  - project.js 缓存一致性正确（copy-before-mutation + catch return）
+  - BOM=0、console=0
+  - 自上次审查以来无功能性代码变更
+  - 当前版本可发布
 - 代码审查员完成第一百四十三轮独立审查 — 无 bug，审查通过
   - 独立全量审查 index.js（1837行）+ project.js（179行）+ index.wxml（681行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
   - 并发防护 12/12 全部正确
