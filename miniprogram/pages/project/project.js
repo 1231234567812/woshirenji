@@ -73,9 +73,11 @@ Page({
           let ps = this._projectsCache || wx.getStorageSync('projects') || [];
           let i = ps.findIndex(p => p.id === id);
           if (i >= 0) {
-            ps[i].deleted = true;
-            try { wx.setStorageSync('projects', ps); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
-            this._projectsCache = ps; // 存储成功后才更新缓存
+            // 拷贝数组，避免存储失败时污染缓存
+            let psCopy = ps.slice();
+            psCopy[i] = { ...ps[i], deleted: true };
+            try { wx.setStorageSync('projects', psCopy); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
+            this._projectsCache = psCopy;
             // 局部更新，避免全量重载
             this.setData({ ['list[' + i + '].deleted']: true });
           }
@@ -162,9 +164,11 @@ Page({
     let ps = this._projectsCache || wx.getStorageSync('projects') || [];
     let i = ps.findIndex(p => p.id === id);
     if (i >= 0) {
-      ps[i].deleted = false;
-      try { wx.setStorageSync('projects', ps); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
-      this._projectsCache = ps; // 存储成功后才更新缓存
+      // 拷贝数组，避免存储失败时污染缓存
+      let psCopy = ps.slice();
+      psCopy[i] = { ...ps[i], deleted: false };
+      try { wx.setStorageSync('projects', psCopy); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
+      this._projectsCache = psCopy;
       // 局部更新
       this.setData({ ['list[' + i + '].deleted']: false });
       wx.showToast({ title: '已恢复', icon: 'success' });

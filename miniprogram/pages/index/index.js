@@ -203,6 +203,7 @@ Page({
           wx.openDocument({ filePath: path, showMenu: true, fail: () => wx.showToast({ title: '打开失败', icon: 'none' }) });
         }
       },
+      fail() {},
     });
   },
 
@@ -390,6 +391,7 @@ Page({
               wx.showActionSheet({
                 itemList: ['浏览保存目录'],
                 success: function(r) { if (r.tapIndex === 0) that.browseFiles(); },
+                fail() {},
               });
             }, 2200);
           }
@@ -594,9 +596,11 @@ Page({
           let ps = this._getPs();
           let i = ps.findIndex(p => p.id === id);
           if (i >= 0) {
-            ps[i].deleted = true;
-            try { wx.setStorageSync('projects', ps); } catch (e) { wx.showToast({ title: '操作失败', icon: 'none' }); return; }
-            this._projectsCache = ps; // 存储成功后才更新缓存
+            // 拷贝数组，避免存储失败时污染缓存
+            let psCopy = ps.slice();
+            psCopy[i] = { ...ps[i], deleted: true };
+            try { wx.setStorageSync('projects', psCopy); } catch (e) { wx.showToast({ title: '操作失败', icon: 'none' }); return; }
+            this._projectsCache = psCopy;
             // 局部更新，避免全量重载
             let newList = this.data.projects.filter(item => item.id !== id);
             this.setData({ projects: newList });
@@ -1396,9 +1400,10 @@ Page({
         this.setData({ view: 'work', curId: existing.id, curName: existing.name, images: (existing.items || []).map(img => ({ id: img.id, type: img.type, path: img.path, size: img.size, preview: img.preview })) });
       } else {
         let p = { id: 'p_' + Date.now(), name: '快速项目', date: new Date().toLocaleString(), items: [] };
-        ps.unshift(p);
-        try { wx.setStorageSync('projects', ps); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
-        this._projectsCache = ps;
+        // 拷贝数组，避免存储失败时污染缓存
+        let psCopy = [p].concat(ps);
+        try { wx.setStorageSync('projects', psCopy); } catch (err) { wx.showToast({ title: '存储空间不足', icon: 'none' }); return; }
+        this._projectsCache = psCopy;
         this.setData({ view: 'work', curId: p.id, curName: p.name, images: [] });
       }
     } else {
@@ -1780,6 +1785,7 @@ Page({
           wx.shareFileMessage({ filePath: f.path, fileName: f.name, fail: () => wx.showToast({ title: '分享失败', icon: 'none' }) });
         }
       },
+      fail() {},
     });
   },
   closeFiles() { this.setData({ filesShow: false, fileMode: '', filesLoading: false }); },
