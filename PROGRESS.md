@@ -15,6 +15,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复文件浏览器图片文件使用 openDocument 的 UX 问题（第一百一十七轮审查后）
+  - 问题：文件浏览器中点击图片文件使用 `wx.openDocument`，该 API 主要用于文档文件，对图片支持不一致
+  - 修复：根据文件扩展名判断，图片文件使用 `wx.previewImage` 打开，文档文件使用 `wx.openDocument` 打开
+  - 影响：图片文件现在能正确预览，不再出现兼容性问题
 - UI设计师修复 quickAction 复用已有项目时 _imageCache 未初始化的 bug（第一百一十七轮审查）
   - 问题：`quickAction` 复用已有"快速项目"时，`_imageCache` 未从项目数据初始化，添加新图片后 `saveImages` 找不到旧项的 base64 数据，导致旧图片 base64 被覆盖为空字符串
   - 修复：复用已有项目时初始化 `_imageCache`（与 `openProject` 保持一致），同时映射 `images` 为仅显示字段，清理 `_fullCode`/`_fullText`/`_fullDecode`
