@@ -473,7 +473,12 @@ Page({
     let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
     let code = full ? (item.subtype === 'decode' ? (full.textContent || '') : (full.base64 || '')) : '';
     if (!code) { wx.showToast({ title: '无数据', icon: 'none' }); return; }
-    wx.setClipboardData({ data: code.slice(0, 80000), success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
+    if (code.length <= 80000) {
+      wx.setClipboardData({ data: code, success: () => wx.showToast({ title: '已复制', icon: 'success' }) });
+    } else {
+      let wan = (code.length / 10000).toFixed(1);
+      wx.setClipboardData({ data: code.slice(0, 80000), success: () => wx.showToast({ title: '数据过长（约' + wan + '万字符），已复制前8万字符', icon: 'none', duration: 3000 }) });
+    }
   },
 
   onLoad() {
