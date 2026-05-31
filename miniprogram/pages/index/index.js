@@ -1502,6 +1502,12 @@ Page({
             wx.getFileInfo({
               filePath: compressedPath,
               success(cInfo) {
+                // 压缩后更大则回退使用原图
+                if (cInfo.size >= info.size) {
+                  that.setData({ convertProgress: 40, convertStage: '原图已最小' });
+                  that._doReadBase64(src, origKB);
+                  return;
+                }
                 let compKB = (cInfo.size / 1024).toFixed(1);
                 let ratio = ((1 - cInfo.size / info.size) * 100).toFixed(0);
                 that.setData({ convertProgress: 40, convertStage: '压缩完成，减小 ' + ratio + '%' });
