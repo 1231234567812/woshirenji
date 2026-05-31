@@ -179,10 +179,12 @@
 .wm-input { height: 72rpx; padding: 0 16rpx; border: 2rpx solid #E5E5EA; border-radius: 12rpx; font-size: 28rpx; }
 .wm-row { margin-bottom: 16rpx; }
 .wm-pos-opts { display: flex; gap: 10rpx; flex-wrap: wrap; }
-.wm-pos-opt { font-size: 24rpx; color: #86868B; padding: 10rpx 20rpx; border-radius: 12rpx; background: #F5F5F7; font-weight: 600; }
+.wm-pos-opt { font-size: 24rpx; color: #86868B; padding: 10rpx 20rpx; border-radius: 12rpx; background: #F5F5F7; font-weight: 600; transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease; }
+.wm-pos-opt:active { transform: scale(0.95); }
 .wm-pos-opt.active { color: #fff; background: #0071E3; }
 .wm-color-opts { display: flex; gap: 12rpx; }
-.wm-color-opt { width: 48rpx; height: 48rpx; border-radius: 50%; border: 3rpx solid #E5E5EA; }
+.wm-color-opt { width: 48rpx; height: 48rpx; border-radius: 50%; border: 3rpx solid #E5E5EA; transition: transform 0.2s ease; }
+.wm-color-opt:active { transform: scale(0.9); }
 .wm-color-opt.active { border-color: #0071E3; box-shadow: 0 0 0 4rpx rgba(0,113,227,0.08); }
 .wm-slider { margin: 8rpx 0; }
 .wm-actions { display: flex; gap: 16rpx; margin-bottom: 16rpx; }
@@ -202,7 +204,8 @@
 .rsz-input-label { font-size: 24rpx; color: #86868B; flex-shrink: 0; }
 .rsz-input { flex: 1; height: 64rpx; padding: 0 12rpx; border: 2rpx solid #E5E5EA; border-radius: 12rpx; font-size: 28rpx; text-align: center; }
 .rsz-unit { font-size: 24rpx; color: #86868B; flex-shrink: 0; }
-.rsz-lock { width: 64rpx; height: 64rpx; display: flex; align-items: center; justify-content: center; border-radius: 12rpx; background: #F5F5F7; flex-shrink: 0; }
+.rsz-lock { width: 64rpx; height: 64rpx; display: flex; align-items: center; justify-content: center; border-radius: 12rpx; background: #F5F5F7; flex-shrink: 0; transition: transform 0.2s ease; }
+.rsz-lock:active { transform: scale(0.9); }
 .lock-txt { font-size: 24rpx; font-weight: 600; color: #86868B; }
 .rsz-lock.active { background: #0071E3; }
 .rsz-lock.active .lock-txt { color: #fff; }
@@ -266,6 +269,7 @@
 .mos-label { font-size: 24rpx; color: #86868B; }
 .mos-opts { display: flex; gap: 10rpx; }
 .mos-opt { font-size: 24rpx; color: #86868B; padding: 10rpx 24rpx; border-radius: 12rpx; background: #F5F5F7; transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease; font-weight: 600; }
+.mos-opt:active { transform: scale(0.95); }
 .mos-opt.active { color: #fff; background: #0071E3;  }
 .mos-actions { display: flex; gap: 16rpx; margin-bottom: 16rpx; }
 .mos-save { flex: 1; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 24rpx; background: #0071E3; color: #fff; font-size: 28rpx; font-weight: 600;  }
