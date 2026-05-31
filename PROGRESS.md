@@ -9,12 +9,20 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第八十六轮审查通过，当前版本可发布
+2026-05-31 - 第八十七轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
 
 ## 最近改动
+- 功能开发者修复 copyHistoryCode/loadHistory subtype 字段读取源错误（第八十七轮审查）
+  - 问题：`copyHistoryCode`（line 474）和 `loadHistory`（line 1723）检查 `item.subtype` 判断是否为 decode 历史项，但 `item` 来自 `this.data.images`（显示数据，无 `subtype` 字段），`full` 来自项目数据（有 `subtype` 字段）
+  - 导致 `item.subtype === 'decode'` 永远为 `false`，decode 历史项的"复制"按钮复制原始 Base64 输入而非解码文本，加载时错误恢复到 img2code 模式
+  - 修复：`item.subtype` → `full.subtype`，`loadHistory` 还添加了 `full` 的 null 检查
+  - 影响：decode 历史项的复制和加载行为现在正确
+- 功能开发者修复空状态提示指向错误（第八十七轮审查）
+  - 问题：空状态提示"点击下方按钮创建第一个项目"指向"新建项目"按钮，但新用户更好的入口是上方功能入口
+  - 修复：改为"点击上方功能开始使用"，引导用户点击功能入口
 - 代码审查员修复 _batchConvertOne _imageCache 缓存结构缺少 textContent 字段（第八十六轮审查）
   - 问题：`_batchConvertOne`（line 329）存入缓存 `{ base64: b64 }`，缺少 `textContent` 字段，与 commit 3ee4810 修复的 `_doReadBase64` 同一问题
   - 修复：改为 `{ base64: b64, textContent: '' }`，与 convertText/decodeToText/decodeToImage/generateQR/_doReadBase64 保持一致
@@ -420,7 +428,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 
 代码审查员 | 第八十六轮审查（HEAD 全量 bug 审查）| 逐函数审查 index.js（1733行）+ project.js（167行）+ index.wxml（680行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、BOM=0✅（首字节 63=con）、console=0✅（grep 零匹配）、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、catch 参数无遮蔽✅。**发现并修复 1 个代码不一致问题：** `_batchConvertOne`（line 329）`_imageCache[imgIdx] = { base64: b64 }` 缺少 `textContent` 字段，与 commit 3ee4810 修复的 `_doReadBase64` 同一问题。改为 `{ base64: b64, textContent: '' }`，与其他 5 处缓存结构保持一致。功能无影响（saveImages 用 `full.textContent || ''` 兜底），纯代码整洁性。**逐项深度检查：** loadHistory 文本/图片两种类型均正确✅、saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅（concurrency=3 + setTimeout 递归 + batchId 守卫 + slot/imgIdx 双索引）、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、project.js 所有函数逻辑正确✅、TextEncoder/TextDecoder 回退方案正确✅。**无其他运行时 bug。** 当前版本可发布 | 审查通过（已修复 1 个代码不一致问题）
 
-功能开发者 | 第八十七轮审查（HEAD 全量 bug 审查）| 逐函数审查 index.js（1733行）+ project.js（167行）+ index.wxml（680行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode 全部验证）、BOM=0✅（首字节 63=con）、console=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 100+ 个全部有对应函数✅、wx:key 全部正确✅、catch 参数无遮蔽✅、深色模式完整覆盖所有组件✅。**逐项深度检查：** loadHistory 文本/图片两种类型均正确✅、saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、custom-tab-bar 组件逻辑正确✅、project.js 所有函数逻辑正确✅、TextEncoder/TextDecoder 回退方案正确✅、compressRatio 正负数显示逻辑正确✅。**验证代码审查员第八十六轮修复：** `_batchConvertOne` line 329 已有 `textContent: ''`，确认修复正确✅。**无运行时 bug，无 UX 问题。** 当前版本可发布 | 审查通过
+功能开发者 | 第八十七轮审查（HEAD 全量 bug 审查 + UX 修复）| 逐函数审查 index.js（1733行）+ project.js（167行）+ index.wxml（680行）：运行时 bug=0✅（修复后）、逻辑错误=0✅（修复后）、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（首字节 63=con）、console=0✅、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 100+ 个全部有对应函数✅、wx:key 全部正确✅、catch 参数无遮蔽✅。**发现并修复 2 个 bug + 1 个 UX 问题：** ① `copyHistoryCode`（line 474）检查 `item.subtype` 而非 `full.subtype` — `item` 来自 `this.data.images`（无 subtype），`full` 来自项目数据（有 subtype），导致 decode 历史项复制原始 Base64 而非解码文本。② `loadHistory`（line 1723）同样问题 + 缺少 null 检查。③ 空状态提示"点击下方按钮"指向"新建项目"按钮，改为"点击上方功能"引导用户使用功能入口。**逐项深度检查：** loadHistory 文本/图片两种类型均正确✅、saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、project.js 所有函数逻辑正确✅。**验证代码审查员第八十六轮修复：** `_batchConvertOne` line 329 已有 `textContent: ''`，确认修复正确✅。**无其他运行时 bug。** 当前版本可发布 | 审查通过（已修复 2 个 bug + 1 个 UX 问题）
 
 UI设计师 | 第八十五轮审查（dcb10c8 HEAD 全量 bug 审查）| 逐函数审查 index.js（1733行）+ project.js（167行）+ index.wxml（680行）+ index.wxss（459行）+ project.wxss（81行）+ project.wxml（44行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 10 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅（单图 prepend + 批量索引赋值 + QR/text/decode 全部验证）、BOM=0✅（首字节 63=con）、console=0✅（grep 零匹配）、WXML 数据绑定 60+ 个全部匹配✅、WXML 事件处理 45+ 个全部有对应函数✅、wx:key 全部正确✅、catch 参数无遮蔽✅、深色模式完整覆盖所有组件✅、CSS 合规 10/10 通过✅（transition≤0.2s、box-shadow alpha≤0.08、font-size 仅 24/28/32rpx、border-radius 仅 12/24rpx/50%）。**逐项深度检查：** loadHistory 文本/图片两种类型均正确✅、saveImages 合并 _imageCache 索引对齐正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、doRotate 旋转变换矩阵正确✅、convertImage 压缩回退逻辑正确✅、batchConvert 并发调度正确✅、quickAction 自动创建项目逻辑正确✅、所有 14 个 startXxx 函数正确调用 reset(m)✅、custom-tab-bar 组件逻辑正确✅、project.js 所有函数逻辑正确✅、TextEncoder/TextDecoder 回退方案正确✅、compressRatio 正负数显示逻辑正确✅。**无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
