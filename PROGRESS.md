@@ -9,12 +9,17 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-06-01 - 第一百二十九轮审查通过（修复 doCompress getInfo reject bug），当前版本可发布
+2026-05-31 - 第一百三十一轮审查通过（修复 _clusterColors 加权平均 bug），当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中，等待新任务 -->
 
 ## 最近改动
+- UI设计师完成第一百三十一轮审查 — 发现并修复 1 个算法 bug
+  - 全量 bug 审查（index.js 1833行 + project.js 179行 + index.wxml 681行 + index.wxss 461行 + project.wxss 81行）：运行时 bug=0、逻辑错误=0、异步问题=0、内存泄漏=0
+  - **修复 _clusterColors 加权平均公式 bug**：合并相似颜色时 `c.r`（平均值）未乘以 `c.count`，导致颜色值偏向第一个被合并的颜色。修复为 `cr * c.count`（3处：r/g/b）
+  - WXML 事件绑定 139 个 bindtap + 5 个 catchtap 全部有对应 JS 函数
+  - CSS 合规 10/10 通过
 - 代码审查员完成第一百二十九轮审查 — 发现并修复 1 个运行时 bug
   - 全量 bug 审查（index.js 1833行 + project.js 179行）：运行时 bug=1（已修复）、逻辑错误=0、异步问题=0、内存泄漏=0
   - **修复 doCompress getInfo reject bug**：commit 6a01bf9 将 `getInfo` 的 fail 回调从 `resolve({size:0})` 改为 `reject(Error)`，导致 `getFileInfo` 失败时压缩成功但结果不保存。已恢复为 `resolve({size:0})` 优雅降级
@@ -572,6 +577,10 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+UI设计师 | 第一百三十一轮审查（全量 bug 审查 + _clusterColors 加权平均 bug 修复）| 全量审查 index.js（1833行）+ project.js（179行）+ index.wxml（681行）+ index.wxss（461行）+ project.wxss（81行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅、console=0✅。**发现并修复 1 个算法 bug：** `_clusterColors`（index.js:1298-1300）合并相似颜色时加权平均公式错误——`c.r`（即 `cr`，平均值）未乘以 `c.count`，导致合并后的颜色值偏向第一个被合并的颜色。修复：`c.r` → `cr * c.count`，`c.g` → `cg * c.count`，`c.b` → `cb * c.count`。**其他深度检查：** doCompress Promise.all+catch 链正确✅（getInfo fail 回调 resolve({size:0}) 优雅降级）、_batchConvertParallel 并发调度正确✅、doRotate/doCrop/doMosaic 算法正确✅、convertImage 压缩回退逻辑正确✅、quickAction 自动创建项目逻辑正确✅、loadHistory 三种类型均正确✅、copyHistoryCode subtype 判断正确✅、TextEncoder/TextDecoder 回退方案正确✅、decodeToImage Base64 正则验证正确✅、project.js 所有函数逻辑正确✅。**WXML 验证：** 所有 139 个 bindtap + 5 个 catchtap 全部有对应 JS 函数✅、所有 60+ 个数据绑定与 data 定义一致✅。**CSS 合规：** transition≤0.2s✅、box-shadow alpha≤0.08✅、font-size 仅 24/28/32rpx✅、border-radius 仅 12/24rpx/50%✅、无 letter-spacing✅、无 font-weight:800✅、无 infinite 动画✅。**当前版本可发布** | 审查通过（已修复 1 个算法 bug）
+
+代码审查员 | 第一百三十轮审查（全量 bug 审查）| 全量审查 index.js（1833行）+ project.js（179行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅（grep 零匹配）、setInterval=0✅、animation infinite=0✅。**验证最近3次提交（479e593/bf8076f/37eaff6）：** 仅文档更新（PROGRESS.md/discuss.md/log），无功能性代码变更。**逐项深度检查：** doCompress Promise.all+catch 链正确✅（含 getInfo fail 回调 resolve({size:0}) 优雅降级）、_batchConvertParallel 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫 + 完成时 images/_imageCache 双 slice(0,20)）✅、doRotate 旋转变换矩阵正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、convertImage 压缩回退逻辑正确✅、quickAction 自动创建项目逻辑正确✅、loadHistory 三种类型均正确✅、copyHistoryCode subtype 判断正确✅、_clusterColors 透明像素过滤正确✅（alpha<128 跳过 + total>0 除零防护）、TextEncoder/TextDecoder 回退方案正确✅、decodeToImage Base64 正则验证正确✅、project.js 所有函数逻辑正确✅（openProject/delProject/permaDelProject/restoreProject/browseFiles）。**空输入一致性验证：** convertText/decodeToText/decodeToImage/generateQR/addWatermark 5 个函数全部检查空白输入并 toast 提示✅。**无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
 功能开发者 | 第一百二十九轮审查（全量 bug 审查）| 全量审查 index.js（1833行）+ project.js（179行）+ index.wxml（681行）：运行时 bug=0✅、逻辑错误=0✅、异步问题=0✅、内存泄漏=0✅、微信 API 用法=0✅、this/that 上下文全部正确✅、并发防护全部 11 个耗时操作都有入口守卫✅、_saveToTempFile null 检查 10 处全部正确✅、_imageCache 索引对齐正确✅、BOM=0✅（index.js/project.js 首字节 63=con）、console=0✅（grep 零匹配）、setInterval=0✅、font-weight:800=0✅、letter-spacing=0✅、animation infinite=0✅。**逐项深度检查：** doCompress Promise.all+catch 链正确✅、_batchConvertParallel 并发调度正确（concurrency=3 + setTimeout 递归 + batchId 守卫 + 完成时 images/_imageCache 双 slice(0,20)）✅、doRotate 旋转变换矩阵正确✅、doCrop 裁剪区域计算正确（3 种比例 + Math.max 防护）✅、doMosaic 马赛克算法正确✅、convertImage 压缩回退逻辑正确✅、quickAction 自动创建项目逻辑正确✅、loadHistory 三种类型均正确✅、copyHistoryCode subtype 判断正确✅、_clusterColors 透明像素过滤正确✅（alpha<128 跳过 + total>0 除零防护）、TextEncoder/TextDecoder 回退方案正确✅、decodeToImage Base64 正则验证正确✅、project.js 所有函数逻辑正确✅（openProject/delProject/permaDelProject/restoreProject/browseFiles）。**空输入一致性验证：** convertText/decodeToText/decodeToImage/generateQR/addWatermark 5 个函数全部检查空白输入并 toast 提示✅。**自上次审查（第一百二十八轮）以来无功能性代码变更，仅文档更新。** **无运行时 bug，无 UX 问题，无样式问题。** 当前版本可发布 | 审查通过
 
