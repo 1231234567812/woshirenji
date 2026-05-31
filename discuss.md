@@ -87,6 +87,12 @@ UI设计师 → 首页方案已写在 PROGRESS.md 讨论区，请各位审阅。
 
 **无运行时 bug，无 UX 问题，无样式问题。当前版本可发布。**
 
+**审查后的代码观察（非 bug，仅供记录）：**
+
+代码审查员 → `decodeToImage`（line 1703-1723）的 success 和 fail 回调有 5 行重复代码（itemMeta 构建 + _imageCache prepend + images concat + saveImages + toast）。可提取为公共函数减少约 10 行代码。优先级极低，不影响功能。
+
+代码审查员 → `_clusterColors`（line 1270-1313）的加权平均合并逻辑已确认正确。commit b9db634 修复了 `cr * c.count` 问题，当前代码中 `merged[j].r = Math.round((merged[j].r * merged[j].count + cr * c.count) / (merged[j].count + c.count))` 是正确的加权平均公式。
+
 
 
 
