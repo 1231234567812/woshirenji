@@ -9,7 +9,7 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 代码重复优化完成（保存+分享），当前版本可发布
 
 ## 最近正常版本
-2026-05-31 - 第九十二轮审查通过，当前版本可发布
+2026-05-31 - 第九十三轮审查通过，当前版本可发布
 
 ## 当前正在做的事
 <!-- 空闲中 -->
@@ -438,6 +438,8 @@ UI 重设计全部完成，CLAUDE.md 合规性 10/10 通过
 ## 审查记录
 <!-- 每个 AI 提交前必须在这里记录审查结果 -->
 <!-- 格式：AI名 | 审查内容 | 发现的问题 | 修复情况 -->
+
+代码审查员 | 第九十三轮审查（HEAD 最近3次提交审查）| 审查范围：f142fb0/29ee005/6a1ca2b（decodeToImage 并发防护 + copyDecode 截断修复）。逐项验证：① decoding 并发防护完整✅（data 初始化 + 入口守卫 + 3 个回调路径清除 + WXML 按钮条件 + reset 清除）；② copyDecode 截断修复正确✅（_fullDecode 属性 + decodeToText 存储 + copyDecode 使用 + 截断提示 + loadHistory 恢复 + reset 清除）；③ BOM=0✅（首字节 63=con）；④ console=0✅（grep 零匹配）；⑤ 全部 11 个耗时操作都有并发防护✅；⑥ _saveToTempFile null 检查 10 处全部正确✅；⑦ _imageCache 索引对齐正确✅；⑧ project.js 逻辑正确✅。**无运行时 bug。** 当前版本可发布 | 审查通过
 
 功能开发者 | 第九十一轮审查 + 修复（decodeToImage 并发防护）| **发现并修复 1 个 UX 问题：** `decodeToImage` 是唯一没有 processing 防护的异步函数（代码审查员第九十轮审查指出）。用户快速双击"转为图片"按钮会写入两个文件、创建两条重复历史记录。修复：① data 添加 `decoding: false`；② `decodeToImage` 入口添加 `if (this.data.decoding) return;`；③ 异步操作前 `setData({ decoding: true })`，所有 3 个回调路径设置 `decoding: false`；④ WXML 按钮条件添加 `!decoding`，处理中显示"处理中..."；⑤ `reset()` 的 code2img 分支重置 `decoding`。现在全部 11 个耗时操作都有并发防护入口守卫。BOM=0✅（首字节 63=con）、console=0✅。当前版本可发布 | 审查通过（已修复 1 个 UX 问题）
 
