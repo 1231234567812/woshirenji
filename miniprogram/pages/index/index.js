@@ -1731,21 +1731,23 @@ Page({
     // 使用缓存，避免频繁读取存储
     let ps = this._getPs();
     let p = ps.find(x => x.id === this.data.curId);
+    let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
     if (item.type === 'image') {
-      let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
       let b64 = full ? (full.base64 || '') : '';
+      this.reset('img2code');
       this._fullCode = b64;
-      this.setData({ mode: 'img2code', imagePath: item.path, codeShow: b64.slice(0, 200) + (b64.length > 200 ? '...' : ''), size: item.size || '' });
+      this.setData({ imagePath: item.path, codeShow: b64.slice(0, 200) + (b64.length > 200 ? '...' : ''), size: item.size || '' });
     } else {
-      let full = p && p.items ? p.items.find(x => x.id === item.id) : null;
       if (full && full.subtype === 'decode') {
         let b64 = full ? (full.base64 || '') : '';
         let txt = full ? (full.textContent || '') : '';
+        this.reset('code2text');
         this._fullDecode = txt;
-        this.setData({ mode: 'code2text', decodeInput: b64, decodeResult: txt.length > 500 ? txt.slice(0, 500) + '...' : txt });
+        this.setData({ decodeInput: b64, decodeResult: txt.length > 500 ? txt.slice(0, 500) + '...' : txt });
       } else {
+        this.reset('text2code');
         this._fullText = full ? (full.base64 || '') : '';
-        this.setData({ mode: 'text2code', textContent: full ? (full.textContent || '') : '', textResult: this._fullText.slice(0, 200) + (this._fullText.length > 200 ? '...' : '') });
+        this.setData({ textContent: full ? (full.textContent || '') : '', textResult: this._fullText.slice(0, 200) + (this._fullText.length > 200 ? '...' : '') });
       }
     }
   },
