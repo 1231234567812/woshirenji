@@ -76,7 +76,7 @@
     <view wx:if="{{!loading && projects.length === 0}}" class="empty-state">
       <view class="empty-icon-wrap"><text class="empty-icon-text">空</text></view>
       <text class="empty-text">还没有项目</text>
-      <text class="empty-hint">点击下方按钮创建第一个项目</text>
+      <text class="empty-hint">点击上方功能开始使用</text>
     </view>
 
     <view class="create-btn" hover-class="create-press" bindtap="createProject">
